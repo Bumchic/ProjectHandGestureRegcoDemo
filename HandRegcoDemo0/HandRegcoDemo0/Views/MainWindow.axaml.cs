@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.Devices;
+using Avalonia.Interactivity;
 
 
 namespace HandRegcoDemo0.Views;
@@ -34,6 +35,10 @@ public partial class MainWindow : Window
         {
             DeviceChoices.Items.Add(item.Name);
         }
+    }
+    public void StartCamOnClick(object? sender, RoutedEventArgs args)
+    {
+        Debug.WriteLine("a");
     }
 
 }

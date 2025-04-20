@@ -16,12 +16,10 @@
     </Design.DataContext>
 
 	<StackPanel>
-		<Button>Start Cam</Button>
+		<Button Click="StartCamOnClick">Start Cam</Button>
 		<Border BorderBrush="Black" BorderThickness="10">
 			<Image Height="300" Width="300" Name="CameraOutput"></Image>
 		</Border>
 		<ComboBox SelectedIndex="0" Name="DeviceChoices"></ComboBox>
 	</StackPanel>
-	
-	
 </Window>
