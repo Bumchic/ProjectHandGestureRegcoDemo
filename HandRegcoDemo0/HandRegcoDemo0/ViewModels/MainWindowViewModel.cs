@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Media.Capture;
+using Avalonia.Threading;
 
 
 
@@ -10,30 +11,21 @@ namespace HandRegcoDemo0.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting { get; } = "Welcome to Avalonia!";
+        public string Greeting { get; set; }
+        public DeviceInformationCollection devices { get; set; }
         public MainWindowViewModel()
         {
+            AsyncFindAllDevice();
+        }
 
-            Task<DeviceInformationCollection> collection = AsyncFindAllDevice();
-            DeviceInformationCollection devices = collection.Result;
-            PrintDevices(devices).Start();
-        }
-        public async Task PrintDevices(DeviceInformationCollection devices)
-        {
-            foreach(DeviceInformation device in devices)
-            {
-                Debug.WriteLine(device.ToString());
-            }
-        }
-            
-            //foreach (DeviceInformation device in devices)
-            //{
-            //    Debug.WriteLine(devices.ToString());
-            //}
-        public async Task<DeviceInformationCollection> AsyncFindAllDevice()
+
+        public async Task AsyncFindAllDevice()
         {
              DeviceInformationCollection collection = await DeviceInformation.FindAllAsync();
-            return collection;
+            foreach(DeviceInformation device in collection)
+            {
+                Debug.WriteLine(device.GetType());
+            }
         }
     }
 }
