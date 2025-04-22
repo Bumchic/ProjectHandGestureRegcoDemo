@@ -7,6 +7,8 @@ using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.Devices;
 using Avalonia.Interactivity;
+using System.Linq;
+using Windows.Security.Authorization.AppCapabilityAccess;
 
 
 namespace HandRegcoDemo0.Views;
@@ -15,11 +17,19 @@ public partial class MainWindow : Window
 {
     public VideoDeviceController media { get; set; }
     public MediaCapture mediaCapture { get; set; }
+    public DeviceInformationCollection devices { get; set; }
     public MainWindow()
     {
         InitializeComponent();
-        InitCapMedia();
-        AddCameraOption();
+        try
+        {
+            InitCapMedia();
+            AddCameraOption();
+        }catch(Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+        
         
     }
     public async Task InitCapMedia()
@@ -29,8 +39,7 @@ public partial class MainWindow : Window
     }
     public async Task AddCameraOption()
     {
-        DeviceInformationCollection devices = await DeviceInformation.FindAllAsync(MediaDevice.GetVideoCaptureSelector());
-        Debug.WriteLine(devices.Count);
+        devices = await DeviceInformation.FindAllAsync(MediaDevice.GetVideoCaptureSelector());
         foreach(DeviceInformation item in devices)
         {
             DeviceChoices.Items.Add(item.Name);
@@ -38,7 +47,19 @@ public partial class MainWindow : Window
     }
     public void StartCamOnClick(object? sender, RoutedEventArgs args)
     {
-        Debug.WriteLine("a");
+        
+        DeviceInformation Camera = devices.First(a => a.Name.Equals(DeviceChoices.SelectedItem));
+        if(mediaCapture == null)
+        {
+            throw new Exception("media Capture is null");
+            
+        }
+        
+        if(AppCapability.Create("WebCam").CheckAccess() != AppCapabilityAccessStatus.Allowed)
+        {
+            throw new Exception("WebCam Access Denied");
+            
+        }
     }
 
 }
