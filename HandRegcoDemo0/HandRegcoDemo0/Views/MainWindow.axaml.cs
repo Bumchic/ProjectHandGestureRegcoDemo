@@ -3,7 +3,6 @@ using Windows.Devices.Enumeration;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.Devices;
 using Avalonia.Interactivity;
@@ -13,23 +12,11 @@ using Windows.Media.Capture.Frames;
 using Windows.Media.Playback;
 using Windows.Media.Core;
 using Windows.Graphics.Imaging;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Avalonia.Threading;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using System.IO;
-using Windows.Storage.Pickers;
-using System.Collections.Generic;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Buffer = Windows.Storage.Streams.Buffer;
-using HarfBuzzSharp;
-using Windows.System;
 using Avalonia.Platform;
-using Windows.Devices.PointOfService.Provider;
 using Avalonia;
-using System.Runtime.CompilerServices;
 
 
 
@@ -67,7 +54,6 @@ public partial class MainWindow : Window
         {
             mediaCapture = new MediaCapture();
             await mediaCapture.InitializeAsync(settings);
-            Debug.WriteLine("AHHHHHHHh");
         }catch(Exception)
         {
             throw new Exception();
@@ -188,7 +174,7 @@ public partial class MainWindow : Window
         int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
         Buffer buffer = new Buffer((uint)(4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight));
         byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
-        softwareBitmap.CopyToBuffer(bytes.AsBuffer());   
+        softwareBitmap.CopyToBuffer(bytes.AsBuffer());
         fixed (byte* p = bytes)
         {
             IntPtr intptr = (IntPtr)p;
@@ -198,9 +184,5 @@ public partial class MainWindow : Window
                 IFrameReaderImageControl.Source = bitmap;
             });
         }
-        //Buffer buffer = new Buffer((uint)());
-
-
-
     }
 }
