@@ -22,7 +22,7 @@ using Avalonia;
 
 namespace HandRegcoDemo0.Views;
 
-public partial class MainWindow : Window
+public partial class CameraView : Window
 {
     public VideoDeviceController media { get; set; }
     public MediaCapture mediaCapture { get; set; }
@@ -33,7 +33,7 @@ public partial class MainWindow : Window
     public Dispatcher dispatcher { get; set; }
     public Avalonia.Media.Imaging.WriteableBitmap image { get; set; }
 
-    public MainWindow()
+    public CameraView()
     {
         InitializeComponent();
         try
