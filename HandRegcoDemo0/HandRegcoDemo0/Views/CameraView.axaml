@@ -6,20 +6,20 @@
 
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="HandRegcoDemo0.Views.CameraView"
-        x:DataType="vm:MainWindowViewModel"
+        x:DataType="vm:CameraViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="HandRegcoDemo0">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+		<vm:CameraViewModel/>
     </Design.DataContext>
 
 	<StackPanel>
-		<Button Click="StartCamOnClick">Start Cam</Button>
+		<Button Click="{Binding StartCamOnClick()}">Start Cam</Button>
 		<Border BorderBrush="Black" BorderThickness="10">
-			<Image Name="IFrameReaderImageControl" MaxWidth="300" MaxHeight="200"></Image>
+			<Image Source="{Binding Path=Image}"  Name="IFrameReaderImageControl" MaxWidth="300" MaxHeight="200"></Image>
 		</Border>
 		<ComboBox SelectedIndex="0" Name="DeviceChoices"></ComboBox>
 	</StackPanel>
