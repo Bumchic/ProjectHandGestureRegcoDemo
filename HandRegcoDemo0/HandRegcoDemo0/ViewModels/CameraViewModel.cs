@@ -29,28 +29,14 @@ namespace HandRegcoDemo0.ViewModels
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
         private Dispatcher dispatcher;
-        private Avalonia.Media.Imaging.WriteableBitmap image;
-        private ComboBox cameraCombobox;
-        public Avalonia.Media.Imaging.WriteableBitmap Image
-        {
-            get
-            {
-                return image;
-            }
-        }
-        public ComboBox CameraComboBox
-        {
-            get
-            {
-                return cameraCombobox;
-            }
-        }
+        public Avalonia.Media.Imaging.WriteableBitmap image;
+        public ComboBox cameraCombobox { get; set; }
 
         public CameraViewModel()
         {
             cameraCombobox = new ComboBox();
-                 AddCameraOption();
-                dispatcher = Dispatcher.UIThread;
+            AddCameraOption();
+            dispatcher = Dispatcher.UIThread;
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
@@ -65,7 +51,7 @@ namespace HandRegcoDemo0.ViewModels
             }
 
         }
-        private async Task AddCameraOption()
+        public async Task AddCameraOption()
         {
             devices = await DeviceInformation.FindAllAsync(MediaDevice.GetVideoCaptureSelector());
             foreach (DeviceInformation item in devices)

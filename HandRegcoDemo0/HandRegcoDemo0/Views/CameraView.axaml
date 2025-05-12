@@ -17,10 +17,10 @@
     </Design.DataContext>
 
 	<StackPanel>
-		<Button Click="{Binding StartCamOnClick()}">Start Cam</Button>
+		<Button Click="StartCamOnClick">Start Cam</Button>
 		<Border BorderBrush="Black" BorderThickness="10">
-			<Image Source="{Binding Path=Image}"  Name="IFrameReaderImageControl" MaxWidth="300" MaxHeight="200"></Image>
+			<Image   Name="IFrameReaderImageControl" MaxWidth="300" MaxHeight="200"></Image>
 		</Border>
-		<ComboBox SelectedIndex="0" Name="DeviceChoices"></ComboBox>
+		<ComboBox ItemsSource="{Binding Path=cameraCombobox.ItemsSource}" SelectedIndex="0" Name="DeviceChoices"></ComboBox>
 	</StackPanel>
 </Window>
