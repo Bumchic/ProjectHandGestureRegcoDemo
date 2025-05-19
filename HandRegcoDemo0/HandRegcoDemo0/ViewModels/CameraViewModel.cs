@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Media.Capture;
 using Windows.Media.Devices;
-using Avalonia.Interactivity;
 using System.Linq;
 using Windows.Security.Authorization.AppCapabilityAccess;
 using Windows.Media.Capture.Frames;
@@ -17,10 +16,15 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Buffer = Windows.Storage.Streams.Buffer;
 using Avalonia.Platform;
 using Avalonia;
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+
+
 
 namespace HandRegcoDemo0.ViewModels
 {
-    class CameraViewModel : ViewModelBase
+    partial class CameraViewModel : ViewModelBase
     {
         private VideoDeviceController media;
         private MediaCapture mediaCapture;
@@ -29,14 +33,18 @@ namespace HandRegcoDemo0.ViewModels
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
         private Dispatcher dispatcher;
-        public Avalonia.Media.Imaging.WriteableBitmap image;
-        public ComboBox cameraCombobox { get; set; }
+        [ObservableProperty]
+        public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
+        //public ComboBox cameraCombobox { get; set; }
+        public ObservableCollection<string> cameraCombobox { get; set; }
+        public int SelectedIndex { get; set; }
 
         public CameraViewModel()
         {
-            cameraCombobox = new ComboBox();
+            cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
             dispatcher = Dispatcher.UIThread;
+            
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
@@ -56,14 +64,14 @@ namespace HandRegcoDemo0.ViewModels
             devices = await DeviceInformation.FindAllAsync(MediaDevice.GetVideoCaptureSelector());
             foreach (DeviceInformation item in devices)
             {
-                cameraCombobox.Items.Add(item.Name);
+                cameraCombobox.Add(item.Name);
             }
         }
-        public async void StartCamOnClick(object? sender, RoutedEventArgs args)
+        public async void StartCamOnClick()
         {
             MediaFrameSource previewSource;
             MediaFrameSource recordSource;
-            DeviceInformation Camera = devices.First(a => a.Name.Equals(cameraCombobox.SelectedItem));
+            DeviceInformation Camera = devices.First(a => a.Name.Equals(cameraCombobox[SelectedIndex]));
             if (mediaCapture != null)
             {
                 throw new Exception("media Capture is not null");
@@ -170,10 +178,8 @@ namespace HandRegcoDemo0.ViewModels
             {
                 IntPtr intptr = (IntPtr)p;
                 Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
-                dispatcher.Invoke(() =>
-                {
-                    image = bitmap;
-                });
+                BitmapImage = bitmap;
+
             }
         }
     }
