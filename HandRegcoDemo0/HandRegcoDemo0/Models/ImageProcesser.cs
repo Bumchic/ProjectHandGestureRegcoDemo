@@ -69,7 +69,7 @@ namespace HandRegcoDemo0.Models
             int stride = width * 4;
             byte[] bytes = new byte[height * stride];
             mat.CopyTo(bytes);
-
+            
             unsafe
             {
                 fixed (byte* pBytes = bytes)

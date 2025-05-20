@@ -164,6 +164,14 @@ public partial class CameraView : Window
 
             // Convert to Mat and process
             Mat mat = ImageProcesser.ConvertToMat(softwareBitmap);
+
+            // origin image\
+            var originalImage = ImageProcesser.MatToWriteableBitmap(mat);
+            dispatcher.Invoke(() =>
+            {
+                OriginalImageControl.Source = originalImage;
+            });
+
             Mat processedMat = ImageProcesser.ProcessGesture(mat);
 
             // Convert processedMat back to SoftwareBitmap or directly display it
