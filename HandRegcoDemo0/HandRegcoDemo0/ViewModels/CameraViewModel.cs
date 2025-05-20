@@ -180,7 +180,6 @@ namespace HandRegcoDemo0.ViewModels
                 IntPtr intptr = (IntPtr)p;
                 Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
                 BitmapImage = bitmap;
-
             }
         }
     }
