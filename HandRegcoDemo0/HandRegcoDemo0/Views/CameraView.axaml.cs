@@ -7,7 +7,7 @@ using Windows.Media.Capture;
 using Windows.Media.Devices;
 using Avalonia.Interactivity;
 using System.Linq;
-using Windows.Security.Authorization.AppCapabilityAccess;
+using Windows.Security.Authorization.AppCapabilityAccess;  
 using Windows.Media.Capture.Frames;
 using Windows.Media.Playback;
 using Windows.Media.Core;
@@ -17,7 +17,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Buffer = Windows.Storage.Streams.Buffer;
 using Avalonia.Platform;
 using Avalonia;
-
+using HandRegcoDemo0.Models;
+using Emgu.CV;
 
 
 namespace HandRegcoDemo0.Views;
@@ -76,13 +77,11 @@ public partial class CameraView : Window
         if (mediaCapture != null)
         {
             throw new Exception("media Capture is not null");
-
         }
 
         if (AppCapability.Create("WebCam").CheckAccess() != AppCapabilityAccessStatus.Allowed)
         {
             throw new Exception("WebCam Access Denied");
-
         }
 
         try
@@ -162,7 +161,15 @@ public partial class CameraView : Window
             {
                 softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             }
-            SoftwareBitmapToImage(softwareBitmap);
+
+            // Convert to Mat and process
+            Mat mat = ImageProcesser.ConvertToMat(softwareBitmap);
+            Mat processedMat = ImageProcesser.ProcessGesture(mat);
+
+            // Convert processedMat back to SoftwareBitmap or directly display it
+            SoftwareBitmap processedBitmap = ImageProcesser.ConvertMatToSoftwareBitmap(processedMat);
+
+            SoftwareBitmapToImage(processedBitmap);
         }
     }
     public unsafe void SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -179,10 +186,11 @@ public partial class CameraView : Window
         {
             IntPtr intptr = (IntPtr)p;
             Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
-            dispatcher.Invoke(() =>
+            dispatcher.Invoke(() => 
             {
                 IFrameReaderImageControl.Source = bitmap;
             });
         }
     }
+
 }
