@@ -14,7 +14,7 @@ using Windows.Graphics.Imaging;
 
 namespace HandRegcoDemo0.Models
 {
-    public static partial class ImageProcesser
+    public partial class ImageProcesser
     {
         public static Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
@@ -30,7 +30,7 @@ namespace HandRegcoDemo0.Models
             return mat;
         }
 
-        public static Mat ProcessGesture(Mat inputMat)
+        public Mat ProcessGesture(Mat inputMat)
         {
             Mat gray = new Mat();
             CvInvoke.CvtColor(inputMat, gray, ColorConversion.Bgra2Gray);
@@ -40,7 +40,7 @@ namespace HandRegcoDemo0.Models
 
 
         //Convert mat to SB
-        public static SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
+        public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
             if (mat.NumberOfChannels != 4)
             {
@@ -55,7 +55,7 @@ namespace HandRegcoDemo0.Models
             return bitmap;
         }
 
-        public static WriteableBitmap MatToWriteableBitmap(Mat mat)
+        public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
             if (mat.NumberOfChannels != 4)
             {
@@ -88,6 +88,10 @@ namespace HandRegcoDemo0.Models
     }
     partial class ImageProcesser
     {
-        
+        public WriteableBitmap getSkinDetectionFromImage()
+        {
+            WriteableBitmap bitmap = null;
+            return bitmap;
+        }
     }
 }
