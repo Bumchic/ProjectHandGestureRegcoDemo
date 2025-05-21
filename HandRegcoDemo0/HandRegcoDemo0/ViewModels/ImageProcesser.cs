@@ -12,7 +12,7 @@ using Emgu.CV.CvEnum;
 using Windows.Graphics.Imaging;
 
 
-namespace HandRegcoDemo0.Models
+namespace HandRegcoDemo0.ViewModels
 {
     public partial class ImageProcesser
     {
@@ -88,8 +88,9 @@ namespace HandRegcoDemo0.Models
     }
     partial class ImageProcesser
     {
-        public WriteableBitmap getSkinDetectionFromImage()
+        public WriteableBitmap DetectSkin(Mat Image)
         {
+
             WriteableBitmap bitmap = null;
             return bitmap;
         }

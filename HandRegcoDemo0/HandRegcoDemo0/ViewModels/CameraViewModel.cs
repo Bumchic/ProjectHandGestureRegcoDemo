@@ -33,7 +33,6 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameSource frameSource;
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
-        private Dispatcher dispatcher;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         //public ComboBox cameraCombobox { get; set; }
@@ -44,8 +43,6 @@ namespace HandRegcoDemo0.ViewModels
         {
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
-            dispatcher = Dispatcher.UIThread;
-            
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
@@ -162,10 +159,10 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                SoftwareBitmapToImage(softwareBitmap);
+                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
             }
         }
-        public unsafe void SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
+        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
         {
             PixelFormat pixelFormat = PixelFormat.Bgra8888;
             AlphaFormat alphaFormat = AlphaFormat.Premul;
@@ -179,7 +176,7 @@ namespace HandRegcoDemo0.ViewModels
             {
                 IntPtr intptr = (IntPtr)p;
                 Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
-                BitmapImage = bitmap;
+                return bitmap;
             }
         }
     }
