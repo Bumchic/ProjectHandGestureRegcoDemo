@@ -14,7 +14,7 @@ using Windows.Graphics.Imaging;
 
 namespace HandRegcoDemo0.Models
 {
-    public static class ImageProcesser
+    public static partial class ImageProcesser
     {
         public static Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
@@ -84,6 +84,10 @@ namespace HandRegcoDemo0.Models
                 }
             }
         }
-
+        
+    }
+    partial class ImageProcesser
+    {
+        
     }
 }
