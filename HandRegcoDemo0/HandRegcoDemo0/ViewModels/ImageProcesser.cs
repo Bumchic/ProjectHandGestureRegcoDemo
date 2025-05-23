@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -16,7 +17,7 @@ namespace HandRegcoDemo0.ViewModels
 {
     public partial class ImageProcesser
     {
-        public static Mat ConvertToMat(SoftwareBitmap softwareBitmap)
+        public Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
             if(softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8)
             {   
@@ -34,7 +35,6 @@ namespace HandRegcoDemo0.ViewModels
         {
             Mat gray = new Mat();
             CvInvoke.CvtColor(inputMat, gray, ColorConversion.Bgra2Gray);
-
             return gray;
         }
 
@@ -92,6 +92,9 @@ namespace HandRegcoDemo0.ViewModels
         {
 
             WriteableBitmap bitmap = null;
+            Mat OutputImage = new Mat(Image.Size, Image.Depth, Image.NumberOfChannels);
+            //CvInvoke.CvtColor(Image , OutputImage, ColorConversion.Rgb2Hsv);
+            bitmap = MatToWriteableBitmap(OutputImage);
             return bitmap;
         }
     }

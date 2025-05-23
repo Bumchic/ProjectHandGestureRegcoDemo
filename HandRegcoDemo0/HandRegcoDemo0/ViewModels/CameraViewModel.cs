@@ -19,6 +19,7 @@ using Avalonia;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
+using Emgu.CV;
 
 
 
@@ -36,15 +37,17 @@ namespace HandRegcoDemo0.ViewModels
         [ObservableProperty]
         private Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
-        private WriteableBitmap bitmapMask;
+        private Avalonia.Media.Imaging.WriteableBitmap grayImage;
         //public ComboBox cameraCombobox { get; set; }
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
+        private ImageProcesser imageProcesser;
 
         public CameraViewModel()
         {
+            imageProcesser = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
@@ -138,7 +141,10 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+                Mat mat = imageProcesser.ConvertToMat(softwareBitmap);
+                mat = imageProcesser.ProcessGesture(mat);
+                GrayImage = imageProcesser.MatToWriteableBitmap(mat);
+                //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
