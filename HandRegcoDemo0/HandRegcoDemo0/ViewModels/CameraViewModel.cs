@@ -35,10 +35,12 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameReader mediaFrameReader;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
+        [ObservableProperty]
+        public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
         //public ComboBox cameraCombobox { get; set; }
         public ObservableCollection<string> cameraCombobox { get; set; }
         public int SelectedIndex { get; set; }
-
+        private readonly ImageProcesser _imageProcessor = new ImageProcesser();
         public CameraViewModel()
         {
             cameraCombobox = new ObservableCollection<string>();
@@ -160,6 +162,10 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+
+                var inputMat = ImageProcesser.ConvertToMat(softwareBitmap);
+                var processedMat = _imageProcessor.ProcessGesture(inputMat);
+                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
