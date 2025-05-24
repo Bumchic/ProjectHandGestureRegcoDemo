@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HandRegcoDemo0.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+        x:Class="HandRegcoDemo0.Views.MainMenuView"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="HandRegco Demo - Main Menu">
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+
+	<Grid Margin="50">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Title -->
+		<TextBlock Grid.Row="0" Text="Options"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  FontSize="24" FontWeight="Bold" Margin="0,0,0,30"/>
+
+		<!-- Live Button -->
+		<Border Grid.Row="1" BorderBrush="Black" BorderThickness="2"
+               CornerRadius="10" Margin="0,10">
+			<Button Name="LiveButton" Click="OnLiveButtonClick"
+                   Background="Transparent" BorderThickness="0"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+				<TextBlock Text="Live" FontSize="20" FontWeight="Bold"/>
+			</Button>
+		</Border>
+
+		<!-- Record Button -->
+		<Border Grid.Row="2" BorderBrush="Black" BorderThickness="2"
+               CornerRadius="10" Margin="0,10">
+			<Button Name="RecordButton" Click="OnRecordButtonClick"
+                   Background="Transparent" BorderThickness="0"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+				<TextBlock Text="Record" FontSize="20" FontWeight="Bold"/>
+			</Button>
+		</Border>
+
+		<!-- Exit Button -->
+		<Border Grid.Row="3" BorderBrush="Black" BorderThickness="2"
+               CornerRadius="10" Margin="0,10">
+			<Button Name="ExitButton" Click="OnExitButtonClick"
+                   Background="Transparent" BorderThickness="0"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+				<TextBlock Text="Exit" FontSize="20" FontWeight="Bold"/>
+			</Button>
+		</Border>
+	</Grid>
+</Window>
