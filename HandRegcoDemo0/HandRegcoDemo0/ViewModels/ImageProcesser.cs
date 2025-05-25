@@ -11,6 +11,7 @@ using Avalonia.Platform;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Windows.Graphics.Imaging;
+using Emgu.CV.Structure;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -42,12 +43,12 @@ namespace HandRegcoDemo0.ViewModels
         //Convert mat to SB
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
-            if (mat.NumberOfChannels != 4)
-            {
-                Mat converted = new Mat();
-                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-                mat = converted;
-            }
+            //if (mat.NumberOfChannels != 4)
+            //{
+            //    Mat converted = new Mat();
+            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+            //    mat = converted;
+            //}
             byte[] data = new byte[mat.Rows * mat.Cols * mat.NumberOfChannels];
             mat.CopyTo(data);
             var bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, mat.Cols, mat.Rows);
@@ -57,19 +58,18 @@ namespace HandRegcoDemo0.ViewModels
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
-            if (mat.NumberOfChannels != 4)
-            {
-                Mat converted = new Mat();
-                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-                mat = converted;
-            }
+            //if (mat.NumberOfChannels != 4)
+            //{
+            //    Mat converted = new Mat();
+            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+            //    mat = converted;
+            //}
 
             int width = mat.Cols;
             int height = mat.Rows;
             int stride = width * 4;
-            byte[] bytes = new byte[height * stride];
+            byte[] bytes = new byte[4*height * stride];
             mat.CopyTo(bytes);
-            
             unsafe
             {
                 fixed (byte* pBytes = bytes)
@@ -84,17 +84,39 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
         }
-        
+        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
+        {
+            PixelFormat pixelFormat = PixelFormat.Bgra8888;
+            AlphaFormat alphaFormat = AlphaFormat.Premul;
+            PixelSize pixelSize = new PixelSize(softwareBitmap.PixelWidth, softwareBitmap.PixelHeight);
+            Vector dpi = new Vector(softwareBitmap.DpiX, softwareBitmap.DpiY);
+            int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
+            byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
+            softwareBitmap.CopyToBuffer(bytes.AsBuffer());
+            fixed (byte* p = bytes)
+            {
+                IntPtr intptr = (IntPtr)p;
+                Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
+                return bitmap;
+            }
+        }
+
     }
     partial class ImageProcesser
     {
         public WriteableBitmap DetectSkin(Mat Image)
         {
-
-            WriteableBitmap bitmap = null;
-            Mat OutputImage = new Mat(Image.Size, Image.Depth, Image.NumberOfChannels);
-            //CvInvoke.CvtColor(Image , OutputImage, ColorConversion.Rgb2Hsv);
-            bitmap = MatToWriteableBitmap(OutputImage);
+            int HueLower = 3;
+            int HueUpper = 33;
+            MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower,50, 50);
+            MCvScalar Upper = new MCvScalar(HueUpper, 255, 255);
+            ScalarArray ScalerLower = new ScalarArray(Lower);
+            ScalarArray ScalerUpper = new ScalarArray(Upper);
+            Mat OutputImage = new Mat();
+            Mat ScalarOutput = new Mat();
+            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Gray);
+            //CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
+            WriteableBitmap bitmap = MatToWriteableBitmap(OutputImage);
             return bitmap;
         }
     }

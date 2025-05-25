@@ -142,27 +142,10 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 Mat mat = imageProcesser.ConvertToMat(softwareBitmap);
-                mat = imageProcesser.ProcessGesture(mat);
-                GrayImage = imageProcesser.MatToWriteableBitmap(mat);
-                //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+                GrayImage = imageProcesser.DetectSkin(mat);
+                BitmapImage = imageProcesser.SoftwareBitmapToImage(softwareBitmap);
             }
         }
-        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
-        {
-            PixelFormat pixelFormat = PixelFormat.Bgra8888;
-            AlphaFormat alphaFormat = AlphaFormat.Premul;
-            PixelSize pixelSize = new PixelSize(softwareBitmap.PixelWidth, softwareBitmap.PixelHeight);
-            Vector dpi = new Vector(softwareBitmap.DpiX, softwareBitmap.DpiY);
-            int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
-            Buffer buffer = new Buffer((uint)(4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight));
-            byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
-            softwareBitmap.CopyToBuffer(bytes.AsBuffer());
-            fixed (byte* p = bytes)
-            {
-                IntPtr intptr = (IntPtr)p;
-                Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
-                return bitmap;
-            }
-        }
+
     }
 }
