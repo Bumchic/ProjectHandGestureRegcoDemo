@@ -115,14 +115,14 @@ namespace HandRegcoDemo0.ViewModels
             ScalarArray ScalerLower = new ScalarArray(Lower);
             ScalarArray ScalerUpper = new ScalarArray(Upper);
             Mat OutputImage = new Mat();
-            Mat ScalarOutput = new Mat();
+            Mat InRangeImage = new Mat();
             CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
             CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
-            CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
-            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
-            CvInvoke.CvtColor(ScalarOutput, ScalarOutput, ColorConversion.Bgr2Bgra);
+            CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, InRangeImage);
+            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Hsv2Bgr);
+            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Bgr2Bgra);
             
-            WriteableBitmap bitmap = MatToWriteableBitmap(ScalarOutput);
+            WriteableBitmap bitmap = MatToWriteableBitmap(InRangeImage);
             return bitmap;
         }
     }
