@@ -18,7 +18,8 @@ using Avalonia.Platform;
 using Avalonia;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml.Media.Imaging;
+using Avalonia.Media.Imaging;
+using Emgu.CV;
 
 
 
@@ -42,25 +43,21 @@ namespace HandRegcoDemo0.ViewModels
         public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
 
         public ObservableCollection<string> cameraCombobox { get; set; }
+        [ObservableProperty]
+        private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
         
         public CameraViewModel()
         {
+            imageProcesser = new ImageProcesser();
+            buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
-            try
-            {
                 mediaCapture = new MediaCapture();
                 await mediaCapture.InitializeAsync(settings);
-            }
-            catch (Exception)
-            {
-                throw new Exception();
-            }
-
         }
         public async Task AddCameraOption()
         {
@@ -77,7 +74,7 @@ namespace HandRegcoDemo0.ViewModels
             DeviceInformation Camera = devices.First(a => a.Name.Equals(cameraCombobox[SelectedIndex]));
             if (mediaCapture != null)
             {
-                throw new Exception("media Capture is not null");
+                return;
 
             }
 
@@ -87,8 +84,6 @@ namespace HandRegcoDemo0.ViewModels
 
             }
 
-            try
-            {
                 MediaCaptureInitializationSettings settings;
                 settings = new MediaCaptureInitializationSettings()
                 {
@@ -99,22 +94,9 @@ namespace HandRegcoDemo0.ViewModels
                 await InitCapMedia(settings);
                 Debug.WriteLine("Success");
 
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
 
             frameSource = null;
-            try
-            {
                 previewSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoPreview && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
-            }
-            catch (Exception)
-            {
-                return;
-            }
-
             if (previewSource != null)
             {
                 frameSource = previewSource;
@@ -125,10 +107,7 @@ namespace HandRegcoDemo0.ViewModels
                                                                                        && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
                 frameSource = recordSource;
             }
-            if (frameSource == null)
-            {
-                throw new Exception();
-            }
+            ButtonIsEnable = false;
             mediaPlayer = new MediaPlayer()
             {
                 RealTimePlayback = true,
@@ -193,5 +172,6 @@ namespace HandRegcoDemo0.ViewModels
                 return bitmap;
             }
         }
+
     }
 }
