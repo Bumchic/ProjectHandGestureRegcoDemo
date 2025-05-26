@@ -141,7 +141,7 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 Mat mat = imageProcesser.ConvertToMat(softwareBitmap);
-                BitmapImage = imageProcesser.DetectSkin(mat);
+                BitmapImage = imageProcesser.DetectSkinV2(mat);
                 //BitmapImage = imageProcesser.SoftwareBitmapToImage(softwareBitmap);
             }
         }

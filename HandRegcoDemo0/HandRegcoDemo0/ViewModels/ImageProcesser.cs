@@ -106,7 +106,7 @@ namespace HandRegcoDemo0.ViewModels
     }
     partial class ImageProcesser
     {
-        public WriteableBitmap DetectSkin(Mat Image)
+        public WriteableBitmap DetectSkinV2(Mat Image)
         {
             int HueLower = 3;
             int HueUpper = 33;
@@ -120,10 +120,8 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
             CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
             CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
-
             CvInvoke.CvtColor(ScalarOutput, ScalarOutput, ColorConversion.Bgr2Bgra);
-
-
+            
             WriteableBitmap bitmap = MatToWriteableBitmap(ScalarOutput);
             return bitmap;
         }
