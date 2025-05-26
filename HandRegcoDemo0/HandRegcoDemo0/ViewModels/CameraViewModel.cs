@@ -33,14 +33,17 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameSource frameSource;
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
+        private readonly ImageProcesser _imageProcessor = new ImageProcesser();
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
-        //public ComboBox cameraCombobox { get; set; }
+        [ObservableProperty]
+        public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
+
         public ObservableCollection<string> cameraCombobox { get; set; }
         public int SelectedIndex { get; set; }
-        private readonly ImageProcesser _imageProcessor = new ImageProcesser();
+        
         public CameraViewModel()
         {
             cameraCombobox = new ObservableCollection<string>();
@@ -165,7 +168,12 @@ namespace HandRegcoDemo0.ViewModels
 
                 var inputMat = ImageProcesser.ConvertToMat(softwareBitmap);
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
+
+                var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+
+
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+                SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)

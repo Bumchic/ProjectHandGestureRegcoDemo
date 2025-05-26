@@ -9,6 +9,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Windows.Graphics.Imaging;
 
 
@@ -85,10 +86,22 @@ namespace HandRegcoDemo0.ViewModels
             }
         }
         
+        public Mat DetectSkinVer1(Mat inputMat)
+        {
+            Mat yCrcb = new Mat();
+            CvInvoke.CvtColor(inputMat, yCrcb, ColorConversion.Bgr2YCrCb);
+
+            Mat skinMask = new Mat();
+            CvInvoke.InRange(yCrcb, new ScalarArray(new MCvScalar(0, 133, 77)), new ScalarArray(new MCvScalar(255, 173, 127)), skinMask);
+            
+            CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
+
+            return skinMask;
+        }
     }
     partial class ImageProcesser
     {
-        public WriteableBitmap DetectSkin(Mat Image)
+        public WriteableBitmap DetectSkinVer2(Mat Image)
         {
 
             WriteableBitmap bitmap = null;
