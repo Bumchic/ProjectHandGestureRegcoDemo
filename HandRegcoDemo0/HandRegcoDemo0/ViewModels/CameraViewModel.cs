@@ -43,10 +43,10 @@ namespace HandRegcoDemo0.ViewModels
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
-        private readonly ImageProcesser _imageProcessor = new ImageProcesser();
+        private readonly ImageProcesser _imageProcessor;
         public CameraViewModel()
         {
-            imageProcesser = new ImageProcesser();
+            _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
@@ -142,7 +142,7 @@ namespace HandRegcoDemo0.ViewModels
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
 
-                var inputMat = ImageProcesser.ConvertToMat(softwareBitmap);
+                var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
             }
