@@ -12,6 +12,8 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Windows.Graphics.Imaging;
 using Emgu.CV.Structure;
+using Emgu.CV.Reg;
+using Emgu.CV.Util;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -108,15 +110,21 @@ namespace HandRegcoDemo0.ViewModels
         {
             int HueLower = 3;
             int HueUpper = 33;
-            MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower,50, 50);
+            MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower, 50, 50);
             MCvScalar Upper = new MCvScalar(HueUpper, 255, 255);
             ScalarArray ScalerLower = new ScalarArray(Lower);
             ScalarArray ScalerUpper = new ScalarArray(Upper);
             Mat OutputImage = new Mat();
             Mat ScalarOutput = new Mat();
-            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Gray);
-            //CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
-            WriteableBitmap bitmap = MatToWriteableBitmap(OutputImage);
+            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
+            CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
+
+            CvInvoke.CvtColor(ScalarOutput, ScalarOutput, ColorConversion.Bgr2Bgra);
+
+
+            WriteableBitmap bitmap = MatToWriteableBitmap(ScalarOutput);
             return bitmap;
         }
     }

@@ -38,7 +38,6 @@ namespace HandRegcoDemo0.ViewModels
         private Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
         private Avalonia.Media.Imaging.WriteableBitmap grayImage;
-        //public ComboBox cameraCombobox { get; set; }
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
@@ -142,8 +141,8 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 Mat mat = imageProcesser.ConvertToMat(softwareBitmap);
-                GrayImage = imageProcesser.DetectSkin(mat);
-                BitmapImage = imageProcesser.SoftwareBitmapToImage(softwareBitmap);
+                BitmapImage = imageProcesser.DetectSkin(mat);
+                //BitmapImage = imageProcesser.SoftwareBitmapToImage(softwareBitmap);
             }
         }
 
