@@ -17,6 +17,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Buffer = Windows.Storage.Streams.Buffer;
 using Avalonia.Platform;
 using Avalonia;
+using HandRegcoDemo0.ViewModels;
 using Emgu.CV;
 
 
