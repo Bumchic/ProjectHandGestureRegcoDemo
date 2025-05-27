@@ -106,7 +106,7 @@ namespace HandRegcoDemo0.ViewModels
     }
     partial class ImageProcesser
     {
-        public WriteableBitmap DetectSkinV2(Mat Image)
+        public Mat DetectSkinV2(Mat Image)
         {
             int HueLower = 3;
             int HueUpper = 33;
@@ -119,11 +119,26 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
             CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
             CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, InRangeImage);
-            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Hsv2Bgr);
-            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Bgr2Bgra);
-            
-            WriteableBitmap bitmap = MatToWriteableBitmap(InRangeImage);
-            return bitmap;
+            //CvInvoke.Canny(InRangeImage, InRangeImage, 0, 0);
+            InRangeImage = CreateConvexHull(InRangeImage);
+            //CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Hsv2Bgr);
+            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Gray2Bgra);
+            return InRangeImage;
+        }
+        public Mat CreateConvexHull(Mat Image)
+        {
+            Rgb red = new Rgb(0,255,0);
+            VectorOfMat Contours = new VectorOfMat();
+            Mat ImageTopo = new Mat();
+            try
+            {
+                CvInvoke.FindContours(Image, Contours, ImageTopo, RetrType.List, ChainApproxMethod.ChainApproxNone);
+            }catch(Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+            CvInvoke.DrawContours(Image, Contours, -1, red.MCvScalar);
+            return Image;
         }
     }
 }
