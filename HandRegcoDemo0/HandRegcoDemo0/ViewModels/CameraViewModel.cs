@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
 using Emgu.CV;
+using Emgu.CV.Util;
 
 
 
@@ -34,7 +35,7 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameSource frameSource;
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
-        private readonly ImageProcesser _imageProcessor = new ImageProcesser();
+        private readonly ImageProcesser _imageProcessor;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
@@ -49,7 +50,7 @@ namespace HandRegcoDemo0.ViewModels
         
         public CameraViewModel()
         {
-            imageProcesser = new ImageProcesser();
+            _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
@@ -145,11 +146,17 @@ namespace HandRegcoDemo0.ViewModels
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
 
-                var inputMat = ImageProcesser.ConvertToMat(softwareBitmap);
+                var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
 
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+                var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
 
+                if(handContour != null)
+                {
+                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                    ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
+                }
 
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
                 SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);

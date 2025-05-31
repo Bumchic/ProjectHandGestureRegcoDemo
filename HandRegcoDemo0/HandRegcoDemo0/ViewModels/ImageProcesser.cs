@@ -46,12 +46,12 @@ namespace HandRegcoDemo0.ViewModels
         //Convert mat to SB
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                Mat converted = new Mat();
+                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+                mat = converted;
+            }
             byte[] data = new byte[mat.Rows * mat.Cols * mat.NumberOfChannels];
             mat.CopyTo(data);
             var bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, mat.Cols, mat.Rows);
@@ -61,12 +61,12 @@ namespace HandRegcoDemo0.ViewModels
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                Mat converted = new Mat();
+               CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+               mat = converted;
+            }
 
             int width = mat.Cols;
             int height = mat.Rows;
@@ -99,6 +99,25 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
 
             return skinMask;
+        }
+
+        public VectorOfPoint FindLargestContour(Mat skinMask)
+        {
+            var countours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            double maxArea = 0;
+            VectorOfPoint largestContour = null;
+
+            for(int i = 0; i < countours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(countours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    largestContour = countours[i];
+                }
+            }
+            return largestContour;
         }
     }
     partial class ImageProcesser
@@ -138,7 +157,7 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
             CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
             CvInvoke.CvtColor(ScalarOutput, ScalarOutput, ColorConversion.Bgr2Bgra);
-            
+
             WriteableBitmap bitmap = MatToWriteableBitmap(ScalarOutput);
             return bitmap;
         }
