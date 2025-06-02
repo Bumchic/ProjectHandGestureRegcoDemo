@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
 using Emgu.CV;
+using Emgu.CV.Util;
 
 
 
@@ -34,18 +35,19 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameSource frameSource;
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
+        private readonly ImageProcesser _imageProcessor;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
-        //public ComboBox cameraCombobox { get; set; }
         [ObservableProperty]
-        public Avalonia.Media.Imaging.WriteableBitmap detectSkinV2;
+        public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
+
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
-        private readonly ImageProcesser _imageProcessor;
+        
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
@@ -142,14 +144,41 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                BitmapImage = _imageProcessor.SoftwareBitmapToImage(softwareBitmap);
+                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
 
                 var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
-                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
-                inputMat = _imageProcessor.DetectSkinV2(inputMat);
 
-                DetectSkinV2 = _imageProcessor.MatToWriteableBitmap(inputMat);             
+                var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+                var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
+
+                if(handContour != null)
+                {
+                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+
+                }
+                
+
+                /*ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);*/
+                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
+                SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+            }
+        }
+        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
+        {
+            PixelFormat pixelFormat = PixelFormat.Bgra8888;
+            AlphaFormat alphaFormat = AlphaFormat.Premul;
+            PixelSize pixelSize = new PixelSize(softwareBitmap.PixelWidth, softwareBitmap.PixelHeight);
+            Vector dpi = new Vector(softwareBitmap.DpiX, softwareBitmap.DpiY);
+            int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
+            Buffer buffer = new Buffer((uint)(4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight));
+            byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
+            softwareBitmap.CopyToBuffer(bytes.AsBuffer());
+            fixed (byte* p = bytes)
+            {
+                IntPtr intptr = (IntPtr)p;
+                Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
+                return bitmap;
             }
         }
 
