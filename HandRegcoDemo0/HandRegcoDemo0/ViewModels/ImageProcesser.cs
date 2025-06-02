@@ -107,13 +107,8 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
 
-            var result = new VectorOfVectorOfPoint();
-            if (largestContour != null)
-            {
-                result.Push(largestContour);
-            }
 
-            return result;
+            return new VectorOfVectorOfPoint(largestContour);
         }
 
 
