@@ -46,7 +46,7 @@ namespace HandRegcoDemo0.ViewModels
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
             //if (mat.NumberOfChannels != 4)
-            //{
+            //{F
             //    Mat converted = new Mat();
             //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
             //    mat = converted;
@@ -70,7 +70,7 @@ namespace HandRegcoDemo0.ViewModels
             return skinMask;
         }
 
-        public VectorOfPoint FindLargestContour(Mat skinMask)
+        /*public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             var countours = new VectorOfVectorOfPoint();
             CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
@@ -87,7 +87,35 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
             return largestContour;
+        }*/
+
+        public VectorOfVectorOfPoint FindLargestContour(Mat skinMask)
+        {
+            var contours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+
+            double maxArea = 0;
+            VectorOfPoint largestContour = null;
+
+            for (int i = 0; i < contours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(contours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    largestContour = contours[i];
+                }
+            }
+
+            var result = new VectorOfVectorOfPoint();
+            if (largestContour != null)
+            {
+                result.Push(largestContour);
+            }
+
+            return result;
         }
+
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
