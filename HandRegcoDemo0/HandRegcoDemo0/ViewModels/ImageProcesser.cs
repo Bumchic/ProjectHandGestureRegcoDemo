@@ -59,6 +59,37 @@ namespace HandRegcoDemo0.ViewModels
             return bitmap;
         }
 
+        public Mat DetectSkinVer1(Mat inputMat)
+        {
+            Mat yCrcb = new Mat();
+            CvInvoke.CvtColor(inputMat, yCrcb, ColorConversion.Bgr2YCrCb);
+
+            Mat skinMask = new Mat();
+            CvInvoke.InRange(yCrcb, new ScalarArray(new MCvScalar(0, 133, 77)), new ScalarArray(new MCvScalar(255, 173, 127)), skinMask);
+            CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
+
+            return skinMask;
+        }
+
+        public VectorOfPoint FindLargestContour(Mat skinMask)
+        {
+            var countours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            double maxArea = 0;
+            VectorOfPoint largestContour = null;
+
+            for (int i = 0; i < countours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(countours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    largestContour = countours[i];
+                }
+            }
+            return largestContour;
+        }
+
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
             if (mat.NumberOfChannels != 4)
@@ -88,36 +119,7 @@ namespace HandRegcoDemo0.ViewModels
             }
         }
         
-        public Mat DetectSkinVer1(Mat inputMat)
-        {
-            Mat yCrcb = new Mat();
-            CvInvoke.CvtColor(inputMat, yCrcb, ColorConversion.Bgr2YCrCb);
-
-            Mat skinMask = new Mat();
-            CvInvoke.InRange(yCrcb, new ScalarArray(new MCvScalar(0, 133, 77)), new ScalarArray(new MCvScalar(255, 173, 127)), skinMask);
-            CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
-
-            return skinMask;
-        }
-
-        public VectorOfPoint FindLargestContour(Mat skinMask)
-        {
-            var countours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-            double maxArea = 0;
-            VectorOfPoint largestContour = null;
-
-            for(int i = 0; i < countours.Size; i++)
-            {
-                double area = CvInvoke.ContourArea(countours[i]);
-                if (area > maxArea)
-                {
-                    maxArea = area;
-                    largestContour = countours[i];
-                }
-            }
-            return largestContour;
-        }
+        
 
 
     }
