@@ -10,6 +10,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Windows.Graphics.Imaging;
 using Emgu.CV.Structure;
 using Emgu.CV.Reg;
@@ -45,12 +46,12 @@ namespace HandRegcoDemo0.ViewModels
         //Convert mat to SB
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                Mat converted = new Mat();
+                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+                mat = converted;
+            }
             byte[] data = new byte[mat.Rows * mat.Cols * mat.NumberOfChannels];
             mat.CopyTo(data);
             var bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, mat.Cols, mat.Rows);
@@ -60,12 +61,12 @@ namespace HandRegcoDemo0.ViewModels
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                Mat converted = new Mat();
+               CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+               mat = converted;
+            }
 
             int width = mat.Cols;
             int height = mat.Rows;
@@ -86,6 +87,42 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
         }
+        
+        public Mat DetectSkinVer1(Mat inputMat)
+        {
+            Mat yCrcb = new Mat();
+            CvInvoke.CvtColor(inputMat, yCrcb, ColorConversion.Bgr2YCrCb);
+
+            Mat skinMask = new Mat();
+            CvInvoke.InRange(yCrcb, new ScalarArray(new MCvScalar(0, 133, 77)), new ScalarArray(new MCvScalar(255, 173, 127)), skinMask);
+            CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
+
+            return skinMask;
+        }
+
+        public VectorOfPoint FindLargestContour(Mat skinMask)
+        {
+            var countours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            double maxArea = 0;
+            VectorOfPoint largestContour = null;
+
+            for(int i = 0; i < countours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(countours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    largestContour = countours[i];
+                }
+            }
+            return largestContour;
+        }
+
+
+    }
+    partial class ImageProcesser
+    {
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
         {
             PixelFormat pixelFormat = PixelFormat.Bgra8888;
@@ -106,48 +143,24 @@ namespace HandRegcoDemo0.ViewModels
     }
     partial class ImageProcesser
     {
-        public Mat DetectSkinV2(Mat Image)
+        public WriteableBitmap DetectSkinV2(Mat Image)
         {
-            Mat OutputImage = new Mat();
-            Mat InRangeImage = new Mat();
-            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
-            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
-
-            
-            OutputImage = CreateConvexHull(OutputImage);
-            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
-            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Bgra);
-            //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Gray2Bgra);
-            return OutputImage;
-        }
-        public Mat CreateConvexHull(Mat image)
-        {
-                CvInvoke.GaussianBlur(image, image, new System.Drawing.Size(9,9), 1.76);
             int HueLower = 3;
             int HueUpper = 33;
             MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower, 50, 50);
             MCvScalar Upper = new MCvScalar(HueUpper, 255, 255);
             ScalarArray ScalerLower = new ScalarArray(Lower);
             ScalarArray ScalerUpper = new ScalarArray(Upper);
+            Mat OutputImage = new Mat();
+            Mat ScalarOutput = new Mat();
+            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
+            CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, ScalarOutput);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
+            CvInvoke.CvtColor(ScalarOutput, ScalarOutput, ColorConversion.Bgr2Bgra);
 
-            Image<Gray, byte> EmguIMG = new Image<Gray, byte>(image.Size);
-            CvInvoke.InRange(image, ScalerLower, ScalerUpper, EmguIMG);
-            
-            Rgb red = new Rgb(255, 0, 0);
-                VectorOfVectorOfPoint Contours = new VectorOfVectorOfPoint();
-                Mat ImageTopo = new Mat();
-            try
-            {
-                CvInvoke.FindContours(EmguIMG, Contours, ImageTopo, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-                CvInvoke.DrawContours(image, Contours, -1, red.MCvScalar,2);
-                
-            }
-            catch(Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-            return image;
+            WriteableBitmap bitmap = MatToWriteableBitmap(ScalarOutput);
+            return bitmap;
         }
     }
-
 }
