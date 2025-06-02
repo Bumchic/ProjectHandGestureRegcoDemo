@@ -70,46 +70,46 @@ namespace HandRegcoDemo0.ViewModels
             return skinMask;
         }
 
-        /*public VectorOfPoint FindLargestContour(Mat skinMask)
-        {
-            var countours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-            double maxArea = 0;
-            VectorOfPoint largestContour = null;
+        ///*public VectorOfPoint FindLargestContour(Mat skinMask)
+        //{
+        //    var countours = new VectorOfVectorOfPoint();
+        //    CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+        //    double maxArea = 0;
+        //    VectorOfPoint largestContour = null;
 
-            for (int i = 0; i < countours.Size; i++)
-            {
-                double area = CvInvoke.ContourArea(countours[i]);
-                if (area > maxArea)
-                {
-                    maxArea = area;
-                    largestContour = countours[i];
-                }
-            }
-            return largestContour;
-        }*/
+        //    for (int i = 0; i < countours.Size; i++)
+        //    {
+        //        double area = CvInvoke.ContourArea(countours[i]);
+        //        if (area > maxArea)
+        //        {
+        //            maxArea = area;
+        //            largestContour = countours[i];
+        //        }
+        //    }
+        //    return largestContour;
+        //}*/
 
-        public VectorOfVectorOfPoint FindLargestContour(Mat skinMask)
-        {
-            var contours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+        //public VectorOfPoint FindLargestContour(Mat skinMask)
+        //{
+        //    var contours = new VectorOfVectorOfPoint();
+        //    CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
-            double maxArea = 0;
-            VectorOfPoint largestContour = null;
+        //    double maxArea = 0;
+        //    VectorOfPoint largestContour = null;
 
-            for (int i = 0; i < contours.Size; i++)
-            {
-                double area = CvInvoke.ContourArea(contours[i]);
-                if (area > maxArea)
-                {
-                    maxArea = area;
-                    largestContour = contours[i];
-                }
-            }
+        //    for (int i = 0; i < contours.Size; i++)
+        //    {
+        //        double area = CvInvoke.ContourArea(contours[i]);
+        //        if (area > maxArea)
+        //        {
+        //            maxArea = area;
+        //            largestContour = contours[i];
+        //        }
+        //    }
 
 
-            return new VectorOfVectorOfPoint(largestContour);
-        }
+        //    return largestContour;
+        //}
 
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
@@ -206,8 +206,14 @@ namespace HandRegcoDemo0.ViewModels
         //    }
         //    return image;
         //}
-        public VectorOfVectorOfPoint GetConvexHull(VectorOfVectorOfPoint contours)
+        public VectorOfVectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
+            VectorOfPointF points = new VectorOfPointF(contour.Size);
+            for(int i=0; i<contour.Size; i++)
+            {
+                
+            }
+            CvInvoke.ConvexHull(points.ToArray());
             return null;
         }
         public VectorOfVectorOfPoint FindLargestContour(VectorOfVectorOfPoint contours)
