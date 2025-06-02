@@ -155,6 +155,7 @@ namespace HandRegcoDemo0.ViewModels
                 if (handContour != null)
                 {
                     CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                    inputMat = _imageProcessor.MarkFingerPoint(handContour, inputMat);
                 }
 
 

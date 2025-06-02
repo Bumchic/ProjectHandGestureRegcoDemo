@@ -221,6 +221,44 @@ namespace HandRegcoDemo0.ViewModels
             
             return hull;
         }
+        public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
+        {
+            Rgba red = new Rgba(0, 0, 255, 366);
+            
+            for(int i=0; i<hull.Size; i++)
+            {
+                CvInvoke.DrawMarker(image, hull[i], red.MCvScalar, MarkerTypes.Cross, 30, 10);
+            }
+            return image;
+        }
+        public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
+        {
+            if(hull == null)
+            {
+                return image;
+            }
+            Rgba red = new Rgba(0, 0, 255, 366);
+            List<System.Drawing.Point> fingerpoints = new List<System.Drawing.Point>();
+            RotatedRect box = CvInvoke.MinAreaRect(hull);
+            System.Drawing.Point CheckPoint = hull[0];
+            for(int i=1; i<hull.Size; i++)
+            {
+                if(getDistance(CheckPoint, hull[i]) > box.Size.Width / 10)
+                {
+                    fingerpoints.Add(CheckPoint);
+                }
+                CheckPoint = hull[i];
+            }
+            VectorOfPoint fingers = new VectorOfPoint(fingerpoints.Count);
+            fingers.Push(fingerpoints.ToArray());
+            image = MarkConvexHullPoints(fingers, image);
+            return image;
+        }
+        public double getDistance(System.Drawing.Point a, System.Drawing.Point b)
+        {
+            double result = Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
+            return result;
+        }
         public VectorOfPoint FindLargestContour(VectorOfVectorOfPoint contours)
         {
             if(contours == null)
