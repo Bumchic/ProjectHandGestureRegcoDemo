@@ -70,24 +70,24 @@ namespace HandRegcoDemo0.ViewModels
             return skinMask;
         }
 
-        ///*public VectorOfPoint FindLargestContour(Mat skinMask)
-        //{
-        //    var countours = new VectorOfVectorOfPoint();
-        //    CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-        //    double maxArea = 0;
-        //    VectorOfPoint largestContour = null;
+        public VectorOfPoint FindLargestContour(Mat skinMask)
+        {
+            var countours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            double maxArea = 0;
+            VectorOfPoint largestContour = null;
 
-        //    for (int i = 0; i < countours.Size; i++)
-        //    {
-        //        double area = CvInvoke.ContourArea(countours[i]);
-        //        if (area > maxArea)
-        //        {
-        //            maxArea = area;
-        //            largestContour = countours[i];
-        //        }
-        //    }
-        //    return largestContour;
-        //}*/
+            for (int i = 0; i < countours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(countours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    largestContour = countours[i];
+                }
+            }
+            return largestContour;
+        }
 
         //public VectorOfPoint FindLargestContour(Mat skinMask)
         //{
