@@ -163,4 +163,5 @@ namespace HandRegcoDemo0.ViewModels
             return bitmap;
         }
     }
+    //
 }
