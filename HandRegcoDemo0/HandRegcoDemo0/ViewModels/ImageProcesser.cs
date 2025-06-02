@@ -14,6 +14,7 @@ using Windows.Graphics.Imaging;
 using Emgu.CV.Structure;
 using Emgu.CV.Reg;
 using Emgu.CV.Util;
+using System.Drawing;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -206,17 +207,21 @@ namespace HandRegcoDemo0.ViewModels
         //    }
         //    return image;
         //}
-        public VectorOfVectorOfPoint GetConvexHull(VectorOfPoint contour)
+        public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
-            VectorOfPointF points = new VectorOfPointF(contour.Size);
-            for(int i=0; i<contour.Size; i++)
-            {
-                
-            }
-            CvInvoke.ConvexHull(points.ToArray());
-            return null;
+            //PointF[] points = new PointF[contour.Size];
+            //for(int i=0; i<contour.Size; i++)
+            //{
+            //    points[i] = contour[i];
+            //}
+            VectorOfPoint hull = new VectorOfPoint(contour.Size);
+
+            CvInvoke.ConvexHull(contour, hull, false, false);
+    
+            
+            return hull;
         }
-        public VectorOfVectorOfPoint FindLargestContour(VectorOfVectorOfPoint contours)
+        public VectorOfPoint FindLargestContour(VectorOfVectorOfPoint contours)
         {
             if(contours == null)
             {
@@ -236,7 +241,7 @@ namespace HandRegcoDemo0.ViewModels
             }
 
 
-            return new VectorOfVectorOfPoint(largestContour);
+            return largestContour;
         }
     }
     //

@@ -151,11 +151,10 @@ namespace HandRegcoDemo0.ViewModels
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
                 var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
-
+                handContour = _imageProcessor.GetConvexHull(handContour);
                 if (handContour != null)
                 {
-                    CvInvoke.DrawContours(inputMat, handContour, -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
-
+                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                 }
 
 
