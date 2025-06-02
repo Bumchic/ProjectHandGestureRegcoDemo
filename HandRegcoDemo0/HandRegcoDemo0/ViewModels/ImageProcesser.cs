@@ -149,5 +149,5 @@ namespace HandRegcoDemo0.ViewModels
             return image;
         }
     }
-
+    //
 }
