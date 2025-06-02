@@ -27,7 +27,7 @@
 
 		<TextBlock Text="Processed photo" FontWeight="Bold" Margin="0, 10, 0 ,5"/>
 		<Border BorderBrush="Black" BorderThickness="2">
-			<Image Source="{Binding Path=ProcessedBitmapImage}" Name="ProcessedImageControl" MaxWidth="300" MaxHeight="200"/>
+			<Image Source="{Binding Path=ProcessedBitmapImage}" Name="ProcessedImageControl" MaxWidth="650" MaxHeight="200"/>
 		</Border>
 
 		<TextBlock Text="YCrCb Mask photo" FontWeight="Bold" Margin="0, 10, 0 ,5"/>

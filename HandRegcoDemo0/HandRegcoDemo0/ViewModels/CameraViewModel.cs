@@ -155,10 +155,12 @@ namespace HandRegcoDemo0.ViewModels
                 if(handContour != null)
                 {
                     CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
-                    ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
-                }
 
-                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+                }
+                
+
+                /*ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);*/
+                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
                 SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
             }
         }

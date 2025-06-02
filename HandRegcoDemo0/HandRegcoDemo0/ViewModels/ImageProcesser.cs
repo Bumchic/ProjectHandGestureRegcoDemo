@@ -95,7 +95,6 @@ namespace HandRegcoDemo0.ViewModels
 
             Mat skinMask = new Mat();
             CvInvoke.InRange(yCrcb, new ScalarArray(new MCvScalar(0, 133, 77)), new ScalarArray(new MCvScalar(255, 173, 127)), skinMask);
-            
             CvInvoke.GaussianBlur(skinMask, skinMask, new System.Drawing.Size(5, 5), 0);
 
             return skinMask;
@@ -119,6 +118,8 @@ namespace HandRegcoDemo0.ViewModels
             }
             return largestContour;
         }
+
+
     }
     partial class ImageProcesser
     {
