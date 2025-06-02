@@ -122,6 +122,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat CreateConvexHull(Mat image)
         {
+                CvInvoke.GaussianBlur(image, image, new System.Drawing.Size(9,9), 1.76);
             int HueLower = 3;
             int HueUpper = 33;
             MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower, 50, 50);
