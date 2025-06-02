@@ -148,8 +148,8 @@ namespace HandRegcoDemo0.ViewModels
                 var processedMat = _imageProcessor.ProcessGesture(inputMat);
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
                 inputMat = _imageProcessor.DetectSkinV2(inputMat);
-                //inputMat = _imageProcessor.CreateConvexHull(inputMat);
-                DetectSkinV2 = _imageProcessor.MatToWriteableBitmap(inputMat);
+
+                DetectSkinV2 = _imageProcessor.MatToWriteableBitmap(inputMat);             
             }
         }
 

@@ -108,37 +108,45 @@ namespace HandRegcoDemo0.ViewModels
     {
         public Mat DetectSkinV2(Mat Image)
         {
+            Mat OutputImage = new Mat();
+            Mat InRangeImage = new Mat();
+            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
+
+            
+            OutputImage = CreateConvexHull(OutputImage);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
+            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Bgra);
+            //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Gray2Bgra);
+            return OutputImage;
+        }
+        public Mat CreateConvexHull(Mat image)
+        {
             int HueLower = 3;
             int HueUpper = 33;
             MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower, 50, 50);
             MCvScalar Upper = new MCvScalar(HueUpper, 255, 255);
             ScalarArray ScalerLower = new ScalarArray(Lower);
             ScalarArray ScalerUpper = new ScalarArray(Upper);
-            Mat OutputImage = new Mat();
-            Mat InRangeImage = new Mat();
-            CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
-            CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
-            CvInvoke.InRange(OutputImage, ScalerLower, ScalerUpper, InRangeImage);
-            //CvInvoke.Canny(InRangeImage, InRangeImage, 0, 0);
-            InRangeImage = CreateConvexHull(InRangeImage);
-            //CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Hsv2Bgr);
-            CvInvoke.CvtColor(InRangeImage, InRangeImage, ColorConversion.Gray2Bgra);
-            return InRangeImage;
-        }
-        public Mat CreateConvexHull(Mat Image)
-        {
-            Rgb red = new Rgb(0,255,0);
-            VectorOfMat Contours = new VectorOfMat();
-            Mat ImageTopo = new Mat();
+
+            Image<Gray, byte> EmguIMG = new Image<Gray, byte>(image.Size);
+            CvInvoke.InRange(image, ScalerLower, ScalerUpper, EmguIMG);
+            
+            Rgb red = new Rgb(255, 0, 0);
+                VectorOfVectorOfPoint Contours = new VectorOfVectorOfPoint();
+                Mat ImageTopo = new Mat();
             try
             {
-                CvInvoke.FindContours(Image, Contours, ImageTopo, RetrType.List, ChainApproxMethod.ChainApproxNone);
-            }catch(Exception e)
+                CvInvoke.FindContours(EmguIMG, Contours, ImageTopo, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+                CvInvoke.DrawContours(image, Contours, -1, red.MCvScalar,2);
+                
+            }
+            catch(Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
-            CvInvoke.DrawContours(Image, Contours, -1, red.MCvScalar);
-            return Image;
+            return image;
         }
     }
+
 }
