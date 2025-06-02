@@ -147,19 +147,20 @@ namespace HandRegcoDemo0.ViewModels
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
 
                 var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-                var processedMat = _imageProcessor.ProcessGesture(inputMat);
 
+                var processedMat = _imageProcessor.ProcessGesture(inputMat);
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
                 var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
 
-                if(handContour != null)
+                if (handContour != null)
                 {
-                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                    CvInvoke.DrawContours(inputMat, handContour, -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
 
                 }
-                
 
-                /*ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);*/
+
+                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
                 SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
             }
