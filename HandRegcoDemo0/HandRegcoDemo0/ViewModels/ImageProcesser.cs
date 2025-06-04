@@ -162,52 +162,6 @@ namespace HandRegcoDemo0.ViewModels
     }
     partial class ImageProcesser
     {
-        //public Mat DetectSkinV2(Mat Image)
-        //{
-        //    Mat OutputImage = new Mat();
-        //    Mat InRangeImage = new Mat();
-        //    //CvInvoke.CvtColor(Image, OutputImage, ColorConversion.Bgra2Bgr);
-        //    //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Hsv);
-
-            
-        //    OutputImage = CreateConvexHull(Image);
-        //    //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Hsv2Bgr);
-        //    //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Bgr2Bgra);
-        //    //CvInvoke.CvtColor(OutputImage, OutputImage, ColorConversion.Gray2Bgra);
-        //    return OutputImage;
-        //}
-        //public Mat CreateConvexHull(Mat image)
-        //{
-        //    Image<Gray, byte> grayImage = new Image<Gray, byte>(image.Size);
-        //    CvInvoke.CvtColor(image, grayImage, ColorConversion.Bgra2Gray);
-        //    //CvInvoke.GaussianBlur(image, image, new System.Drawing.Size(9,9), 1.76);
-        //    int HueLower = 3;
-        //    int HueUpper = 33;
-        //    MCvScalar Lower = new Emgu.CV.Structure.MCvScalar(HueLower, 50, 50);
-        //    MCvScalar Upper = new MCvScalar(HueUpper, 255, 255);
-        //    ScalarArray ScalerLower = new ScalarArray(Lower);
-        //    ScalarArray ScalerUpper = new ScalarArray(Upper);
-
-        //    Image<Gray, byte> EmguIMG = new Image<Gray, byte>(image.Size);
-        //    CvInvoke.Canny(grayImage, EmguIMG, 0, 255);
-        //    //CvInvoke.InRange(image, ScalerLower, ScalerUpper, EmguIMG);
-            
-        //    Rgb red = new Rgb(255, 0, 0);
-        //        VectorOfVectorOfPoint Contours = new VectorOfVectorOfPoint();
-        //        Mat ImageTopo = new Mat();
-        //    try
-        //    {
-        //        CvInvoke.FindContours(EmguIMG, Contours, ImageTopo, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-        //        Contours = FindLargestContour(Contours);
-        //        CvInvoke.DrawContours(image, Contours, -1, red.MCvScalar,2);
-                
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        Debug.WriteLine(e.Message);
-        //    }
-        //    return image;
-        //}
         public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
             //PointF[] points = new PointF[contour.Size];
