@@ -21,6 +21,7 @@ namespace HandRegcoDemo0.ViewModels
 {
     public partial class ImageProcesser
     {
+        private readonly Rgba red = new Rgba(0, 0, 255, 366);
         public Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
             if(softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8)
@@ -223,12 +224,21 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
-            Rgba red = new Rgba(0, 0, 255, 366);
-            
             for(int i=0; i<hull.Size; i++)
             {
                 CvInvoke.DrawMarker(image, hull[i], red.MCvScalar, MarkerTypes.Cross, 30, 10);
             }
+            return image;
+        }
+        public Mat MarkMinAreaRect(RotatedRect box, Mat image)
+        {
+            List<System.Drawing.Point> points = new List<System.Drawing.Point>();
+            foreach(PointF pointf in box.GetVertices())
+            {
+                points.Add(System.Drawing.Point.Round(pointf));
+            }
+            VectorOfPoint vector = new VectorOfPoint(values: points.ToArray());
+            CvInvoke.Polylines(image, vector, false, red.MCvScalar);
             return image;
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
@@ -237,7 +247,6 @@ namespace HandRegcoDemo0.ViewModels
             {
                 return image;
             }
-            Rgba red = new Rgba(0, 0, 255, 366);
             List<System.Drawing.Point> fingerpoints = new List<System.Drawing.Point>();
             RotatedRect box = CvInvoke.MinAreaRect(hull);
             System.Drawing.Point CheckPoint = hull[0];

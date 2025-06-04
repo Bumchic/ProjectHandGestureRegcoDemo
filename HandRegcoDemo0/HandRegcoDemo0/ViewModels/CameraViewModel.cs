@@ -21,6 +21,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.Util;
+using Emgu.CV.Structure;
+using Emgu.CV.Cuda;
 
 
 
@@ -155,7 +157,9 @@ namespace HandRegcoDemo0.ViewModels
                 if (handContour != null)
                 {
                     CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                    RotatedRect box = CvInvoke.MinAreaRect(handContour);
                     inputMat = _imageProcessor.MarkFingerPoint(handContour, inputMat);
+                    inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
                 }
 
 
