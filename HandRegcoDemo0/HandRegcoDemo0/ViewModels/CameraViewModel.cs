@@ -47,7 +47,7 @@ namespace HandRegcoDemo0.ViewModels
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
-        
+       
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
