@@ -178,7 +178,9 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
-            for(int i=0; i<hull.Size; i++)
+            if (hull == null || image == null)
+                return image;
+            for (int i=0; i<hull.Size; i++)
             {
                 CvInvoke.DrawMarker(image, hull[i], red.MCvScalar, MarkerTypes.Cross, 30, 10);
             }
