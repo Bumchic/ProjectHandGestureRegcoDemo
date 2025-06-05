@@ -192,7 +192,7 @@ namespace HandRegcoDemo0.ViewModels
                 points.Add(System.Drawing.Point.Round(pointf));
             }
             VectorOfPoint vector = new VectorOfPoint(values: points.ToArray());
-            CvInvoke.Polylines(image, vector, false, red.MCvScalar);
+            CvInvoke.Polylines(image, vector, true, red.MCvScalar, 2);
             return image;
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
@@ -245,5 +245,5 @@ namespace HandRegcoDemo0.ViewModels
             return largestContour;
         }
     }
-    //
+    
 }
