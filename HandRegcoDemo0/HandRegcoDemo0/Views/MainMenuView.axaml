@@ -1,0 +1,16 @@
+<fa:FluentWindow xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:vm="using:HandRegcoDemo0.ViewModels"
+                 xmlns:fa="clr-namespace:FluentAvalonia.Controls;assembly=FluentAvalonia"
+                 x:Class="HandRegcoDemo0.Views.MainMenuView"
+                 x:DataType="vm:MainMenuViewModel"
+                 Width="300" Height="220"
+                 Title="Main Menu">
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+        <Button Content="Live" Command="{Binding LiveCommand}" Width="120"/>
+        <Button Content="Record" Command="{Binding RecordCommand}" Width="120"/>
+        <Button Content="Exit" Command="{Binding ExitCommand}" Width="120"/>
+    </StackPanel>
+</fa:FluentWindow>
