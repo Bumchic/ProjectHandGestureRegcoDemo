@@ -36,7 +36,7 @@ namespace HandRegcoDemo0.ViewModels
             return mat;
         }
 
-        public Mat ProcessGesture(Mat inputMat)
+        public Mat ColorConvertToGray(Mat inputMat)
         {
             Mat gray = new Mat();
             CvInvoke.CvtColor(inputMat, gray, ColorConversion.Bgra2Gray);
@@ -91,29 +91,6 @@ namespace HandRegcoDemo0.ViewModels
             return largestContour;
         }
 
-        //public VectorOfPoint FindLargestContour(Mat skinMask)
-        //{
-        //    var contours = new VectorOfVectorOfPoint();
-        //    CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-
-        //    double maxArea = 0;
-        //    VectorOfPoint largestContour = null;
-
-        //    for (int i = 0; i < contours.Size; i++)
-        //    {
-        //        double area = CvInvoke.ContourArea(contours[i]);
-        //        if (area > maxArea)
-        //        {
-        //            maxArea = area;
-        //            largestContour = contours[i];
-        //        }
-        //    }
-
-
-        //    return largestContour;
-        //}
-
-
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
             //if (mat.NumberOfChannels != 4)
@@ -164,7 +141,9 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
-            for(int i=0; i<hull.Size; i++)
+            if (hull == null || image == null)
+                return image;
+            for (int i=0; i<hull.Size; i++)
             {
                 CvInvoke.DrawMarker(image, hull[i], red.MCvScalar, MarkerTypes.Cross, 30, 10);
             }
@@ -178,7 +157,7 @@ namespace HandRegcoDemo0.ViewModels
                 points.Add(System.Drawing.Point.Round(pointf));
             }
             VectorOfPoint vector = new VectorOfPoint(values: points.ToArray());
-            CvInvoke.Polylines(image, vector, false, red.MCvScalar);
+            CvInvoke.Polylines(image, vector, true, red.MCvScalar, 2);
             return image;
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
@@ -247,5 +226,5 @@ namespace HandRegcoDemo0.ViewModels
             }
         }
     }
-    //
+    
 }
