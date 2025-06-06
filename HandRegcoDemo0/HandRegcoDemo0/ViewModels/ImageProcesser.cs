@@ -36,7 +36,7 @@ namespace HandRegcoDemo0.ViewModels
             return mat;
         }
 
-        public Mat ProcessGesture(Mat inputMat)
+        public Mat ColorConvertToGray(Mat inputMat)
         {
             Mat gray = new Mat();
             CvInvoke.CvtColor(inputMat, gray, ColorConversion.Bgra2Gray);
@@ -90,29 +90,6 @@ namespace HandRegcoDemo0.ViewModels
             }
             return largestContour;
         }
-
-        //public VectorOfPoint FindLargestContour(Mat skinMask)
-        //{
-        //    var contours = new VectorOfVectorOfPoint();
-        //    CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-
-        //    double maxArea = 0;
-        //    VectorOfPoint largestContour = null;
-
-        //    for (int i = 0; i < contours.Size; i++)
-        //    {
-        //        double area = CvInvoke.ContourArea(contours[i]);
-        //        if (area > maxArea)
-        //        {
-        //            maxArea = area;
-        //            largestContour = contours[i];
-        //        }
-        //    }
-
-
-        //    return largestContour;
-        //}
-
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
