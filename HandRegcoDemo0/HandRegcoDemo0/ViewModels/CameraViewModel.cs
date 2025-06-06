@@ -163,7 +163,7 @@ namespace HandRegcoDemo0.ViewModels
                 }
 
 
-                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+                //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
                 ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
                 SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);

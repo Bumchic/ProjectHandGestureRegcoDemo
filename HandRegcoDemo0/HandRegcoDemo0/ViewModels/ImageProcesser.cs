@@ -139,6 +139,7 @@ namespace HandRegcoDemo0.ViewModels
     }
     partial class ImageProcesser
     {
+        //Minh
         public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
             //PointF[] points = new PointF[contour.Size];
