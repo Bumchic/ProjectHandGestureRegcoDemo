@@ -18,7 +18,6 @@
 
 	<StackPanel>
 		<Button Command="{Binding Path=StartCamOnClick}">Start Cam</Button>
-
 		<TextBlock Text="Original photo" FontWeight="Bold" Margin="0,10,0,5"/>
 		<Border BorderBrush="Black" BorderThickness="2">
 			<Image Source="{Binding Path=BitmapImage}" Name="OriginalImageControl" MaxWidth="300" MaxHeight="200"/>
@@ -33,7 +32,12 @@
 		<Border BorderBrush="Black" BorderThickness="1">
 			<Image Source="{Binding Path=SkinMaskBitmapImage}" Name="IFrameReaderImageControl" MaxWidth="300" MaxHeight="200"/>
 		</Border>
-		
+		<TextBlock Text="TestImage"></TextBlock>
+		<Border BorderBrush="Black" BorderThickness="1">
+			<Image Source="{Binding Path=TestingImage}" MaxWidth="300" MaxHeight="200"/>
+			
+		</Border>
+		<Button Command="{Binding Path=ButtonIncrease}">Button</Button>
 		<ComboBox ItemsSource="{Binding Path=cameraCombobox}" SelectedIndex="{Binding Path=SelectedIndex}" Name="DeviceChoices"></ComboBox>
 	</StackPanel>
 </Window>

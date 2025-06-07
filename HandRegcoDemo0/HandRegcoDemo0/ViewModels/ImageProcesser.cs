@@ -127,16 +127,9 @@ namespace HandRegcoDemo0.ViewModels
         //Minh
         public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
-            //PointF[] points = new PointF[contour.Size];
-            //for(int i=0; i<contour.Size; i++)
-            //{
-            //    points[i] = contour[i];
-            //}
-            VectorOfPoint hull = new VectorOfPoint(contour.Size);
 
+            VectorOfPoint hull = new VectorOfPoint(contour.Size);
             CvInvoke.ConvexHull(contour, hull, false, false);
-    
-            
             return hull;
         }
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
