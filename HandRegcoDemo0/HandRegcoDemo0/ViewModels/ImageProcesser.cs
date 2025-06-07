@@ -36,7 +36,7 @@ namespace HandRegcoDemo0.ViewModels
             return mat;
         }
 
-        public Mat ProcessGesture(Mat inputMat)
+        public Mat ColorConvertToGray(Mat inputMat)
         {
             Mat gray = new Mat();
             CvInvoke.CvtColor(inputMat, gray, ColorConversion.Bgra2Gray);
@@ -91,29 +91,6 @@ namespace HandRegcoDemo0.ViewModels
             return largestContour;
         }
 
-        //public VectorOfPoint FindLargestContour(Mat skinMask)
-        //{
-        //    var contours = new VectorOfVectorOfPoint();
-        //    CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-
-        //    double maxArea = 0;
-        //    VectorOfPoint largestContour = null;
-
-        //    for (int i = 0; i < contours.Size; i++)
-        //    {
-        //        double area = CvInvoke.ContourArea(contours[i]);
-        //        if (area > maxArea)
-        //        {
-        //            maxArea = area;
-        //            largestContour = contours[i];
-        //        }
-        //    }
-
-
-        //    return largestContour;
-        //}
-
-
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
             //if (mat.NumberOfChannels != 4)
@@ -142,26 +119,12 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
         }
-        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
-        {
-            PixelFormat pixelFormat = PixelFormat.Bgra8888;
-            AlphaFormat alphaFormat = AlphaFormat.Premul;
-            PixelSize pixelSize = new PixelSize(softwareBitmap.PixelWidth, softwareBitmap.PixelHeight);
-            Vector dpi = new Vector(softwareBitmap.DpiX, softwareBitmap.DpiY);
-            int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
-            byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
-            softwareBitmap.CopyToBuffer(bytes.AsBuffer());
-            fixed (byte* p = bytes)
-            {
-                IntPtr intptr = (IntPtr)p;
-                Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
-                return bitmap;
-            }
-        }
+        
 
     }
     partial class ImageProcesser
     {
+        //Minh
         public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
             //PointF[] points = new PointF[contour.Size];
@@ -178,7 +141,9 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
-            for(int i=0; i<hull.Size; i++)
+            if (hull == null || image == null)
+                return image;
+            for (int i=0; i<hull.Size; i++)
             {
                 CvInvoke.DrawMarker(image, hull[i], red.MCvScalar, MarkerTypes.Cross, 30, 10);
             }
@@ -192,7 +157,7 @@ namespace HandRegcoDemo0.ViewModels
                 points.Add(System.Drawing.Point.Round(pointf));
             }
             VectorOfPoint vector = new VectorOfPoint(values: points.ToArray());
-            CvInvoke.Polylines(image, vector, false, red.MCvScalar);
+            CvInvoke.Polylines(image, vector, true, red.MCvScalar, 2);
             return image;
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
@@ -244,6 +209,22 @@ namespace HandRegcoDemo0.ViewModels
 
             return largestContour;
         }
+        public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
+        {
+            PixelFormat pixelFormat = PixelFormat.Bgra8888;
+            AlphaFormat alphaFormat = AlphaFormat.Premul;
+            PixelSize pixelSize = new PixelSize(softwareBitmap.PixelWidth, softwareBitmap.PixelHeight);
+            Vector dpi = new Vector(softwareBitmap.DpiX, softwareBitmap.DpiY);
+            int stride = ((softwareBitmap.PixelWidth * 32 + 31) & ~31) / 8;
+            byte[] bytes = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
+            softwareBitmap.CopyToBuffer(bytes.AsBuffer());
+            fixed (byte* p = bytes)
+            {
+                IntPtr intptr = (IntPtr)p;
+                Avalonia.Media.Imaging.WriteableBitmap bitmap = new Avalonia.Media.Imaging.WriteableBitmap(pixelFormat, alphaFormat, intptr, pixelSize, dpi, stride);
+                return bitmap;
+            }
+        }
     }
-    //
+    
 }
