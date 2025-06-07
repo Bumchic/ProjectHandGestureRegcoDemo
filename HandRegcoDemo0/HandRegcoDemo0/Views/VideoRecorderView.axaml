@@ -1,0 +1,55 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="HandRegcoDemo0.VideoRecorderView"
+    xmlns:vm="clr-namespace:HandRegcoDemo0.ViewModels"
+    x:DataType="vm:VideoRecorderViewModel">
+
+	<StackPanel Margin="20" Spacing="10">
+
+		<!-- Camera selection -->
+		<StackPanel Orientation="Horizontal" Spacing="10">
+			<TextBlock Text="Chọn camera:" VerticalAlignment="Center"/>
+			<ComboBox Width="150"
+          ItemsSource="{Binding CameraOptions}"
+          SelectedIndex="{Binding SelectedCameraIndex}" />
+
+		</StackPanel>
+
+		<!-- Preview -->
+		<Border BorderBrush="Gray" BorderThickness="1" Width="640" Height="360">
+			<Image Source="{Binding PreviewBitmapImage}" Stretch="Uniform" />
+		</Border>
+
+		<!-- Buttons -->
+		<StackPanel Orientation="Horizontal" Spacing="10">
+			<Button Content="Bắt đầu camera"
+                    Command="{Binding StartCameraCommand}"
+                    IsEnabled="{Binding StartButtonEnabled}" />
+
+			<Button Content="Dừng camera"
+                    Command="{Binding StopCameraCommand}"
+                    IsEnabled="{Binding StopButtonEnabled}" />
+
+			<Button Content="Ghi hình"
+                    Command="{Binding StartRecordingCommand}"
+                    IsEnabled="{Binding RecordButtonEnabled}" />
+
+			<Button Content="Dừng ghi hình"
+                    Command="{Binding StopRecordingCommand}"
+                    IsEnabled="{Binding StopRecordButtonEnabled}" />
+		</StackPanel>
+
+		<!-- Recording Info -->
+		<StackPanel Orientation="Horizontal" Spacing="20">
+			<TextBlock Text="{Binding RecordingStatus}" FontWeight="Bold" />
+			<TextBlock Text="Thời gian ghi: " />
+			<TextBlock Text="{Binding RecordingDuration}" />
+		</StackPanel>
+
+	</StackPanel>
+</UserControl>
