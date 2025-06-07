@@ -154,18 +154,20 @@ namespace HandRegcoDemo0.ViewModels
 
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
                 var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
-                handContour = _imageProcessor.GetConvexHull(handContour);
+                var handConvex = _imageProcessor.GetConvexHull(handContour);
 
                 if (handContour != null)
                 {
-                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                     RotatedRect box = CvInvoke.MinAreaRect(handContour);
-                    inputMat = _imageProcessor.MarkFingerPoint(handContour, inputMat);
+                    inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
                     inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+                    
 
-                    var hullIndices = _imageProcessor.GetConvexHullIndices(handContour);
-                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour, hullIndices);
-                    inputMat = _imageProcessor.DrawConvexityDefects(handContour, inputMat);
+                    var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
+                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour, handConvex);
+                    //inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat);
+                    //inputMat = _imageProcessor.DrawConvexityDefects(handConvex, inputMat);
                     ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
 
                 }

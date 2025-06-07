@@ -146,10 +146,17 @@ namespace HandRegcoDemo0.ViewModels
             return hullIndices;
         }
 
-        public VectorOfPoint GetConvexityDefects(VectorOfPoint contour, VectorOfPoint hullIndices)
+        public VectorOfPoint3D32F GetConvexityDefects(VectorOfPoint contour, VectorOfPoint hullIndices)
         {
-            var defectsMat = new VectorOfPoint();
-            CvInvoke.ConvexityDefects(contour, hullIndices, defectsMat);
+            var defectsMat = new VectorOfPoint3D32F();
+            try
+            {
+                CvInvoke.ConvexityDefects(contour, hullIndices, defectsMat);
+            }catch(Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+           
             return defectsMat;
         }
 
@@ -192,21 +199,21 @@ namespace HandRegcoDemo0.ViewModels
             }
         }*/
 
-        public Mat DrawConvexityDefects(VectorOfPoint contour, Mat inputImage)
-        {
-            if (contour == null || contour.Size < 4 || inputImage == null || inputImage.IsEmpty)
-                return inputImage?.Clone() ?? new Mat();
+        //public Mat DrawConvexityDefects(VectorOfPoint contour, Mat inputImage)
+        //{
+        //    if (contour == null || contour.Size < 4 || inputImage == null || inputImage.IsEmpty)
+        //        return inputImage?.Clone() ?? new Mat();
 
-            var debugImage = inputImage.Clone();
+        //    var debugImage = inputImage.Clone();
 
-            var hullIndices = GetConvexHullIndices(contour);
+        //    var hullIndices = GetConvexHullIndices(contour);
 
-            var defectsMat = GetConvexityDefects(contour, hullIndices);
+        //    var defectsMat = GetConvexityDefects(contour, hullIndices);
 
-            DrawDefects(debugImage, contour, defectsMat);
+        //    DrawDefects(debugImage, contour, defectsMat);
 
-            return debugImage;
-        }
+        //    return debugImage;
+        //}
 
     }
     partial class ImageProcesser
@@ -299,7 +306,11 @@ namespace HandRegcoDemo0.ViewModels
             return largestContour;
         }
        
-
+        public Mat DrawConvexDefect(Mat img, VectorOfPoint convexDefect)
+        {
+            CvInvoke.Polylines(img, convexDefect, true, green.MCvScalar);
+            return img;
+        }
 
     }
 
