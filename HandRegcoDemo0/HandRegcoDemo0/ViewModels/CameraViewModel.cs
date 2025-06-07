@@ -23,6 +23,9 @@ using Emgu.CV;
 using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Linq;
 
 
 
@@ -44,16 +47,21 @@ namespace HandRegcoDemo0.ViewModels
         public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
-
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
+        [ObservableProperty]
+        private Bitmap testingImage;
+        private Mat[] testingImages;
+        private int testingImageIndex;
         public int SelectedIndex { get; set; }
         
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
+            testingImages = getAllPic();
+            testingImageIndex = 0;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
         }
@@ -150,7 +158,7 @@ namespace HandRegcoDemo0.ViewModels
 
                 var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
 
-                var processedMat = _imageProcessor.ProcessGesture(inputMat);
+                var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
                 var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
                 handContour = _imageProcessor.GetConvexHull(handContour);
@@ -169,7 +177,46 @@ namespace HandRegcoDemo0.ViewModels
                 SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
             }
         }
-        
+        public Mat[] getAllPic()
+        {
+            DirectoryInfo directory = new DirectoryInfo("Assets");
+            FileInfo[] infos = directory.GetFiles();
+            List<Mat> imagelist = new List<Mat>();
+            for (int i = 0; i < infos.Length; i++)
+            {
+                
+                if (infos[i].Extension == ".jpg")
+                {
+
+                    byte[] bytes = File.ReadAllBytes(infos[i].FullName);
+                    Mat img = new Mat();
+                    CvInvoke.Imdecode(bytes, Emgu.CV.CvEnum.ImreadModes.Unchanged, img);
+                    CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
+                    imagelist.Add(img);
+                }
+            }
+
+            return imagelist.ToArray();
+        }
+        public void ButtonIncrease()
+        {
+            testingImageIndex++;
+            if(testingImageIndex >= testingImages.Length)
+            {
+                testingImageIndex = 0;
+            }
+            Mat inputMat = testingImages[testingImageIndex].Clone();
+            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+            var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
+            handContour = _imageProcessor.GetConvexHull(handContour);
+            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+            RotatedRect box = CvInvoke.MinAreaRect(handContour);
+            inputMat = _imageProcessor.MarkFingerPoint(handContour, inputMat);
+            inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+
+            TestingImage = _imageProcessor.MatToWriteableBitmap(inputMat);
+            return;
+        }
 
     }
 }
