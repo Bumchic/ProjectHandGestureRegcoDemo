@@ -146,14 +146,14 @@ namespace HandRegcoDemo0.ViewModels
             return hullIndices;
         }
 
-        public Mat GetConvexityDefects(VectorOfPoint contour, VectorOfInt hullIndices)
+        public VectorOfPoint GetConvexityDefects(VectorOfPoint contour, VectorOfPoint hullIndices)
         {
-            var defectsMat = new Mat();
+            var defectsMat = new VectorOfPoint();
             CvInvoke.ConvexityDefects(contour, hullIndices, defectsMat);
             return defectsMat;
         }
 
-        public void DrawDefects(Mat image, VectorOfPoint contour, Mat defectsMat)
+        /*public void DrawDefects(Mat image, VectorOfPoint contour)
         {
             if (defectsMat.IsEmpty || defectsMat.Rows == 0)
             {
@@ -190,7 +190,7 @@ namespace HandRegcoDemo0.ViewModels
                     CvInvoke.Circle(image, farPoint, 5, new MCvScalar(0, 0, 255), -1);
                 }
             }
-        }
+        }*/
 
         public Mat DrawConvexityDefects(VectorOfPoint contour, Mat inputImage)
         {
