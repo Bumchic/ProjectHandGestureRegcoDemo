@@ -30,5 +30,18 @@ namespace HandRegcoDemo0.Services
 
             
         }
+
+        public void OpenVideoRecorderView()
+        {
+            var recorderWindow = new Window
+            {
+                Content = new VideoRecorderView
+                {
+                    DataContext = new VideoRecorderViewModel()
+                }
+            };
+            recorderWindow.Show(); // or ShowDialog() if modal behavior is needed
+        }
+
     }
 }

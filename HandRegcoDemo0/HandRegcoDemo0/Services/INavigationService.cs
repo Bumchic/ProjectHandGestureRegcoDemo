@@ -9,6 +9,7 @@ namespace HandRegcoDemo0.Services
     public interface INavigationService
     {
         void OpenCameraView();
+        void OpenVideoRecorderView();
         void ExitApplication();
     }
 }

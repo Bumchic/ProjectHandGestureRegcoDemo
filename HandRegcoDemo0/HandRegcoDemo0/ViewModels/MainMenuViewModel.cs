@@ -26,7 +26,7 @@ namespace HandRegcoDemo0.ViewModels
 
             RecordCommand = new RelayCommand(() =>
             {
-                // logic cho RecordCommand
+                Dispatcher.UIThread.Post(() => _navigationService.OpenVideoRecorderView());
             });
 
             ExitCommand = new RelayCommand(() =>
