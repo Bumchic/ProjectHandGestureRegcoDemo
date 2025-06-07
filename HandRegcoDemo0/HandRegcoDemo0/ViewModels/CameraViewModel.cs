@@ -49,7 +49,7 @@ namespace HandRegcoDemo0.ViewModels
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
-        
+
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
@@ -59,8 +59,8 @@ namespace HandRegcoDemo0.ViewModels
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
-                mediaCapture = new MediaCapture();
-                await mediaCapture.InitializeAsync(settings);
+            mediaCapture = new MediaCapture();
+            await mediaCapture.InitializeAsync(settings);
         }
         public async Task AddCameraOption()
         {
@@ -87,19 +87,19 @@ namespace HandRegcoDemo0.ViewModels
 
             }
 
-                MediaCaptureInitializationSettings settings;
-                settings = new MediaCaptureInitializationSettings()
-                {
-                    VideoDeviceId = Camera.Id,
-                    StreamingCaptureMode = StreamingCaptureMode.Video,
-                    MemoryPreference = MediaCaptureMemoryPreference.Cpu
-                };
-                await InitCapMedia(settings);
-                Debug.WriteLine("Success");
+            MediaCaptureInitializationSettings settings;
+            settings = new MediaCaptureInitializationSettings()
+            {
+                VideoDeviceId = Camera.Id,
+                StreamingCaptureMode = StreamingCaptureMode.Video,
+                MemoryPreference = MediaCaptureMemoryPreference.Cpu
+            };
+            await InitCapMedia(settings);
+            Debug.WriteLine("Success");
 
 
             frameSource = null;
-                previewSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoPreview && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
+            previewSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoPreview && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
             if (previewSource != null)
             {
                 frameSource = previewSource;
@@ -150,18 +150,25 @@ namespace HandRegcoDemo0.ViewModels
 
                 var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
 
-                var processedMat = _imageProcessor.ProcessGesture(inputMat);
+                var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
+
                 var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
                 var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
                 handContour = _imageProcessor.GetConvexHull(handContour);
+
                 if (handContour != null)
                 {
                     CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                     RotatedRect box = CvInvoke.MinAreaRect(handContour);
                     inputMat = _imageProcessor.MarkFingerPoint(handContour, inputMat);
                     inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
-                }
 
+                    var hullIndices = _imageProcessor.GetConvexHullIndices(handContour);
+                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour, hullIndices);
+                    inputMat = _imageProcessor.DrawConvexityDefects(handContour, inputMat);
+                    ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
+
+                }
 
                 //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
