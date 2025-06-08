@@ -24,13 +24,7 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 366);
         private readonly Rgba green = new Rgba(0, 255, 0, 366);
-        public struct ConvexityDefect
-        {
-            public Point StartPoint;
-            public Point EndPoint;
-            public Point DepthPoint;
-            public float Depth;
-        }
+        
 
         public Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
