@@ -160,13 +160,13 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                     RotatedRect box = CvInvoke.MinAreaRect(handContour);
-                    inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
+                    //inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
                     inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
                     
 
                     var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
-                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour, handConvex);
-                    //inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat);
+                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
+                    inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
                     //inputMat = _imageProcessor.DrawConvexityDefects(handConvex, inputMat);
                     ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
 

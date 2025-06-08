@@ -16,6 +16,7 @@ using Emgu.CV.Reg;
 using Emgu.CV.Util;
 using System.Drawing;
 using Point = System.Drawing.Point;
+using Avalonia.Controls.Templates;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -146,17 +147,14 @@ namespace HandRegcoDemo0.ViewModels
             return hullIndices;
         }
 
-        public VectorOfPoint3D32F GetConvexityDefects(VectorOfPoint contour, VectorOfPoint hullIndices)
+        public Mat GetConvexityDefects(VectorOfPoint contour)
         {
-            var defectsMat = new VectorOfPoint3D32F();
-            try
-            {
-                CvInvoke.ConvexityDefects(contour, hullIndices, defectsMat);
-            }catch(Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-           
+            
+            var defectsMat = new Mat();
+            Mat ConvexHull = new Mat();
+            
+            CvInvoke.ConvexHull(contour, ConvexHull, false, false);
+            CvInvoke.ConvexityDefects(contour, ConvexHull, defectsMat);
             return defectsMat;
         }
 
@@ -226,6 +224,10 @@ namespace HandRegcoDemo0.ViewModels
             //{
             //    points[i] = contour[i];
             //}
+            if(contour == null)
+            {
+                return null;
+            }
             VectorOfPoint hull = new VectorOfPoint(contour.Size);
 
             CvInvoke.ConvexHull(contour, hull, false, false);
@@ -233,6 +235,7 @@ namespace HandRegcoDemo0.ViewModels
             
             return hull;
         }
+
 
 
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
@@ -306,9 +309,18 @@ namespace HandRegcoDemo0.ViewModels
             return largestContour;
         }
        
-        public Mat DrawConvexDefect(Mat img, VectorOfPoint convexDefect)
+        public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
-            CvInvoke.Polylines(img, convexDefect, true, green.MCvScalar);
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            RotatedRect box = CvInvoke.MinAreaRect(contour);
+            for (int i=0; i<matrix.Rows; i++)
+            {
+                    Point furthest = new Point(contour[matrix.Data[i, 2]].X, contour[matrix.Data[i, 2]].Y);
+                    CvInvoke.DrawMarker(img, furthest, green.MCvScalar, MarkerTypes.Cross, 40, 10);
+                Debug.WriteLine(matrix.Data[i, 3]);
+            }
+            
             return img;
         }
 
