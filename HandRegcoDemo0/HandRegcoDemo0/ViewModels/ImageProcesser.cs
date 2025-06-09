@@ -323,6 +323,10 @@ namespace HandRegcoDemo0.ViewModels
             
             return img;
         }
+        public void calculateDistanceTransformation(Mat image)
+        {
+            CvInvoke.DistanceTransform(image, image, DistType.)
+        }
 
     }
 
