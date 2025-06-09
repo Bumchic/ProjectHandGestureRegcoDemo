@@ -1,36 +1,209 @@
-
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:HandRegcoDemo0.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d"
+        Width="1100" Height="600"
         x:Class="HandRegcoDemo0.Views.CameraView"
         x:DataType="vm:CameraViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="HandRegcoDemo0">
+        Title="Hand Recognition - Camera View"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen">
+
+	<!-- Nền gradient theo tông Instagram cam - hồng - tím -->
+	<Window.Background>
+		<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+			<GradientStop Color="#f58529" Offset="0.0"/>
+			<GradientStop Color="#dd2a7b" Offset="0.5"/>
+			<GradientStop Color="#8134af" Offset="1.0"/>
+		</LinearGradientBrush>
+	</Window.Background>
+
+	<Window.Styles>
+		<!-- Style cho button khi hover: đổi nền hồng đậm -->
+		<Style Selector="Button.CameraButton:pointerover">
+			<Setter Property="Opacity" Value="0.95"/>
+			<Setter Property="Background" Value="#dd2a7b"/>
+		</Style>
+
+		<!-- Style cho border viền ảnh mặc định và khi hover -->
+		<Style Selector="Border.ImageBorder">
+			<Setter Property="BorderBrush" Value="#dd2a7b"/>
+		</Style>
+		<Style Selector="Border.ImageBorder:pointerover">
+			<Setter Property="BorderBrush" Value="#f58529"/>
+		</Style>
+	</Window.Styles>
 
 	<Design.DataContext>
 		<vm:CameraViewModel/>
 	</Design.DataContext>
 
-	<StackPanel Margin="10">
-		<Button Command="{Binding Path=StartCamOnClick}" HorizontalAlignment="Center" Margin="0,10">Start Cam</Button>
+	<Grid Margin="10">
+		<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Spacing="12" MaxWidth="700" HorizontalAlignment="Center">
 
-		<TextBlock Text="Original Image" FontWeight="Bold" Margin="0,10,0,5"/>
-		<Border BorderBrush="Black" BorderThickness="2">
-			<Image Source="{Binding Path=BitmapImage}" Name="OriginalImageControl" MaxWidth="400" MaxHeight="300"/>
-		</Border>
+				<!-- Header Section (Font thu nhỏ, chữ màu trắng hồng nhạt) -->
+				<StackPanel HorizontalAlignment="Center" Spacing="4">
+					<TextBlock Text="🎥 Camera Control"
+							   FontSize="20"
+							   FontWeight="Bold"
+							   Foreground="#fdf0f5"
+							   HorizontalAlignment="Center"
+							   TextAlignment="Center"/>
 
-		<TextBlock Text="Hand Detection Image" FontWeight="Bold" Margin="0,10,0,5"/>
-		<Border BorderBrush="Black" BorderThickness="2">
-			<Image Source="{Binding Path=ProcessedBitmapImage}" Name="ProcessedImageControl" MaxWidth="400" MaxHeight="300"/>
-		</Border>
+					<TextBlock Text="Real-time Hand Detection"
+							   FontSize="12"
+							   FontWeight="Light"
+							   Foreground="#fdf0f5"
+							   Opacity="0.8"
+							   HorizontalAlignment="Center"
+							   TextAlignment="Center"/>
+				</StackPanel>
 
-		<TextBlock Text="Skin Mask Image" FontWeight="Bold" Margin="0,10,0,5"/>
-		<Border BorderBrush="Black" BorderThickness="2">
-			<Image Source="{Binding Path=SkinMaskBitmapImage}" Name="IFrameReaderImageControl" MaxWidth="400" MaxHeight="300"/>
-		</Border>
+				<!-- Image Display Section: 3 ảnh cùng hàng -->
+				<Grid ColumnDefinitions="*,20,*,20,*" RowDefinitions="Auto">
 
-	</StackPanel>
+					<!-- Original Photo -->
+					<StackPanel Grid.Column="0" Spacing="8">
+						<TextBlock Text="📷 Original Image"
+								   FontWeight="Bold"
+								   FontSize="14"
+								   Foreground="#fdf0f5"
+								   HorizontalAlignment="Center"/>
+
+						<Border BorderThickness="3"
+								CornerRadius="12"
+								Background="#FFFFFF10"
+								Classes="ImageBorder">
+							<Image Source="{Binding Path=BitmapImage}"
+								   Name="OriginalImageControl"
+								   MaxWidth="513"
+								   MaxHeight="432"
+								   Stretch="Uniform"
+								   Margin="8"/>
+						</Border>
+					</StackPanel>
+
+					<!-- Skin Mask Image -->
+					<StackPanel Grid.Column="2" Spacing="8">
+						<TextBlock Text="✋ Skin Mask Detection"
+								   FontWeight="Bold"
+								   FontSize="14"
+								   Foreground="#fdf0f5"
+								   HorizontalAlignment="Center"/>
+
+						<Border BorderThickness="3"
+								CornerRadius="12"
+								Background="#FFFFFF10"
+								Classes="ImageBorder"
+								HorizontalAlignment="Center">
+							<Image Source="{Binding Path=SkinMaskBitmapImage}"
+								   Name="IFrameReaderImageControl"
+								   MaxWidth="380"
+								   MaxHeight="320"
+								   Stretch="Uniform"
+								   Margin="8"/>
+						</Border>
+					</StackPanel>
+
+					<!-- Processed Photo -->
+					<StackPanel Grid.Column="4" Spacing="8">
+						<TextBlock Text="🔍 Processed Image"
+								   FontWeight="Bold"
+								   FontSize="14"
+								   Foreground="#fdf0f5"
+								   HorizontalAlignment="Center"/>
+
+						<Border BorderThickness="3"
+								CornerRadius="12"
+								Background="#FFFFFF10"
+								Classes="ImageBorder">
+							<Image Source="{Binding Path=ProcessedBitmapImage}"
+								   Name="ProcessedImageControl"
+								   MaxWidth="380"
+								   MaxHeight="320"
+								   Stretch="Uniform"
+								   Margin="8"/>
+						</Border>
+					</StackPanel>
+
+				</Grid>
+
+				<!-- Status Section (Thu nhỏ font, padding) -->
+				<Border Background="#FFFFFF15"
+						CornerRadius="12"
+						Padding="10">
+					<StackPanel Spacing="6">
+						<TextBlock Text="📊 Status"
+								   FontSize="12"
+								   FontWeight="SemiBold"
+								   Foreground="#fdf0f5"
+								   HorizontalAlignment="Center"/>
+
+						<TextBlock Text="Ready for hand detection..."
+								   FontSize="10"
+								   Foreground="#fdf0f5"
+								   Opacity="0.8"
+								   HorizontalAlignment="Center"
+								   TextAlignment="Center"/>
+					</StackPanel>
+				</Border>
+
+				<!-- Camera Control Section - thu nhỏ hơn nữa -->
+				<Border Background="#FFFFFF15"
+						CornerRadius="12"
+						Padding="6"
+						MaxWidth="280">
+					<StackPanel Spacing="6">
+						<TextBlock Text="Camera Control"
+								   FontSize="10"
+								   FontWeight="Medium"
+								   Foreground="#fdf0f5"
+								   HorizontalAlignment="Center"/>
+
+						<!-- Start Camera Button -->
+						<Button Command="{Binding Path=StartCamOnClick}"
+								Classes="CameraButton"
+								Content="📹 Start Camera"
+								Width="110"
+								Height="28"
+								Background="#f58529"
+								Foreground="White"
+								FontWeight="Medium"
+								FontSize="10"
+								CornerRadius="18"
+								BorderThickness="0"
+								HorizontalContentAlignment="Center"
+								VerticalContentAlignment="Center"
+								HorizontalAlignment="Center"/>
+
+						<!-- Device Selection -->
+						<StackPanel Spacing="3">
+							<TextBlock Text="Camera Device"
+									   FontSize="9"
+									   FontWeight="Medium"
+									   Foreground="#fdf0f5"
+									   HorizontalAlignment="Center"/>
+
+							<ComboBox ItemsSource="{Binding Path=cameraCombobox}"
+									  SelectedIndex="{Binding Path=SelectedIndex}"
+									  Name="DeviceChoices"
+									  Width="140"
+									  Height="26"
+									  Background="#FFFFFF90"
+									  Foreground="#333333"
+									  FontSize="9"
+									  CornerRadius="16"
+									  HorizontalAlignment="Center"
+									  HorizontalContentAlignment="Center"/>
+						</StackPanel>
+					</StackPanel>
+				</Border>
+
+			</StackPanel>
+		</ScrollViewer>
+	</Grid>
 </Window>
