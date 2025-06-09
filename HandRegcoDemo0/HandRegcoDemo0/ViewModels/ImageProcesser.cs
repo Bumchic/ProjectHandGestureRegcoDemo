@@ -313,12 +313,10 @@ namespace HandRegcoDemo0.ViewModels
         {
             Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
             convexDefect.CopyTo(matrix);
-            RotatedRect box = CvInvoke.MinAreaRect(contour);
             for (int i=0; i<matrix.Rows; i++)
             {
                     Point furthest = new Point(contour[matrix.Data[i, 2]].X, contour[matrix.Data[i, 2]].Y);
                     CvInvoke.DrawMarker(img, furthest, green.MCvScalar, MarkerTypes.Cross, 40, 10);
-                Debug.WriteLine(matrix.Data[i, 3]);
             }
             
             return img;
