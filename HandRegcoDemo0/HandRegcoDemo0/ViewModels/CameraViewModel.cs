@@ -146,6 +146,7 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
+                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap); 
             }
         }
@@ -169,7 +170,7 @@ namespace HandRegcoDemo0.ViewModels
         public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
         {
 
-            BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+            
 
             var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
 
@@ -196,6 +197,10 @@ namespace HandRegcoDemo0.ViewModels
             }
             return _imageProcessor.MatToWriteableBitmap(inputMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+
+        }
+        public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
+        {
 
         }
     }
