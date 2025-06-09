@@ -311,6 +311,7 @@ namespace HandRegcoDemo0.ViewModels
        
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
+     
             Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
             convexDefect.CopyTo(matrix);
             for (int i=0; i<matrix.Rows; i++)
@@ -321,9 +322,10 @@ namespace HandRegcoDemo0.ViewModels
             
             return img;
         }
-        public void calculateDistanceTransformation(Mat image)
+        public Mat calculateDistanceTransformation(Mat image)
         {
-            //CvInvoke.DistanceTransform(image, image, DistType.);
+            CvInvoke.DistanceTransform(image, image, null, DistType.L2, 0);
+            return image;
         }
 
     }

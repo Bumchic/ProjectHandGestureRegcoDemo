@@ -147,7 +147,8 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                ProcessedBitmapImage = ProcessMat(softwareBitmap); 
+                ProcessedBitmapImage = ProcessMat(softwareBitmap);
+                SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -201,7 +202,10 @@ namespace HandRegcoDemo0.ViewModels
         }
         public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
         {
-
+            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
+            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+            skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+            return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
         }
     }
 }
