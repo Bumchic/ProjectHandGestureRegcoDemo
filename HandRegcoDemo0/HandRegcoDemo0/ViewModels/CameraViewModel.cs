@@ -146,36 +146,7 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-
-                var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-
-                var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
-
-                var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-                var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
-                var handConvex = _imageProcessor.GetConvexHull(handContour);
-
-                if (handContour != null)
-                {
-                    CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
-                    RotatedRect box = CvInvoke.MinAreaRect(handContour);
-                    //inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
-                    inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
-                    
-
-                    var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
-                    var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
-                    inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
-                    //inputMat = _imageProcessor.DrawConvexityDefects(handConvex, inputMat);
-                    ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
-
-                }
-
-                //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
-
-                ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(inputMat);
-                SkinMaskBitmapImage = _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+                ProcessedBitmapImage = ProcessMat(softwareBitmap); 
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -195,6 +166,37 @@ namespace HandRegcoDemo0.ViewModels
                 return bitmap;
             }
         }
+        public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
+        {
 
+            BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+
+            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
+
+            var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
+
+            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+            var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
+            var handConvex = _imageProcessor.GetConvexHull(handContour);
+
+            if (handContour != null)
+            {
+                CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                RotatedRect box = CvInvoke.MinAreaRect(handContour);
+                //inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
+                inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+
+
+                var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
+                var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
+                inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
+                //inputMat = _imageProcessor.DrawConvexityDefects(handConvex, inputMat);
+                
+
+            }
+            return _imageProcessor.MatToWriteableBitmap(inputMat);
+            //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
+
+        }
     }
 }
