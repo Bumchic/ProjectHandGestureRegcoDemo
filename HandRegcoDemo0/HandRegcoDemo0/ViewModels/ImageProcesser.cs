@@ -324,10 +324,25 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat calculateDistanceTransformation(Mat image)
         {
-            CvInvoke.DistanceTransform(image, image, null, DistType.L2, 0);
+            CvInvoke.DistanceTransform(image, image, null, DistType.User, 0);
             return image;
         }
-
+        public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
+        {
+            double Epsilon = 0.025*CvInvoke.ArcLength(contour, true);
+            Debug.WriteLine(Epsilon);
+            CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
+            return contour;
+        }
+        public Mat DrawContour(VectorOfPoint contour, Mat inputMat)
+        {
+            if (inputMat == null)
+            {
+                inputMat = new Mat();
+            }
+            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
+            return inputMat;
+        }
     }
 
 }

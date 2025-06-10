@@ -178,7 +178,9 @@ namespace HandRegcoDemo0.ViewModels
             var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
 
             var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+
             var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
+            handContour = _imageProcessor.PolyLineApprox(handContour);
             var handConvex = _imageProcessor.GetConvexHull(handContour);
 
             if (handContour != null)
@@ -204,7 +206,10 @@ namespace HandRegcoDemo0.ViewModels
         {
             var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
             var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-            skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+            //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
+            contour = _imageProcessor.PolyLineApprox(contour);
+            skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
         }
     }
