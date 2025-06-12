@@ -183,7 +183,8 @@ namespace HandRegcoDemo0.ViewModels
 
             if (handContour != null)
             {
-                CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+                CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, 
+                    new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                 RotatedRect box = CvInvoke.MinAreaRect(handContour);
                 //inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
                 inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
