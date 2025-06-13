@@ -149,14 +149,47 @@ namespace HandRegcoDemo0.ViewModels
 
         public Mat GetConvexityDefects(VectorOfPoint contour)
         {
-            
             var defectsMat = new Mat();
-            Mat ConvexHull = new Mat();
-            
-            CvInvoke.ConvexHull(contour, ConvexHull, false, false);
-            CvInvoke.ConvexityDefects(contour, ConvexHull, defectsMat);
+
+            if (!IsValidForConvexityDefects(contour, out VectorOfInt hullIndices))
+            {
+                return defectsMat;
+            }
+
+            try
+            {
+                CvInvoke.ConvexityDefects(contour, hullIndices, defectsMat);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ConvexityDefects failed: {ex.Message}");
+            }
+
             return defectsMat;
         }
+
+
+        private bool IsValidForConvexityDefects(VectorOfPoint contour, out VectorOfInt hullIndices)
+        {
+            hullIndices = new VectorOfInt();
+
+            if (contour == null || contour.Size < 3)
+            {
+                Debug.WriteLine("Contour is null or too small.");
+                return false;
+            }
+
+            CvInvoke.ConvexHull(contour, hullIndices, returnPoints: false, clockwise: false);
+
+            if (hullIndices == null || hullIndices.Size < 3)
+            {
+                Debug.WriteLine("Hull indices too small or null.");
+                return false;
+            }
+
+            return true;
+        }
+
 
         /*public void DrawDefects(Mat image, VectorOfPoint contour)
         {
@@ -308,20 +341,29 @@ namespace HandRegcoDemo0.ViewModels
 
             return largestContour;
         }
-       
+
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
-     
-            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
-            convexDefect.CopyTo(matrix);
-            for (int i=0; i<matrix.Rows; i++)
+            if (convexDefect == null || convexDefect.IsEmpty || contour == null)
+                return img;
+
+            int defectSize = 4; // mỗi defect gồm 4 giá trị: startIdx, endIdx, farIdx, depth
+            for (int i = 0; i < convexDefect.Rows; i++)
             {
-                    Point furthest = new Point(contour[matrix.Data[i, 2]].X, contour[matrix.Data[i, 2]].Y);
+                int[] defect = new int[defectSize];
+                System.Runtime.InteropServices.Marshal.Copy(convexDefect.DataPointer + i * defectSize * sizeof(int), defect, 0, defectSize);
+
+                int farIdx = defect[2];
+                if (farIdx >= 0 && farIdx < contour.Size)
+                {
+                    Point furthest = contour[farIdx];
                     CvInvoke.DrawMarker(img, furthest, green.MCvScalar, MarkerTypes.Cross, 40, 10);
+                }
             }
-            
+
             return img;
         }
+
         public Mat calculateDistanceTransformation(Mat image)
         {
             CvInvoke.DistanceTransform(image, image, null, DistType.User, 0);
@@ -331,7 +373,19 @@ namespace HandRegcoDemo0.ViewModels
         {
             double Epsilon = 0.025*CvInvoke.ArcLength(contour, true);
             Debug.WriteLine(Epsilon);
-            CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
+            if (contour == null)
+            {
+                Debug.WriteLine("Contour is null.");
+            }
+            else if (contour.Size == 0)
+            {
+                Debug.WriteLine("Contour is empty.");
+            }
+            else
+            {
+                CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
+            }
+
             return contour;
         }
         public Mat DrawContour(VectorOfPoint contour, Mat inputMat)
