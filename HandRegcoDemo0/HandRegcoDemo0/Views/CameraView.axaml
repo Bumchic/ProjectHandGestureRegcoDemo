@@ -42,8 +42,11 @@
 	</Design.DataContext>
 
 	<Grid Margin="10">
-		<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-			<StackPanel Spacing="12" MaxWidth="700" HorizontalAlignment="Center">
+		<ScrollViewer 
+			VerticalScrollBarVisibility="Auto"
+			HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Spacing="12" MaxWidth="700" 
+						HorizontalAlignment="Center">
 
 				<!-- Header Section (Font thu nhỏ, chữ màu trắng hồng nhạt) -->
 				<StackPanel HorizontalAlignment="Center" Spacing="4">
@@ -116,7 +119,8 @@
 								   FontSize="14"
 								   Foreground="#fdf0f5"
 								   HorizontalAlignment="Center"/>
-						<Border Background="#AA000000" CornerRadius="8" Padding="8,4" HorizontalAlignment="Center" Margin="0,4,0,0" Width="180">
+						<Border Background="#AA000000" CornerRadius="8" Padding="8,4" 
+								HorizontalAlignment="Center" Margin="0,4,0,0" Width="180">
 							<TextBlock Text="{Binding RecognizedSign}"
 									   FontSize="28"
 									   FontWeight="Bold"
