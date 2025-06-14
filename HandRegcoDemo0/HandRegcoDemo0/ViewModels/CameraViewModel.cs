@@ -152,6 +152,7 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
+                Compare(softwareBitmap);
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
                 SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
@@ -186,12 +187,12 @@ namespace HandRegcoDemo0.ViewModels
             var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
 
             var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
-            handContour = _imageProcessor.PolyLineApprox(handContour);
+            //handContour = _imageProcessor.PolyLineApprox(handContour);
             var handConvex = _imageProcessor.GetConvexHull(handContour);
 
             if (handContour != null)
             {
-                CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, 
+                CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1,
                     new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
                 RotatedRect box = CvInvoke.MinAreaRect(handContour);
                 //inputMat = _imageProcessor.MarkFingerPoint(handConvex, inputMat);
@@ -202,10 +203,10 @@ namespace HandRegcoDemo0.ViewModels
                 var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
                 inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
                 //inputMat = _imageProcessor.DrawConvexityDefects(handConvex, inputMat);
-                
+
 
             }
-            return _imageProcessor.MatToWriteableBitmap(inputMat);
+            return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
         }
@@ -236,15 +237,49 @@ namespace HandRegcoDemo0.ViewModels
                     CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
                     img = _imageProcessor.DetectSkinVer1(img);
                     VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
-                    Moments moments = CvInvoke.Moments(contour, true);
-                    CvInvoke.HuMoments(moments);
-                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 1);
-                    handSign.Moments = moments;
+                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 5);
+                    handSign.img = img;
+                    handSign.contour = contour;
                     imagelist.Add(handSign);
                 }
             }
 
             return imagelist;
+        }
+        public void Compare(SoftwareBitmap softwareBitmap)
+        {
+            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
+            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
+            readHandSign(StoredHandSign.ToArray()[2].contour);
+        }
+        public string readHandSign(VectorOfPoint contour)
+        {
+            if(contour == null)
+            {
+                return "";
+            }
+            double res = 0;
+            HandSign matchedSign = new HandSign();
+            try
+            {
+                foreach (var sign in StoredHandSign)
+                {
+                    double shapePercent = CvInvoke.MatchShapes(contour, sign.contour, Emgu.CV.CvEnum.ContoursMatchType.I2);
+                    if (shapePercent > res)
+                    {
+                        res = shapePercent;
+                        matchedSign = sign;
+                    }
+                }
+            }catch(Exception e)
+            {
+                throw new Exception();
+            }
+            
+            Debug.WriteLine(res);
+            Debug.WriteLine(matchedSign.Word);
+            return matchedSign.Word;
         }
     }
 }

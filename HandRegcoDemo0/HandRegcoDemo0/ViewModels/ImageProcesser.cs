@@ -97,12 +97,12 @@ namespace HandRegcoDemo0.ViewModels
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                Mat converted = new Mat();
+                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+                mat = converted;
+            }
 
             int width = mat.Cols;
             int height = mat.Rows;
@@ -330,7 +330,6 @@ namespace HandRegcoDemo0.ViewModels
         public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
         {
             double Epsilon = 0.025*CvInvoke.ArcLength(contour, true);
-            Debug.WriteLine(Epsilon);
             CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
             return contour;
         }
