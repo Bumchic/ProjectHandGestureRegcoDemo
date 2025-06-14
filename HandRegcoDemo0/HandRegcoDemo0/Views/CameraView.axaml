@@ -116,6 +116,15 @@
 								   FontSize="14"
 								   Foreground="#fdf0f5"
 								   HorizontalAlignment="Center"/>
+						<Border Background="#AA000000" CornerRadius="8" Padding="8,4" HorizontalAlignment="Center" Margin="0,4,0,0" Width="180">
+							<TextBlock Text="{Binding RecognizedSign}"
+									   FontSize="28"
+									   FontWeight="Bold"
+									   Foreground="White"
+									   TextAlignment="Center"/>
+						</Border>
+
+
 
 						<Border BorderThickness="3"
 								CornerRadius="12"

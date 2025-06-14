@@ -23,6 +23,7 @@ using Emgu.CV;
 using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
+using Emgu.CV.CvEnum;
 
 
 
@@ -38,6 +39,7 @@ namespace HandRegcoDemo0.ViewModels
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
         private readonly ImageProcesser _imageProcessor;
+        private readonly SignRecognizer _signRecognizer;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
@@ -49,10 +51,13 @@ namespace HandRegcoDemo0.ViewModels
         [ObservableProperty]
         private bool buttonIsEnable;
         public int SelectedIndex { get; set; }
-
+        [ObservableProperty]
+        private string recognizedSign = "?";
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
+            _signRecognizer = new SignRecognizer();
+            _signRecognizer.LoadDataset("Datasets");
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
@@ -203,6 +208,15 @@ namespace HandRegcoDemo0.ViewModels
                 return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
 
             inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
+
+            var recognized = _signRecognizer.Recognize(skinMaskMat);
+            RecognizedSign = recognized;
+
+            CvInvoke.PutText(
+                inputMat, recognized,
+                new System.Drawing.Point(10, 50),
+                FontFace.HersheyComplex, 2.0,
+                new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
             return _imageProcessor.MatToWriteableBitmap(inputMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
