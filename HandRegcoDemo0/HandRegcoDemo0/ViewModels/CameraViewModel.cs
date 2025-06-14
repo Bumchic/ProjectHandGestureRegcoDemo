@@ -23,6 +23,8 @@ using Emgu.CV;
 using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
+using System.Collections.Generic;
+using System.IO;
 
 
 
@@ -44,7 +46,7 @@ namespace HandRegcoDemo0.ViewModels
         public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
-
+        private Mat[] StoredMat;
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
@@ -55,6 +57,8 @@ namespace HandRegcoDemo0.ViewModels
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
+            StoredMat = getAllPic();
+            Debug.WriteLine(StoredMat.Length);
             AddCameraOption();
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
@@ -212,6 +216,27 @@ namespace HandRegcoDemo0.ViewModels
             contour = _imageProcessor.PolyLineApprox(contour);
             skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+        }
+        public Mat[] getAllPic()
+        {
+            DirectoryInfo directory = new DirectoryInfo("Assets");
+            FileInfo[] infos = directory.GetFiles();
+            List<Mat> imagelist = new List<Mat>();
+            for (int i = 0; i < infos.Length; i++)
+            {
+
+                if (infos[i].Extension == ".jpg")
+                {
+
+                    byte[] bytes = File.ReadAllBytes(infos[i].FullName);
+                    Mat img = new Mat();
+                    CvInvoke.Imdecode(bytes, Emgu.CV.CvEnum.ImreadModes.Unchanged, img);
+                    CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
+                    imagelist.Add(img);
+                }
+            }
+
+            return imagelist.ToArray();
         }
     }
 }
