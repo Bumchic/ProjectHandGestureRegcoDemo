@@ -25,6 +25,8 @@ using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using System.Collections.Generic;
 using System.IO;
+using HandRegcoDemo0.Models;
+using Emgu.CV.XImgproc;
 
 
 
@@ -46,7 +48,7 @@ namespace HandRegcoDemo0.ViewModels
         public Avalonia.Media.Imaging.WriteableBitmap processedBitmapImage;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap skinMaskBitmapImage;
-        private Mat[] StoredMat;
+        private List<HandSign> StoredHandSign;
         public ObservableCollection<string> cameraCombobox { get; set; }
         [ObservableProperty]
         private bool buttonIsEnable;
@@ -57,8 +59,8 @@ namespace HandRegcoDemo0.ViewModels
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
-            StoredMat = getAllPic();
-            Debug.WriteLine(StoredMat.Length);
+            StoredHandSign = getAllPic();
+            Debug.WriteLine(StoredHandSign.Count);          
             AddCameraOption();
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
@@ -217,26 +219,32 @@ namespace HandRegcoDemo0.ViewModels
             skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
         }
-        public Mat[] getAllPic()
+        public List<HandSign> getAllPic()
         {
             DirectoryInfo directory = new DirectoryInfo("Assets");
             FileInfo[] infos = directory.GetFiles();
-            List<Mat> imagelist = new List<Mat>();
+            List<HandSign> imagelist = new List<HandSign>();
             for (int i = 0; i < infos.Length; i++)
             {
 
                 if (infos[i].Extension == ".jpg")
                 {
-
+                    HandSign handSign = new HandSign();
                     byte[] bytes = File.ReadAllBytes(infos[i].FullName);
                     Mat img = new Mat();
                     CvInvoke.Imdecode(bytes, Emgu.CV.CvEnum.ImreadModes.Unchanged, img);
                     CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
-                    imagelist.Add(img);
+                    img = _imageProcessor.DetectSkinVer1(img);
+                    VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
+                    Moments moments = CvInvoke.Moments(contour, true);
+                    CvInvoke.HuMoments(moments);
+                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 1);
+                    handSign.Moments = moments;
+                    imagelist.Add(handSign);
                 }
             }
 
-            return imagelist.ToArray();
+            return imagelist;
         }
     }
 }
