@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
+using HandRegcoDemo0.Models;
 
 public class SignRecognizer
 {
@@ -78,4 +79,5 @@ public class SignRecognizer
 
         return bestLabel;
     }
+
 }

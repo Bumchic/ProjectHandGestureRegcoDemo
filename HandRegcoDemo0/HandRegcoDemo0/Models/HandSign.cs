@@ -1,5 +1,6 @@
 ﻿using DynamicData;
 using Emgu.CV;
+using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using HandRegcoDemo0.ViewModels;
 using System;
@@ -16,6 +17,7 @@ namespace HandRegcoDemo0.Models
         public string Word { get; set; }
         public VectorOfPoint contour { get; set; }
         public VectorOfPoint convexHull { get; set; }
+        public RotatedRect box { get; set; }
         public List<HandSign> PopulateHandSign()
         {
             ImageProcesser _imageProcessor = new ImageProcesser();
@@ -36,9 +38,11 @@ namespace HandRegcoDemo0.Models
                     img = _imageProcessor.DetectSkinVer1(img);
                     VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
                     VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
+                    RotatedRect box = CvInvoke.MinAreaRect(contour);
                     handSign.contour = contour;
                     handSign.convexHull = hull;
-                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 1);
+                    handSign.box = box;
+                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 5);
                     imagelist.Add(handSign);
                 }
             }

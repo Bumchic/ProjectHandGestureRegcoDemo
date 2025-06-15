@@ -24,6 +24,8 @@ using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
+using HandRegcoDemo0.Models;
+using System.Collections.Generic;
 
 
 
@@ -53,6 +55,7 @@ namespace HandRegcoDemo0.ViewModels
         public int SelectedIndex { get; set; }
         [ObservableProperty]
         private string recognizedSign = "?";
+        private List<HandSign> StoredHandSign;
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
@@ -60,6 +63,7 @@ namespace HandRegcoDemo0.ViewModels
             _signRecognizer.LoadDataset("Datasets");
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
+            StoredHandSign = new HandSign().PopulateHandSign();
             AddCameraOption();
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
@@ -151,9 +155,12 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
+                HandSign handSign = getInputHandSign(softwareBitmap);
+                Debug.WriteLine(KnnMatch(handSign, StoredHandSign));
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
                 SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
+                
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -230,6 +237,38 @@ namespace HandRegcoDemo0.ViewModels
             contour = _imageProcessor.PolyLineApprox(contour);
             skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+        }
+        public string KnnMatch(HandSign inputSigh, List<HandSign> database)
+        {
+            double inputPosition = CvInvoke.ContourArea(inputSigh.convexHull) / (inputSigh.box.Size.Width * inputSigh.box.Size.Height);
+            HandSign output = new HandSign();
+            double shortestDistance = 99999;
+            foreach (HandSign sign in database)
+            {
+                double checkPosition = CvInvoke.ContourArea(sign.convexHull) / (sign.box.Size.Width * sign.box.Size.Height);
+                double distance = Math.Sqrt(Math.Pow(inputPosition - checkPosition, 2) + Math.Pow(inputSigh.box.Size.Width - sign.box.Size.Width, 2)
+                    + Math.Pow(inputSigh.box.Size.Height - sign.box.Size.Height, 2));
+                if (distance < shortestDistance)
+                {
+                    shortestDistance = distance;
+                    output = sign;
+                }
+            }
+            return output.Word;
+        }
+        public HandSign getInputHandSign(SoftwareBitmap softwareBitmap)
+        {
+            HandSign handSign = new HandSign();
+            Mat img = _imageProcessor.ConvertToMat(softwareBitmap);
+            img = _imageProcessor.DetectSkinVer1(img);
+            VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
+            VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
+            RotatedRect box = CvInvoke.MinAreaRect(contour);
+            handSign.contour = contour;
+            handSign.convexHull = hull;
+            handSign.box = box;
+            handSign.Word = "something es wrong";
+            return handSign;
         }
     }
 }
