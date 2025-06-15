@@ -17,6 +17,8 @@ using Emgu.CV.Util;
 using System.Drawing;
 using Point = System.Drawing.Point;
 using Avalonia.Controls.Templates;
+using System.IO;
+using SkiaSharp;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -308,7 +310,7 @@ namespace HandRegcoDemo0.ViewModels
 
             return largestContour;
         }
-       
+        
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
      
@@ -342,6 +344,25 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
             return inputMat;
         }
+        //public Mat LargestMatContour(Mat skinMask)
+        //{
+        //    Mat contours = new Mat();
+        //    CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+        //    double maxArea = 0;
+        //    Mat largestContour = null;
+        //    Matrix<int> matrix = new Matrix<int>(contours.Rows, contours.Cols, contours.NumberOfChannels);
+        //    contours.CopyTo(matrix);
+        //    for (int i = 0; i < matrix.Rows; i++)
+        //    {
+        //        double area = CvInvoke.ContourArea(matrix.Data[i]);
+        //        if (area > maxArea)
+        //        {
+        //            maxArea = area;
+        //            largestContour = contours;
+        //        }
+        //    }
+        //    return largestContour;
+        //}
     }
 
 }

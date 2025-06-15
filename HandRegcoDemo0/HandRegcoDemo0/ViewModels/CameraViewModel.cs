@@ -152,7 +152,6 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                Compare(softwareBitmap);
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
                 SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
@@ -240,46 +239,12 @@ namespace HandRegcoDemo0.ViewModels
                     handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 5);
                     handSign.img = img;
                     handSign.contour = contour;
+                    //handSign.contourMat = _imageProcessor.ContourToMat(contour);
                     imagelist.Add(handSign);
                 }
             }
 
             return imagelist;
-        }
-        public void Compare(SoftwareBitmap softwareBitmap)
-        {
-            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
-            readHandSign(StoredHandSign.ToArray()[2].contour);
-        }
-        public string readHandSign(VectorOfPoint contour)
-        {
-            if(contour == null)
-            {
-                return "";
-            }
-            double res = 0;
-            HandSign matchedSign = new HandSign();
-            try
-            {
-                foreach (var sign in StoredHandSign)
-                {
-                    double shapePercent = CvInvoke.MatchShapes(contour, sign.contour, Emgu.CV.CvEnum.ContoursMatchType.I2);
-                    if (shapePercent > res)
-                    {
-                        res = shapePercent;
-                        matchedSign = sign;
-                    }
-                }
-            }catch(Exception e)
-            {
-                throw new Exception();
-            }
-            
-            Debug.WriteLine(res);
-            Debug.WriteLine(matchedSign.Word);
-            return matchedSign.Word;
         }
     }
 }

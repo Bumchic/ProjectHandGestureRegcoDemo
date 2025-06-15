@@ -13,11 +13,13 @@ namespace HandRegcoDemo0.Models
         public string Word { get; set; }
         public Mat img { get; set; }
         public VectorOfPoint contour { get; set; }
+        public Mat contourMat { get; set; }
         public HandSign()
         {
             Word = "?";
             img = new Mat();
             contour = new VectorOfPoint();
+            contourMat = new Mat();
         }
     }
 }
