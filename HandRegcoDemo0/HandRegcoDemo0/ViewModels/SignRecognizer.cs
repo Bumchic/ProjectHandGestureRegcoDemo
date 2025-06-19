@@ -63,7 +63,7 @@ public class SignRecognizer
 
     private string FindBestMatch(double[] inputHu)
     {
-        string bestLabel = "?";
+        string bestLabel = "Not found";
         double minDistance = double.MaxValue;
 
         foreach (var (label, huMoments) in database)

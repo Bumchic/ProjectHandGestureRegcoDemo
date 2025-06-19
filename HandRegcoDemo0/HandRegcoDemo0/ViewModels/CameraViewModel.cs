@@ -177,7 +177,6 @@ namespace HandRegcoDemo0.ViewModels
         {
 
             var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-
             var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
 
             var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);

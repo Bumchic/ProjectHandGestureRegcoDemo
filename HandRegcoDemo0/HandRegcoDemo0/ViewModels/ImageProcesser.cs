@@ -173,7 +173,7 @@ namespace HandRegcoDemo0.ViewModels
         {
             hullIndices = new VectorOfInt();
 
-            if (contour == null || contour.Size < 3)
+            if (contour == null || contour.Size < 2)
             {
                 Debug.WriteLine("Contour is null or too small.");
                 return false;
@@ -181,7 +181,7 @@ namespace HandRegcoDemo0.ViewModels
 
             CvInvoke.ConvexHull(contour, hullIndices, returnPoints: false, clockwise: false);
 
-            if (hullIndices == null || hullIndices.Size < 3)
+            if (hullIndices == null || hullIndices.Size < 1.5)
             {
                 Debug.WriteLine("Hull indices too small or null.");
                 return false;
