@@ -81,7 +81,7 @@ namespace HandRegcoDemo0.ViewModels
             var countours = new VectorOfVectorOfPoint();
             CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
             double maxArea = 0;
-            VectorOfPoint largestContour = null;
+            VectorOfPoint largestContour = new VectorOfPoint();
 
             for (int i = 0; i < countours.Size; i++)
             {
@@ -292,6 +292,11 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.Polylines(image, vector, true, red.MCvScalar, 2);
             return image;
         }
+        public Mat MarkMinAreaRect(Rectangle box, Mat image)
+        {
+            CvInvoke.Rectangle(image, box, red.MCvScalar);
+            return image;
+        }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
         {
             if(hull == null)
@@ -303,7 +308,7 @@ namespace HandRegcoDemo0.ViewModels
             System.Drawing.Point CheckPoint = hull[0];
             for(int i=1; i<hull.Size; i++)
             {
-                if(getDistance(CheckPoint, hull[i]) > box.Size.Width / 10)
+                if(new DistanceArithmetic().getDistance(CheckPoint, hull[i]) > box.Size.Width / 10)
                 {
                     fingerpoints.Add(CheckPoint);
                 }
@@ -314,11 +319,7 @@ namespace HandRegcoDemo0.ViewModels
             image = MarkConvexHullPoints(fingers, image);
             return image;
         }
-        public double getDistance(System.Drawing.Point a, System.Drawing.Point b)
-        {
-            double result = Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
-            return result;
-        }
+
         public VectorOfPoint FindLargestContour(VectorOfVectorOfPoint contours)
         {
             if(contours == null)
@@ -395,6 +396,10 @@ namespace HandRegcoDemo0.ViewModels
             }
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
             return inputMat;
+        }
+        public Rectangle getBoundingBox(VectorOfPoint contour)
+        {
+            return CvInvoke.BoundingRectangle(contour);
         }
     }
 

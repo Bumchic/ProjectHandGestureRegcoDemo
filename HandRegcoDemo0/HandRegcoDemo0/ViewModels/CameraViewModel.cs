@@ -26,6 +26,7 @@ using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
 using HandRegcoDemo0.Models;
 using System.Collections.Generic;
+using System.Drawing;
 
 
 
@@ -203,7 +204,7 @@ namespace HandRegcoDemo0.ViewModels
 
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
 
-            RotatedRect box = CvInvoke.MinAreaRect(handContour);
+            Rectangle box = _imageProcessor.getBoundingBox(handContour);
             inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
 
             var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
@@ -240,13 +241,13 @@ namespace HandRegcoDemo0.ViewModels
         }
         public string KnnMatch(HandSign inputSigh, List<HandSign> database)
         {
-            double inputPosition = CvInvoke.ContourArea(inputSigh.convexHull) / (inputSigh.box.Size.Width * inputSigh.box.Size.Height);
+            double inputSighHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSigh.convexHull, inputSigh.box);
             HandSign output = new HandSign();
             double shortestDistance = 99999;
             foreach (HandSign sign in database)
             {
-                double checkPosition = CvInvoke.ContourArea(sign.convexHull) / (sign.box.Size.Width * sign.box.Size.Height);
-                double distance = Math.Sqrt(Math.Pow(inputPosition - checkPosition, 2) + Math.Pow(inputSigh.box.Size.Width - sign.box.Size.Width, 2)
+                double checkPosition = new DistanceArithmetic().CalculateHullToBoxRatio(sign.convexHull, sign.box);
+                double distance = Math.Sqrt(Math.Pow(inputSighHullToBoxRatio - checkPosition, 2) + Math.Pow(inputSigh.box.Size.Width - sign.box.Size.Width, 2)
                     + Math.Pow(inputSigh.box.Size.Height - sign.box.Size.Height, 2));
                 if (distance < shortestDistance)
                 {
@@ -258,16 +259,8 @@ namespace HandRegcoDemo0.ViewModels
         }
         public HandSign getInputHandSign(SoftwareBitmap softwareBitmap)
         {
-            HandSign handSign = new HandSign();
             Mat img = _imageProcessor.ConvertToMat(softwareBitmap);
-            img = _imageProcessor.DetectSkinVer1(img);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
-            VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
-            RotatedRect box = CvInvoke.MinAreaRect(contour);
-            handSign.contour = contour;
-            handSign.convexHull = hull;
-            handSign.box = box;
-            handSign.Word = "something es wrong";
+            HandSign handSign = new HandSign(img);
             return handSign;
         }
     }

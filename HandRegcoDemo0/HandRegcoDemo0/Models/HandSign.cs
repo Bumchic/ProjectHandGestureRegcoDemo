@@ -5,6 +5,7 @@ using Emgu.CV.Util;
 using HandRegcoDemo0.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,10 +18,46 @@ namespace HandRegcoDemo0.Models
         public string Word { get; set; }
         public VectorOfPoint contour { get; set; }
         public VectorOfPoint convexHull { get; set; }
-        public RotatedRect box { get; set; }
-        public List<HandSign> PopulateHandSign()
+        public Rectangle box { get; set; }
+        public double distanceFromFirstCorner { get; set; }
+        public HandSign(Mat img, string word)
         {
             ImageProcesser _imageProcessor = new ImageProcesser();
+            CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
+            img = _imageProcessor.DetectSkinVer1(img);
+            VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
+            VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
+            Rectangle box = _imageProcessor.getBoundingBox(contour);
+            double distFromCorner = new DistanceArithmetic().DistanceFromBoxFirstCorner(hull, box);
+            this.contour = contour;
+            this.convexHull = hull;
+            this.box = box;
+            this.distanceFromFirstCorner = distFromCorner;
+            this.Word = word;
+        }
+        public HandSign()
+        {
+            this.Word = "Empty";
+            this.contour = new VectorOfPoint();
+            this.convexHull = new VectorOfPoint();
+        }
+        public HandSign(Mat img)
+        {
+            ImageProcesser _imageProcessor = new ImageProcesser();
+            CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
+            img = _imageProcessor.DetectSkinVer1(img);
+            VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
+            VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
+            Rectangle box = _imageProcessor.getBoundingBox(contour);
+            double distFromCorner = new DistanceArithmetic().DistanceFromBoxFirstCorner(hull, box);
+            this.contour = contour;
+            this.convexHull = hull;
+            this.box = box;
+            this.distanceFromFirstCorner = distFromCorner;
+            this.Word = "This is Input for Mat";
+        }
+        public List<HandSign> PopulateHandSign()
+        {
             DirectoryInfo directory = new DirectoryInfo("Assets");
             FileInfo[] infos = directory.GetFiles();
             List<HandSign> imagelist = new List<HandSign>();
@@ -28,25 +65,16 @@ namespace HandRegcoDemo0.Models
             {
 
                 if (infos[i].Extension == ".jpg")
-                {
-
-                    HandSign handSign = new HandSign();
+                {   
                     byte[] bytes = File.ReadAllBytes(infos[i].FullName);
                     Mat img = new Mat();
                     CvInvoke.Imdecode(bytes, Emgu.CV.CvEnum.ImreadModes.Unchanged, img);
-                    CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
-                    img = _imageProcessor.DetectSkinVer1(img);
-                    VectorOfPoint contour = _imageProcessor.FindLargestContour(img);
-                    VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
-                    RotatedRect box = CvInvoke.MinAreaRect(contour);
-                    handSign.contour = contour;
-                    handSign.convexHull = hull;
-                    handSign.box = box;
-                    handSign.Word = infos[i].Name.Substring(infos[i].Name.Length - 5);
+                    HandSign handSign = new HandSign(img, infos[i].Name.Substring(infos[i].Name.Length - 5, 1));
                     imagelist.Add(handSign);
                 }
             }
             return imagelist;
         }
-        }
+        
     }
+}
