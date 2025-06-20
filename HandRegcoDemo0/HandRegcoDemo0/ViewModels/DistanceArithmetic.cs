@@ -19,6 +19,12 @@ namespace HandRegcoDemo0.ViewModels
             PointF averagePointF = new PointF(XAxisSum(contour)/contour.Length, YAxisSum(contour)/contour.Length);
             return getDistance(firstCornerF, averagePointF);
         }
+        public PointF DistanceFromBoxFirstCornerPoint(VectorOfPoint contour, Rectangle box)
+        {
+            PointF firstCornerF = new PointF(box.X, box.Y);
+            PointF averagePointF = new PointF(XAxisSum(contour) / contour.Length, YAxisSum(contour) / contour.Length);
+            return averagePointF;
+        }
         private int XAxisSum(VectorOfPoint contour)
         {
             if(contour is null)
@@ -27,7 +33,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             int sum = 0;
 
-            for (int i = 0; i < contour.ToArray().Length; i++)
+            for (int i = 0; i < contour.Size; i++)
             {
                 sum += contour[i].X;
             }
@@ -42,7 +48,7 @@ namespace HandRegcoDemo0.ViewModels
                 return 0;
             }
             int sum = 0;
-            for(int i=0; i<contour.ToArray().Length; i++)
+            for(int i=0; i<contour.Size; i++)
             {
                 sum += contour[i].Y;
             }

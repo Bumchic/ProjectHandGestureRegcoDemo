@@ -31,6 +31,8 @@ using System.Drawing;
 
 
 
+
+
 namespace HandRegcoDemo0.ViewModels
 {
     partial class CameraViewModel : ViewModelBase
@@ -158,10 +160,10 @@ namespace HandRegcoDemo0.ViewModels
                 }
                 HandSign handSign = getInputHandSign(softwareBitmap);
                 Debug.WriteLine(KnnMatch(handSign, StoredHandSign));
-                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+                BitmapImage = DistanceTransformTest(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
-                SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
-                
+                //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
+                //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -194,7 +196,7 @@ namespace HandRegcoDemo0.ViewModels
             if (handContour == null || handContour.Size < 3)
                 return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
-            handContour = _imageProcessor.PolyLineApprox(handContour);
+            //handContour = _imageProcessor.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
                 return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
@@ -205,7 +207,12 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
 
             Rectangle box = _imageProcessor.getBoundingBox(handContour);
+
             inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+                      
+            PointF avgPoint = new DistanceArithmetic().DistanceFromBoxFirstCornerPoint(handContour, box);
+            
+            inputMat = _imageProcessor.DrawSinglePoint(System.Drawing.Point.Round(avgPoint), inputMat);
 
             var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
             if (hullIndices == null || hullIndices.Size < 3)
@@ -233,10 +240,10 @@ namespace HandRegcoDemo0.ViewModels
         {
             var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
             var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-            //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
-            contour = _imageProcessor.PolyLineApprox(contour);
-            skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
+            skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+         //   VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
+        //    contour = _imageProcessor.PolyLineApprox(contour);
+         //   skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
         }
         public string KnnMatch(HandSign inputSigh, List<HandSign> database)

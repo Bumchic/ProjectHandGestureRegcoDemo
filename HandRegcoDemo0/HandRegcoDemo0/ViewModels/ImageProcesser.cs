@@ -17,6 +17,7 @@ using Emgu.CV.Util;
 using System.Drawing;
 using Point = System.Drawing.Point;
 using Avalonia.Controls.Templates;
+using Windows.Devices.PointOfService;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -259,7 +260,7 @@ namespace HandRegcoDemo0.ViewModels
             //}
             if(contour == null)
             {
-                return null;
+                return new VectorOfPoint();
             }
             VectorOfPoint hull = new VectorOfPoint(contour.Size);
 
@@ -324,10 +325,10 @@ namespace HandRegcoDemo0.ViewModels
         {
             if(contours == null)
             {
-                return null;
+                return new VectorOfPoint();
             }
             double maxArea = 0;
-            VectorOfPoint largestContour = null;
+            VectorOfPoint largestContour = new VectorOfPoint();
 
             for (int i = 0; i < contours.Size; i++)
             {
@@ -364,10 +365,11 @@ namespace HandRegcoDemo0.ViewModels
 
             return img;
         }
+        
 
         public Mat calculateDistanceTransformation(Mat image)
         {
-            CvInvoke.DistanceTransform(image, image, null, DistType.User, 0);
+            CvInvoke.DistanceTransform(image, image, null, DistType.Welsch, 0);
             return image;
         }
         public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
@@ -399,7 +401,20 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Rectangle getBoundingBox(VectorOfPoint contour)
         {
+            if(contour is null)
+            {
+                return new Rectangle();
+            }
             return CvInvoke.BoundingRectangle(contour);
+        }
+        public Mat DrawSinglePoint(Point point, Mat img)
+        {
+            if (point.IsEmpty)
+            {
+                return img;
+            }
+            CvInvoke.DrawMarker(img, point, red.MCvScalar, MarkerTypes.Star, thickness: 10);
+            return img;
         }
     }
 
