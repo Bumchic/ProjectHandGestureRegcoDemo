@@ -17,6 +17,7 @@
     <Content Remove="Assets\HandSignH.jpg" />
     <Content Remove="Assets\HandSignV.jpg" />
     <Content Remove="Assets\HandsignW.jpg" />
+    <Content Remove="Assets\O (4).jpg" />
   </ItemGroup>
 
   <ItemGroup>
