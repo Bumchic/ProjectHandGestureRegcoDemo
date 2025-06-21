@@ -6,34 +6,70 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
+using Emgu.CV.ML;
 
 public class SignRecognizer
 {
-    private readonly Dictionary<string, double[]> database = new();
+    private readonly List<float[]> huData = new();
+    private readonly List<int> labels = new();
+    private readonly Dictionary<int, string> labelMap = new();
     private readonly ImageProcesser _imageProcesser;
+    private KNearest knn;
     public SignRecognizer()
     {
         _imageProcesser = new ImageProcesser();
+        knn = new KNearest();
     }
     public void LoadDataset(string folderPath)
     {
+        huData.Clear();
+        labels.Clear();
+        labelMap.Clear();
+
         var imagePaths = Directory.GetFiles(folderPath, "*.jpg");
+        int labelId = 0;
+
         foreach (var path in imagePaths)
         {
             var label = Path.GetFileNameWithoutExtension(path).Replace("_test", "");
-            var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
 
+            var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
             var skinMask = _imageProcesser.DetectSkinVer1(colorImage);
-            var contour = _imageProcesser.FindLargestContour(skinMask); 
+            var contour = _imageProcesser.FindLargestContour(skinMask);
 
             if (contour != null)
             {
-                var huMoments = ComputeHuMoments(contour);
-                database[label] = huMoments;
+                var hu = ComputeHuMoments(contour);
+                huData.Add(hu.Select(x => (float)x).ToArray());
+
+                if (!labelMap.ContainsValue(label))
+                {
+                    labelMap[labelId] = label;
+                    labels.Add(labelId);
+                    labelId++;
+                }
+                else
+                {
+                    int existingId = labelMap.First(kvp => kvp.Value == label).Key;
+                    labels.Add(existingId);
+                }
             }
         }
-        Console.WriteLine("Loaded sign: {string.Join(", ", database.Keys)}");
+
+        // Convert to Mat
+        var trainData = new Matrix<float>(huData.Count, 7);
+        for (int i = 0; i < huData.Count; i++)
+        {
+            for (int j = 0; j < 7; j++)
+                trainData[i, j] = huData[i][j];
+        }
+
+        var responses = new Matrix<int>(labels.ToArray());
+
+        knn.Train(trainData, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
+        Console.WriteLine($"Trained k-NN with {huData.Count} samples.");
     }
+
 
     public string Recognize(Mat inputImage)
     {
@@ -41,8 +77,20 @@ public class SignRecognizer
         if (contour == null) return "?";
 
         var inputHu = ComputeHuMoments(contour);
-        return FindBestMatch(inputHu);
+        var inputMat = new Matrix<float>(1, 7);
+        for (int i = 0; i < 7; i++)
+            inputMat[0, i] = (float)inputHu[i];
+
+        var results = new Matrix<float>(1, 1);
+        var neighborResponses = new Matrix<float>(1, 3); 
+        var dists = new Matrix<float>(1, 3);
+
+        knn.FindNearest(inputMat, k: 3, results, neighborResponses, dists);
+
+        int predictedId = (int)results[0, 0];
+        return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
+
 
     private double[] ComputeHuMoments(VectorOfPoint contour)
     {
@@ -63,19 +111,33 @@ public class SignRecognizer
 
     private string FindBestMatch(double[] inputHu)
     {
-        string bestLabel = "Not found";
+        int bestIndex = -1;
         double minDistance = double.MaxValue;
 
-        foreach (var (label, huMoments) in database)
+        for (int i = 0; i < huData.Count; i++)
         {
-            double dist = inputHu.Zip(huMoments, (a, b) => Math.Abs(Math.Log10(a) - Math.Log10(b))).Sum();
+            float[] huTrain = huData[i];
+
+            double dist = 0;
+            for (int j = 0; j < huTrain.Length; j++)
+            {
+                dist += Math.Abs(inputHu[j] - huTrain[j]);
+            }
+
             if (dist < minDistance)
             {
                 minDistance = dist;
-                bestLabel = label;
+                bestIndex = i;
             }
         }
 
-        return bestLabel;
+        if (bestIndex >= 0)
+        {
+            int labelId = labels[bestIndex];
+            return labelMap[labelId];
+        }
+
+        return "Not found";
     }
+
 }

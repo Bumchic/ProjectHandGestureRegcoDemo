@@ -181,7 +181,7 @@ namespace HandRegcoDemo0.ViewModels
 
             CvInvoke.ConvexHull(contour, hullIndices, returnPoints: false, clockwise: false);
 
-            if (hullIndices == null || hullIndices.Size < 1.5)
+            if (hullIndices == null || hullIndices.Size < 3)
             {
                 Debug.WriteLine("Hull indices too small or null.");
                 return false;
