@@ -194,7 +194,7 @@ namespace HandRegcoDemo0.ViewModels
             if (handContour == null || handContour.Size < 3)
                 return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
-            handContour = _imageProcessor.PolyLineApprox(handContour);
+            //handContour = _imageProcessor.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
                 return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
