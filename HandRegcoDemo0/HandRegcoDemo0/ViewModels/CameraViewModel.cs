@@ -246,16 +246,16 @@ namespace HandRegcoDemo0.ViewModels
          //   skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
         }
-        public string KnnMatch(HandSign inputSigh, List<HandSign> database)
+        public string KnnMatch(HandSign inputSign, List<HandSign> database)
         {
-            double inputSighHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSigh.convexHull, inputSigh.box);
+            double inputSighHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSign.convexHull, inputSign.box);
             HandSign output = new HandSign();
             double shortestDistance = 99999;
             foreach (HandSign sign in database)
             {
-                double checkPosition = new DistanceArithmetic().CalculateHullToBoxRatio(sign.convexHull, sign.box);
-                double distance = Math.Sqrt(Math.Pow(inputSighHullToBoxRatio - checkPosition, 2) + Math.Pow(inputSigh.box.Size.Width - sign.box.Size.Width, 2)
-                    + Math.Pow(inputSigh.box.Size.Height - sign.box.Size.Height, 2));
+                double signHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(sign.convexHull, sign.box);
+                double distance = Math.Sqrt(Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2) + Math.Pow(inputSign.box.Size.Width - sign.box.Size.Width, 2)
+                    + Math.Pow(inputSign.box.Size.Height - sign.box.Size.Height, 2) + Math.Pow(inputSign.distanceFromFirstCorner - sign.distanceFromFirstCorner, 2));
                 if (distance < shortestDistance)
                 {
                     shortestDistance = distance;

@@ -16,13 +16,13 @@ namespace HandRegcoDemo0.ViewModels
         public double DistanceFromBoxFirstCorner(VectorOfPoint contour, Rectangle box)
         {
             PointF firstCornerF = new PointF(box.X, box.Y);
-            PointF averagePointF = new PointF(XAxisSum(contour)/contour.Length, YAxisSum(contour)/contour.Length);
+            PointF averagePointF = new PointF(XAxisSum(contour)/contour.Size, YAxisSum(contour)/contour.Size);
             return getDistance(firstCornerF, averagePointF);
         }
         public PointF DistanceFromBoxFirstCornerPoint(VectorOfPoint contour, Rectangle box)
         {
             PointF firstCornerF = new PointF(box.X, box.Y);
-            PointF averagePointF = new PointF(XAxisSum(contour) / contour.Length, YAxisSum(contour) / contour.Length);
+            PointF averagePointF = new PointF(XAxisSum(contour) / contour.Size, YAxisSum(contour) / contour.Size);
             return averagePointF;
         }
         private int XAxisSum(VectorOfPoint contour)
