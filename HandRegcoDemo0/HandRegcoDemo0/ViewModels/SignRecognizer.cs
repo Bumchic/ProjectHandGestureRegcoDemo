@@ -110,7 +110,7 @@ public class SignRecognizer
     }
 
 
-    private string FindBestMatch(double[] inputHu)
+    /*private string FindBestMatch(double[] inputHu)
     {
         int bestIndex = -1;
         double minDistance = double.MaxValue;
@@ -139,6 +139,16 @@ public class SignRecognizer
         }
 
         return "Not found";
-    }
+    }*/
+    int PredictWithKNN(double[] input, List<float[]> data, List<int> labelIds, int k = 1)
+    {
+        var distances = data.Select((hu, i) => new {
+            Id = labelIds[i],
+            Distance = input.Zip(hu, (a, b) => (a - b) * (a - b)).Sum()
+        }).OrderBy(d => d.Distance).Take(k).ToList();
 
+        return distances.GroupBy(d => d.Id)
+                        .OrderByDescending(g => g.Count())
+                        .First().Key;
+    }
 }

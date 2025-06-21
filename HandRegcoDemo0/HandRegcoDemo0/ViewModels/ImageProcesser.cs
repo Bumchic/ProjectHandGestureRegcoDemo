@@ -173,7 +173,7 @@ namespace HandRegcoDemo0.ViewModels
         {
             hullIndices = new VectorOfInt();
 
-            if (contour == null || contour.Size < 2)
+            if (contour == null || contour.Size < 3)
             {
                 Debug.WriteLine("Contour is null or too small.");
                 return false;
