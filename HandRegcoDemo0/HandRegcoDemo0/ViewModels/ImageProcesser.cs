@@ -191,61 +191,6 @@ namespace HandRegcoDemo0.ViewModels
         }
 
 
-        /*public void DrawDefects(Mat image, VectorOfPoint contour)
-        {
-            if (defectsMat.IsEmpty || defectsMat.Rows == 0)
-            {
-                Debug.WriteLine("No defects found.");
-                return;
-            }
-
-            // Each defect is 4 ints (startIdx, endIdx, farIdx, depth), each int is 4 bytes = 16 bytes per defect
-            int defectSize = 16;
-            int totalBytes = defectsMat.Rows * defectSize;
-            byte[] data = new byte[totalBytes];
-            System.Runtime.InteropServices.Marshal.Copy(defectsMat.DataPointer, data, 0, totalBytes);
-
-            Debug.WriteLine($"Defects count: {defectsMat.Rows}");
-
-            for (int i = 0; i < defectsMat.Rows; i++)
-            {
-                int startIdx = BitConverter.ToInt32(data, i * 16 + 0);
-                int endIdx = BitConverter.ToInt32(data, i * 16 + 4);
-                int farIdx = BitConverter.ToInt32(data, i * 16 + 8);
-                float depth = BitConverter.ToSingle(data, i * 16 + 12) / 256.0f;
-
-                Debug.WriteLine($"Defect {i}: startIdx={startIdx}, endIdx={endIdx}, farIdx={farIdx}, depth={depth}");
-                if (startIdx >= 0 && startIdx < contour.Size &&
-                    endIdx >= 0 && endIdx < contour.Size &&
-                    farIdx >= 0 && farIdx < contour.Size)
-                {
-                    var startPoint = contour[startIdx];
-                    var endPoint = contour[endIdx];
-                    var farPoint = contour[farIdx];
-
-                    CvInvoke.Line(image, startPoint, farPoint, new MCvScalar(0, 255, 0), 2);
-                    CvInvoke.Line(image, farPoint, endPoint, new MCvScalar(0, 255, 0), 2);
-                    CvInvoke.Circle(image, farPoint, 5, new MCvScalar(0, 0, 255), -1);
-                }
-            }
-        }*/
-
-        //public Mat DrawConvexityDefects(VectorOfPoint contour, Mat inputImage)
-        //{
-        //    if (contour == null || contour.Size < 4 || inputImage == null || inputImage.IsEmpty)
-        //        return inputImage?.Clone() ?? new Mat();
-
-        //    var debugImage = inputImage.Clone();
-
-        //    var hullIndices = GetConvexHullIndices(contour);
-
-        //    var defectsMat = GetConvexityDefects(contour, hullIndices);
-
-        //    DrawDefects(debugImage, contour, defectsMat);
-
-        //    return debugImage;
-        //}
-
     }
     partial class ImageProcesser
     {
@@ -263,7 +208,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             VectorOfPoint hull = new VectorOfPoint(contour.Size);
 
-            CvInvoke.ConvexHull(contour, hull, false, false);
+             CvInvoke.ConvexHull(contour, hull, false, false);
     
             
             return hull;

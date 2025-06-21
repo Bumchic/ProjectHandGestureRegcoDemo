@@ -31,7 +31,8 @@ public class SignRecognizer
 
         foreach (var path in imagePaths)
         {
-            var label = Path.GetFileNameWithoutExtension(path).Replace("_test", "");
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            var label = fileName.Split(' ')[0];
 
             var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
             var skinMask = _imageProcesser.DetectSkinVer1(colorImage);
