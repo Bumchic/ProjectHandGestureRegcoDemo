@@ -42,110 +42,73 @@
 	</Design.DataContext>
 
 	<Grid Margin="10">
-		<ScrollViewer 
-			VerticalScrollBarVisibility="Auto"
-			HorizontalScrollBarVisibility="Disabled">
-			<StackPanel Spacing="12" MaxWidth="700" 
-						HorizontalAlignment="Center">
+		<Grid RowDefinitions="Auto,*,Auto">
 
-				<!-- Header Section (Font thu nhỏ, chữ màu trắng hồng nhạt) -->
-				<StackPanel HorizontalAlignment="Center" Spacing="4">
-					<TextBlock Text="🎥 Camera Control"
-							   FontSize="20"
+			<!-- Header Section -->
+			<StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="4" Margin="0,0,0,12">
+				<TextBlock Text="🎥 Camera Control"
+						   FontSize="20"
+						   FontWeight="Bold"
+						   Foreground="#fdf0f5"
+						   HorizontalAlignment="Center"
+						   TextAlignment="Center"/>
+
+				<TextBlock Text="Real-time Hand Detection"
+						   FontSize="12"
+						   FontWeight="Light"
+						   Foreground="#fdf0f5"
+						   Opacity="0.8"
+						   HorizontalAlignment="Center"
+						   TextAlignment="Center"/>
+			</StackPanel>
+
+			<!-- Image Display Section: 2 ảnh cùng hàng, tự động scale -->
+			<Grid Grid.Row="1" ColumnDefinitions="*,30,*" Margin="0,0,0,12">
+
+				<!-- Original Photo - Auto-resize -->
+				<StackPanel Grid.Column="0" Spacing="8">
+					<TextBlock Text="📷 Original Image"
 							   FontWeight="Bold"
+							   FontSize="16"
 							   Foreground="#fdf0f5"
-							   HorizontalAlignment="Center"
-							   TextAlignment="Center"/>
+							   HorizontalAlignment="Center"/>
 
-					<TextBlock Text="Real-time Hand Detection"
-							   FontSize="12"
-							   FontWeight="Light"
-							   Foreground="#fdf0f5"
-							   Opacity="0.8"
-							   HorizontalAlignment="Center"
-							   TextAlignment="Center"/>
+					<Border BorderThickness="3"
+							CornerRadius="12"
+							Background="#FFFFFF10"
+							Classes="ImageBorder">
+						<Image Source="{Binding Path=BitmapImage}"
+							   Name="OriginalImageControl"
+							   Stretch="Uniform"
+							   Margin="12"/>
+					</Border>
 				</StackPanel>
 
-				<!-- Image Display Section: 3 ảnh cùng hàng -->
-				<Grid ColumnDefinitions="*,20,*,20,*" RowDefinitions="Auto">
+				<!-- Processed Photo - Auto-resize -->
+				<StackPanel Grid.Column="2" Spacing="8">
+					<TextBlock Text="🔍 Processed Image"
+							   FontWeight="Bold"
+							   FontSize="16"
+							   Foreground="#fdf0f5"
+							   HorizontalAlignment="Center"/>
 
-					<!-- Original Photo -->
-					<StackPanel Grid.Column="0" Spacing="8">
-						<TextBlock Text="📷 Original Image"
-								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
-								   HorizontalAlignment="Center"/>
+					<Border BorderThickness="3"
+							CornerRadius="12"
+							Background="#FFFFFF10"
+							Classes="ImageBorder">
+						<Image Source="{Binding Path=ProcessedBitmapImage}"
+							   Name="ProcessedImageControl"
+							   Stretch="Uniform"
+							   Margin="12"/>
+					</Border>
+				</StackPanel>
 
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder">
-							<Image Source="{Binding Path=BitmapImage}"
-								   Name="OriginalImageControl"
-								   MaxWidth="513"
-								   MaxHeight="432"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
+			</Grid>
 
-					<!-- Skin Mask Image -->
-					<StackPanel Grid.Column="2" Spacing="8">
-						<TextBlock Text="✋ Skin Mask Detection"
-								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
-								   HorizontalAlignment="Center"/>
+			<!-- Bottom Controls Section -->
+			<StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Center">
 
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder"
-								HorizontalAlignment="Center">
-							<Image Source="{Binding Path=SkinMaskBitmapImage}"
-								   Name="IFrameReaderImageControl"
-								   MaxWidth="380"
-								   MaxHeight="320"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
-
-					<!-- Processed Photo -->
-					<StackPanel Grid.Column="4" Spacing="8">
-						<TextBlock Text="🔍 Processed Image"
-								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
-								   HorizontalAlignment="Center"/>
-						<Border Background="#AA000000" CornerRadius="8" Padding="8,4" 
-								HorizontalAlignment="Center" Margin="0,4,0,0" Width="180">
-							<TextBlock Text="{Binding RecognizedSign}"
-									   FontSize="28"
-									   FontWeight="Bold"
-									   Foreground="White"
-									   TextAlignment="Center"/>
-						</Border>
-
-
-
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder">
-							<Image Source="{Binding Path=ProcessedBitmapImage}"
-								   Name="ProcessedImageControl"
-								   MaxWidth="380"
-								   MaxHeight="320"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
-
-				</Grid>
-
-				<!-- Status Section (Thu nhỏ font, padding) -->
+				<!-- Status Section -->
 				<Border Background="#FFFFFF15"
 						CornerRadius="12"
 						Padding="10">
@@ -165,7 +128,7 @@
 					</StackPanel>
 				</Border>
 
-				<!-- Camera Control Section - thu nhỏ hơn nữa -->
+				<!-- Camera Control Section -->
 				<Border Background="#FFFFFF15"
 						CornerRadius="12"
 						Padding="6"
@@ -217,6 +180,6 @@
 				</Border>
 
 			</StackPanel>
-		</ScrollViewer>
+		</Grid>
 	</Grid>
 </Window>
