@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using HandRegcoDemo0.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace HandRegcoDemo0.ViewModels
 {
@@ -16,13 +18,42 @@ namespace HandRegcoDemo0.ViewModels
         public double DistanceFromBoxFirstCorner(VectorOfPoint contour, Rectangle box)
         {
             PointF firstCornerF = new PointF(box.X, box.Y);
-            PointF averagePointF = new PointF(XAxisSum(contour)/contour.Size, YAxisSum(contour)/contour.Size);
+            PointF averagePointF = getAvgPoint(contour);
             return getDistance(firstCornerF, averagePointF);
         }
-        public PointF DistanceFromBoxFirstCornerPoint(VectorOfPoint contour, Rectangle box)
+        public PointF PointFromBoxFirstCornerPoint(VectorOfPoint contour, Rectangle box)
         {
             PointF firstCornerF = new PointF(box.X, box.Y);
-            PointF averagePointF = new PointF(XAxisSum(contour) / contour.Size, YAxisSum(contour) / contour.Size);
+            PointF averagePointF = getAvgPoint(contour);
+            return new PointF(averagePointF.X - firstCornerF.X, averagePointF.Y - firstCornerF.Y);
+        }
+        public PointF PointFromCornerConvexDefect(Mat convexDefect, VectorOfPoint contour, Rectangle box)
+        {
+            
+            PointF firstCornerF = new PointF(box.X, box.Y);
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            if(matrix.Data.Length == 0 || contour.Size == 0)
+            {
+                return new Point(0, 0);
+            }
+            List<Point> points = new List<Point>();
+            for (int i=0; i<matrix.Data.GetLength(0); i++)
+            {
+                points.Add(new Point(contour[matrix.Data[i, 2]].X, contour[matrix.Data[i, 2]].Y));
+            }
+            VectorOfPoint convexPoints = new VectorOfPoint(points.ToArray());
+            PointF avgPointF = getAvgPoint(convexPoints);
+        
+            return new PointF(avgPointF.X - firstCornerF.X, avgPointF.Y = firstCornerF.Y);
+        }
+        private PointF getAvgPoint(VectorOfPoint contour)
+        {
+            if(contour.Size == 0)
+            {
+                return new Point(0, 0);
+            }
+            PointF averagePointF = new PointF(XAxisSum(contour)/ contour.Size, YAxisSum(contour)/ contour.Size);
             return averagePointF;
         }
         private int XAxisSum(VectorOfPoint contour)
@@ -66,7 +97,51 @@ namespace HandRegcoDemo0.ViewModels
         }
         public double CalculateHullToBoxRatio(VectorOfPoint hull, Rectangle box)
         {
-            return CvInvoke.ContourArea(hull) / (box.Size.Width * box.Size.Height);
+                return CvInvoke.ContourArea(hull) / (box.Size.Width * box.Size.Height);
+        
+        }
+        public Segment[] getSegmentFromHull(VectorOfPoint hull, Rectangle box)
+        {
+            int productX = box.Width / 5;
+            List<Point>[] segmentFullContourX = new List<Point>[6];
+            for (int i=0; i<segmentFullContourX.Length; i++)
+            {
+                segmentFullContourX[i] = new List<Point>();
+            }
+            List<Segment> segmentlist = new List<Segment>();
+            if(box.IsEmpty|| hull.Size == 0)
+            {
+                return segmentlist.ToArray();
+            }
+            for (int i = 0; i < hull.Size; i++)
+            {
+                segmentFullContourX[(hull[i].X - box.X)/productX].Add(new Point(hull[i].X, hull[i].Y));
+            }
+            for (int i=0; i<segmentFullContourX.Length; i++)
+            {
+                Segment segment = new Segment();
+                int highestPoint = -9999;
+                int lowestPoint = 9999;
+                foreach (Point point in segmentFullContourX[i])
+                {
+                    if(point.Y > highestPoint)
+                    {
+                        segment.higestPoint = new Point(point.X -box.X, point.Y - box.Y);
+                        highestPoint = point.Y;
+                    }
+                    if(point.Y < lowestPoint)
+                    {             
+                        segment.lowestPoint = new Point(point.X - box.X , point.Y - box.Y);
+                        lowestPoint = point.Y;
+                    }
+                    if(point.Y == highestPoint - lowestPoint/2)
+                    {
+                        segment.highestMiddlePoint = new Point(point.X - box.X, point.Y -box.Y);
+                    }
+                }
+                segmentlist.Add(segment);
+            }
+            return segmentlist.ToArray();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+﻿
 using Windows.Devices.Enumeration;
 using System;
 using System.Diagnostics;
@@ -160,7 +160,7 @@ namespace HandRegcoDemo0.ViewModels
                 }
                 HandSign handSign = getInputHandSign(softwareBitmap);
                 Debug.WriteLine(KnnMatch(handSign, StoredHandSign));
-                BitmapImage = DistanceTransformTest(softwareBitmap);
+                // BitmapImage = DistanceTransformTest(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
                 //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
                 //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
@@ -204,25 +204,26 @@ namespace HandRegcoDemo0.ViewModels
             if (handConvex == null || handConvex.Size < 3)
                 return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
-            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
+            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handContour), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
 
             Rectangle box = _imageProcessor.getBoundingBox(handContour);
 
+            Segment[] listSegment = new DistanceArithmetic().getSegmentFromHull(handContour, box);
+
+            inputMat = _imageProcessor.DrawSegment(listSegment, inputMat);
+
             inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
                       
-            PointF avgPoint = new DistanceArithmetic().DistanceFromBoxFirstCornerPoint(handContour, box);
-            
-            inputMat = _imageProcessor.DrawSinglePoint(System.Drawing.Point.Round(avgPoint), inputMat);
+           
+            //var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
+            //if (hullIndices == null || hullIndices.Size < 3)
+            //    return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
-            var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
-            if (hullIndices == null || hullIndices.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+            //var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
+            //if (defectsMat == null || defectsMat.Rows == 0)
+            //    return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
 
-            var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
-            if (defectsMat == null || defectsMat.Rows == 0)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
-
-            inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
+           // inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
 
             var recognized = _signRecognizer.Recognize(skinMaskMat);
             RecognizedSign = recognized;
@@ -248,21 +249,71 @@ namespace HandRegcoDemo0.ViewModels
         }
         public string KnnMatch(HandSign inputSign, List<HandSign> database)
         {
+            if(inputSign.contour is null)
+            {
+                return "?";
+            }
             double inputSighHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSign.convexHull, inputSign.box);
             HandSign output = new HandSign();
             double shortestDistance = 99999;
             foreach (HandSign sign in database)
             {
-                double signHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(sign.convexHull, sign.box);
-                double distance = Math.Sqrt(Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2) + Math.Pow(inputSign.box.Size.Width - sign.box.Size.Width, 2)
-                    + Math.Pow(inputSign.box.Size.Height - sign.box.Size.Height, 2) + Math.Pow(inputSign.distanceFromFirstCorner - sign.distanceFromFirstCorner, 2));
-                if (distance < shortestDistance)
+                int widthOffset = 0;
+                int heightOffset = 0;
+                    widthOffset = sign.box.Width - inputSign.box.Width;
+                    heightOffset = sign.box.Height - inputSign.box.Height;
+                double signHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSign.convexHull, sign.box);
+                double distance = Math.Sqrt(SegmentDistanceCalculation(inputSign, sign)
+                    + Math.Pow(inputSign.box.Width - sign.box.Width,2) + Math.Pow(inputSign.box.Height - sign.box.Height, 2));
+                if (distance < shortestDistance && distance < 1000)
                 {
                     shortestDistance = distance;
                     output = sign;
                 }
             }
+            if(output.img is not null)
+            {
+                BitmapImage = _imageProcessor.MatToWriteableBitmap(output.img);
+            }
+            
             return output.Word;
+        }
+        private double SegmentDistanceCalculation(HandSign input, HandSign db, int widthOffset = 0, int heightOffset = 0)
+        {
+            double result = 0;
+            System.Drawing.Point avgInputHighest = new System.Drawing.Point();
+            System.Drawing.Point avgInputLowest = new System.Drawing.Point();
+            System.Drawing.Point avgInputMiddle = new System.Drawing.Point();
+            System.Drawing.Point avgDbHighest = new System.Drawing.Point();
+            System.Drawing.Point avgDbLowest = new System.Drawing.Point();
+            System.Drawing.Point avgDbMiddle = new System.Drawing.Point();
+            foreach(Segment segment in input.listOfSegment)
+            {
+                avgInputHighest.X += segment.higestPoint.X / input.listOfSegment.Length;
+                avgInputHighest.Y += segment.higestPoint.Y / input.listOfSegment.Length;
+                avgInputLowest.X += segment.lowestPoint.X / input.listOfSegment.Length;
+                avgInputHighest.Y += segment.lowestPoint.Y / input.listOfSegment.Length;
+                avgInputMiddle.X += segment.highestMiddlePoint.X / input.listOfSegment.Length;
+                avgInputMiddle.Y += segment.highestMiddlePoint.Y / input.listOfSegment.Length;
+            }
+            foreach(Segment segment in db.listOfSegment)
+            {
+                avgDbHighest.X += segment.higestPoint.X / db.listOfSegment.Length;
+                avgDbHighest.Y += segment.higestPoint.Y / db.listOfSegment.Length;
+                avgDbLowest.X += segment.lowestPoint.X / db.listOfSegment.Length;
+                avgDbLowest.Y += segment.lowestPoint.Y / db.listOfSegment.Length;
+                avgDbMiddle.X += segment.highestMiddlePoint.X / db.listOfSegment.Length;
+                avgDbMiddle.Y += segment.highestMiddlePoint.Y / db.listOfSegment.Length;
+            }
+            result += Math.Pow(avgInputHighest.X - avgDbHighest.X, 2)
+                + Math.Pow(avgInputHighest.Y - avgDbHighest.Y, 2)
+                + Math.Pow(avgInputLowest.X - avgDbLowest.X, 2)
+                + Math.Pow(avgInputLowest.Y - avgDbLowest.Y, 2)
+                + Math.Pow(avgInputMiddle.X - avgDbMiddle.X, 2)
+                + Math.Pow(avgInputMiddle.Y - avgDbMiddle.Y, 2);
+
+
+            return result;
         }
         public HandSign getInputHandSign(SoftwareBitmap softwareBitmap)
         {

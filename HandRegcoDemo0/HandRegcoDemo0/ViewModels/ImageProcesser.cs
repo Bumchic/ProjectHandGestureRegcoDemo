@@ -18,6 +18,8 @@ using System.Drawing;
 using Point = System.Drawing.Point;
 using Avalonia.Controls.Templates;
 using Windows.Devices.PointOfService;
+using HandRegcoDemo0.Models;
+using HandRegcoDemo0.NullClass;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -82,7 +84,7 @@ namespace HandRegcoDemo0.ViewModels
             var countours = new VectorOfVectorOfPoint();
             CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
             double maxArea = 0;
-            VectorOfPoint largestContour = new VectorOfPoint();
+            VectorOfPoint largestContour = new NullVectorOfPoint();
 
             for (int i = 0; i < countours.Size; i++)
             {
@@ -105,7 +107,7 @@ namespace HandRegcoDemo0.ViewModels
             //    mat = converted;
             //}
 
-            int width = mat.Cols;
+                int width = mat.Cols;
             int height = mat.Rows;
             int stride = width * 4;
             byte[] bytes = new byte[4*height * stride];
@@ -346,23 +348,14 @@ namespace HandRegcoDemo0.ViewModels
 
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
-            if (convexDefect == null || convexDefect.IsEmpty || contour == null)
-                return img;
-
-            int defectSize = 4; // mỗi defect gồm 4 giá trị: startIdx, endIdx, farIdx, depth
-            for (int i = 0; i < convexDefect.Rows; i++)
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            RotatedRect box = CvInvoke.MinAreaRect(contour);
+            for (int i = 0; i < matrix.Rows; i++)
             {
-                int[] defect = new int[defectSize];
-                System.Runtime.InteropServices.Marshal.Copy(convexDefect.DataPointer + i * defectSize * sizeof(int), defect, 0, defectSize);
-
-                int farIdx = defect[2];
-                if (farIdx >= 0 && farIdx < contour.Size)
-                {
-                    Point furthest = contour[farIdx];
-                    CvInvoke.DrawMarker(img, furthest, green.MCvScalar, MarkerTypes.Cross, 40, 10);
-                }
+                Point furthest = new Point(contour[matrix.Data[i, 2]].X, contour[matrix.Data[i, 2]].Y);
+                CvInvoke.DrawMarker(img, furthest, green.MCvScalar, MarkerTypes.Cross, 40, 10);
             }
-
             return img;
         }
         
@@ -415,6 +408,33 @@ namespace HandRegcoDemo0.ViewModels
             }
             CvInvoke.DrawMarker(img, point, red.MCvScalar, MarkerTypes.Star, thickness: 10);
             return img;
+        }
+        public Mat DrawSegment(Segment[] segmentlist, Mat img)
+        {
+            foreach(Segment segment in segmentlist)
+            {
+               img = DrawSinglePoint(segment.higestPoint, img);
+               img = DrawSinglePoint(segment.lowestPoint, img);
+                img = DrawSinglePoint(segment.highestMiddlePoint, img);
+            }
+            return img;
+        }
+        public Mat DrawSegmentTest(Segment[] segmentlist, Mat img)
+        {
+            img = DrawSinglePoint(segmentlist[1].highestMiddlePoint, img);
+            img = DrawSinglePoint(segmentlist[1].highestMiddlePoint, img);
+            img = DrawSinglePoint(segmentlist[1].lowestPoint, img);
+            return img;
+        }
+        public int getConvexDefectCount(Mat convexDefect)
+        {
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            return matrix.Data.GetLength(0);
+        }
+        public int getConvexHullCount(VectorOfPoint hull)
+        {
+            return hull.Size;
         }
     }
 
