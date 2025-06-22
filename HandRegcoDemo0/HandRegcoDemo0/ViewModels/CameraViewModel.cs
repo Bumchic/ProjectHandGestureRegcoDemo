@@ -264,8 +264,11 @@ namespace HandRegcoDemo0.ViewModels
                     heightOffset = sign.box.Height - inputSign.box.Height;
                 double signHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSign.convexHull, sign.box);
                 double distance = Math.Sqrt(SegmentDistanceCalculation(inputSign, sign)
-                    + Math.Pow(inputSign.box.Width - sign.box.Width,2) + Math.Pow(inputSign.box.Height - sign.box.Height, 2));
-                if (distance < shortestDistance && distance < 1000)
+                +Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2)
+                + Math.Pow(inputSign.box.Width - sign.box.Width, 2)
+                + Math.Pow(inputSign.box.Height - sign.box.Height, 2)
+                +Math.Pow(inputSign.ConvexCount - sign.ConvexCount, 2));
+                if (distance < shortestDistance)
                 {
                     shortestDistance = distance;
                     output = sign;
@@ -278,42 +281,53 @@ namespace HandRegcoDemo0.ViewModels
             
             return output.Word;
         }
-        private double SegmentDistanceCalculation(HandSign input, HandSign db, int widthOffset = 0, int heightOffset = 0)
+        private double SegmentDistanceCalculation(HandSign input, HandSign db)
         {
             double result = 0;
-            System.Drawing.Point avgInputHighest = new System.Drawing.Point();
-            System.Drawing.Point avgInputLowest = new System.Drawing.Point();
-            System.Drawing.Point avgInputMiddle = new System.Drawing.Point();
-            System.Drawing.Point avgDbHighest = new System.Drawing.Point();
-            System.Drawing.Point avgDbLowest = new System.Drawing.Point();
-            System.Drawing.Point avgDbMiddle = new System.Drawing.Point();
-            foreach(Segment segment in input.listOfSegment)
+            List<System.Drawing.Point> inputContourH = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> inputContourLo = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> inputContourR = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> inputContourL = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> dbContourH = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> dbContourLo = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> dbContourR = new List<System.Drawing.Point>();
+            List<System.Drawing.Point> dbContourL = new List<System.Drawing.Point>();
+            foreach (Segment segment in input.listOfSegment)
             {
-                avgInputHighest.X += segment.higestPoint.X / input.listOfSegment.Length;
-                avgInputHighest.Y += segment.higestPoint.Y / input.listOfSegment.Length;
-                avgInputLowest.X += segment.lowestPoint.X / input.listOfSegment.Length;
-                avgInputHighest.Y += segment.lowestPoint.Y / input.listOfSegment.Length;
-                avgInputMiddle.X += segment.highestMiddlePoint.X / input.listOfSegment.Length;
-                avgInputMiddle.Y += segment.highestMiddlePoint.Y / input.listOfSegment.Length;
+                inputContourH.Add(segment.higestPoint);
+                inputContourLo.Add(segment.lowestPoint);
+                inputContourR.Add(segment.rightMostPoint);
+                inputContourL.Add(segment.leftMostPoint);
             }
             foreach(Segment segment in db.listOfSegment)
             {
-                avgDbHighest.X += segment.higestPoint.X / db.listOfSegment.Length;
-                avgDbHighest.Y += segment.higestPoint.Y / db.listOfSegment.Length;
-                avgDbLowest.X += segment.lowestPoint.X / db.listOfSegment.Length;
-                avgDbLowest.Y += segment.lowestPoint.Y / db.listOfSegment.Length;
-                avgDbMiddle.X += segment.highestMiddlePoint.X / db.listOfSegment.Length;
-                avgDbMiddle.Y += segment.highestMiddlePoint.Y / db.listOfSegment.Length;
+                dbContourH.Add(segment.higestPoint);
+                dbContourLo.Add(segment.lowestPoint);
+                dbContourR.Add(segment.rightMostPoint);
+                dbContourL.Add(segment.leftMostPoint);
             }
-            result += Math.Pow(avgInputHighest.X - avgDbHighest.X, 2)
-                + Math.Pow(avgInputHighest.Y - avgDbHighest.Y, 2)
-                + Math.Pow(avgInputLowest.X - avgDbLowest.X, 2)
-                + Math.Pow(avgInputLowest.Y - avgDbLowest.Y, 2)
-                + Math.Pow(avgInputMiddle.X - avgDbMiddle.X, 2)
-                + Math.Pow(avgInputMiddle.Y - avgDbMiddle.Y, 2);
+            inputContourH.AddRange(inputContourLo);
+            inputContourH.AddRange(inputContourR);
+            inputContourH.AddRange(inputContourL);
+            dbContourH.AddRange(inputContourLo);
+            dbContourH.AddRange(inputContourR);
+            dbContourH.AddRange(inputContourL);
+            //VectorOfPoint inputContour = new VectorOfPoint(inputContourH.ToArray());
+            //VectorOfPoint dbContour = new VectorOfPoint(dbContourH.ToArray());
 
-
+            System.Drawing.Point[] inputContour = inputContourH.ToArray();
+            System.Drawing.Point[] dbContour = dbContourH.ToArray();
+            //     result = CvInvoke.MatchShapes(inputContour, dbContour, ContoursMatchType.I1);
+            for (int i = 0; i < inputContour.Length; i++)
+            {
+                result += Math.Pow(inputContour[i].X - dbContour[i].X, 2)
+                    + Math.Pow(inputContour[i].Y - dbContour[i].Y, 2);
+            }
             return result;
+        }
+        public double slope(System.Drawing.Point a, System.Drawing.Point b)
+        {
+            return (a.Y - b.Y) / (a.X - b.X);
         }
         public HandSign getInputHandSign(SoftwareBitmap softwareBitmap)
         {
@@ -321,5 +335,54 @@ namespace HandRegcoDemo0.ViewModels
             HandSign handSign = new HandSign(img);
             return handSign;
         }
+        //double result = 0;
+        //DistanceArithmetic DA = new DistanceArithmetic();
+        //System.Drawing.Point avgInputHighest = new System.Drawing.Point();
+        //System.Drawing.Point avgInputLowest = new System.Drawing.Point();
+        //System.Drawing.Point avgInputMiddle = new System.Drawing.Point();
+        //System.Drawing.Point avgDbHighest = new System.Drawing.Point();
+        //System.Drawing.Point avgDbLowest = new System.Drawing.Point();
+        //System.Drawing.Point avgDbMiddle = new System.Drawing.Point();
+        //foreach(Segment segment in input.listOfSegment)
+        //{
+        //    avgInputHighest.X += segment.higestPoint.X / input.listOfSegment.Length;
+        //    avgInputHighest.Y += segment.higestPoint.Y / input.listOfSegment.Length;
+        //    avgInputLowest.X += segment.lowestPoint.X / input.listOfSegment.Length;
+        //    avgInputHighest.Y += segment.lowestPoint.Y / input.listOfSegment.Length;
+        //    avgInputMiddle.X += segment.highestMiddlePoint.X / input.listOfSegment.Length;
+        //    avgInputMiddle.Y += segment.highestMiddlePoint.Y / input.listOfSegment.Length;
+        //}
+        //foreach(Segment segment in db.listOfSegment)
+        //{
+        //    avgDbHighest.X += segment.higestPoint.X / db.listOfSegment.Length;
+        //    avgDbHighest.Y += segment.higestPoint.Y / db.listOfSegment.Length;
+        //    avgDbLowest.X += segment.lowestPoint.X / db.listOfSegment.Length;
+        //    avgDbLowest.Y += segment.lowestPoint.Y / db.listOfSegment.Length;
+        //    avgDbMiddle.X += segment.highestMiddlePoint.X / db.listOfSegment.Length;
+        //    avgDbMiddle.Y += segment.highestMiddlePoint.Y / db.listOfSegment.Length;
+        //}
+        //double inputAB = DA.getDistance(avgInputHighest, avgInputMiddle);
+        //double inputBC = DA.getDistance(avgInputMiddle, avgInputLowest);
+        //double inputCA = DA.getDistance(avgInputLowest, avgInputHighest);
+        //double inputAVGAngle = Math.Acos((Math.Pow(inputAB, 2) + Math.Pow(inputBC, 2) - Math.Pow(inputCA, 2))/(2*inputAB*inputBC));
+
+        //double dbAB = DA.getDistance(avgDbHighest, avgDbMiddle);
+        //double dbBC = DA.getDistance(avgDbMiddle, avgDbLowest);
+        //double dbCA = DA.getDistance(avgDbLowest, avgDbHighest);
+
+        //double dBAVGAngle = Math.Acos((Math.Pow(dbAB, 2) + Math.Pow(dbBC, 2) - Math.Pow(dbCA, 2)) / (2 * dbAB * dbBC));
+
+        //result += Math.Pow(inputAVGAngle - dBAVGAngle, 2);
+
+
+        ////result += Math.Pow(avgInputHighest.X - avgDbHighest.X, 2)
+        ////    + Math.Pow(avgInputHighest.Y - avgDbHighest.Y, 2)
+        ////    + Math.Pow(avgInputLowest.X - avgDbLowest.X, 2)
+        ////    + Math.Pow(avgInputLowest.Y - avgDbLowest.Y, 2)
+        ////    + Math.Pow(avgInputMiddle.X - avgDbMiddle.X, 2)
+        ////    + Math.Pow(avgInputMiddle.Y - avgDbMiddle.Y, 2);
+
+
+        //return result;
     }
 }

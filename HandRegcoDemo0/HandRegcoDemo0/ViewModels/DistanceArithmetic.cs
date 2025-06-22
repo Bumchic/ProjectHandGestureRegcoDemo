@@ -102,8 +102,8 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Segment[] getSegmentFromHull(VectorOfPoint hull, Rectangle box)
         {
-            int productX = box.Width / 5;
-            List<Point>[] segmentFullContourX = new List<Point>[6];
+            int productX = box.Width / 20;
+            List<Point>[] segmentFullContourX = new List<Point>[30];
             for (int i=0; i<segmentFullContourX.Length; i++)
             {
                 segmentFullContourX[i] = new List<Point>();
@@ -122,6 +122,8 @@ namespace HandRegcoDemo0.ViewModels
                 Segment segment = new Segment();
                 int highestPoint = -9999;
                 int lowestPoint = 9999;
+                int rightPoint = 0;
+                int leftPoint = 9999;
                 foreach (Point point in segmentFullContourX[i])
                 {
                     if(point.Y > highestPoint)
@@ -136,7 +138,17 @@ namespace HandRegcoDemo0.ViewModels
                     }
                     if(point.Y == highestPoint - lowestPoint/2)
                     {
-                        segment.highestMiddlePoint = new Point(point.X - box.X, point.Y -box.Y);
+                        segment.highestMiddlePoint = new Point(point.X - box.X, point.Y - box.Y);
+                    }
+                    if(point.X > rightPoint)
+                    {
+                        rightPoint = point.X;
+                        segment.rightMostPoint = new Point(point.X - box.X, point.Y - box.Y);
+                    }
+                    if(point.X < leftPoint)
+                    {
+                        leftPoint = point.X;
+                        segment.leftMostPoint = new Point(point.X - box.X, point.Y - box.Y);
                     }
                 }
                 segmentlist.Add(segment);

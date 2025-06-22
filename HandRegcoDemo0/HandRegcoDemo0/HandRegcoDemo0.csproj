@@ -14,6 +14,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\C_flip.jpg" />
+    <AvaloniaResource Remove="Assets\H %287%29.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Assets\C_flip.jpg" />
+    <Content Remove="Assets\C_flip.jpg" />
+    <Content Remove="Assets\H %287%29.jpg" />
+    <Content Remove="Assets\H %287%29.jpg" />
     <Content Remove="Assets\HandSignH.jpg" />
     <Content Remove="Assets\HandSignV.jpg" />
     <Content Remove="Assets\HandsignW.jpg" />

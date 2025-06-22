@@ -12,5 +12,7 @@ namespace HandRegcoDemo0.Models
         public Point higestPoint { get; set; }
         public Point lowestPoint { get; set; }
         public Point highestMiddlePoint { get; set; }
+        public Point leftMostPoint { get; set; }
+        public Point rightMostPoint { get; set; }
     }
 }

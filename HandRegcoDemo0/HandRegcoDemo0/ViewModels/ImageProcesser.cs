@@ -416,6 +416,8 @@ namespace HandRegcoDemo0.ViewModels
                img = DrawSinglePoint(segment.higestPoint, img);
                img = DrawSinglePoint(segment.lowestPoint, img);
                 img = DrawSinglePoint(segment.highestMiddlePoint, img);
+                img = DrawSinglePoint(segment.rightMostPoint, img);
+                img = DrawSinglePoint(segment.leftMostPoint, img);
             }
             return img;
         }
@@ -424,6 +426,7 @@ namespace HandRegcoDemo0.ViewModels
             img = DrawSinglePoint(segmentlist[1].highestMiddlePoint, img);
             img = DrawSinglePoint(segmentlist[1].highestMiddlePoint, img);
             img = DrawSinglePoint(segmentlist[1].lowestPoint, img);
+           
             return img;
         }
         public int getConvexDefectCount(Mat convexDefect)
