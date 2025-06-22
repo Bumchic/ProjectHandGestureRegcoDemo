@@ -204,7 +204,7 @@ namespace HandRegcoDemo0.ViewModels
 
             var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
             if (defectsMat == null || defectsMat.Rows == 0)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
+                return _imageProcessor.MatToWriteableBitmap(inputMat); 
 
             inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
 
