@@ -460,6 +460,24 @@ namespace HandRegcoDemo0.ViewModels
             }
             return img;
         }
+        public VectorOfVectorOfPoint FindLargestContour(Mat skinMask, out int index)
+        {
+            var contours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            double maxArea = 0;
+            index = 0;
+
+            for (int i = 0; i < contours.Size; i++)
+            {
+                double area = CvInvoke.ContourArea(contours[i]);
+                if (area > maxArea)
+                {
+                    maxArea = area;
+                    index = i;
+                }
+            }
+            return contours;
+        }
 
     }
 

@@ -5,6 +5,7 @@ using Emgu.CV.Util;
 using HandRegcoDemo0.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -17,54 +18,20 @@ namespace HandRegcoDemo0.Models
     {
         public string Word { get; set; }
         public Mat img { get; set; }
-        public VectorOfPoint contour { get; set; }
-        public VectorOfPoint convexHull { get; set; }
-        public Rectangle box { get; set; }
-        public double distanceFromFirstCorner { get; set; }
-        public PointF pointFromFirstCorner { get; set; }
-        public int ConvexCount { get; set; }
-        public int hullCount { get; set; }
-        public Segment[] listOfSegment { get; set; }
-        public HandSign(Mat image)
+
+        public HandSign(Mat img):this()
         {
-            ImageProcesser _imageProcessor = new ImageProcesser();
-            DistanceArithmetic distanceArithmetic = new DistanceArithmetic();
-            CvInvoke.CvtColor(image, image, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
-            Mat img = new Mat();
-            image.CopyTo(img);
-            image = _imageProcessor.DetectSkinVer1(image);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(image);
-            VectorOfPoint hull = _imageProcessor.GetConvexHull(contour);
-            Rectangle box = _imageProcessor.getBoundingBox(contour);
-            double distFromCorner = distanceArithmetic.DistanceFromBoxFirstCorner(contour, box);
-            this.contour = contour;
-            Segment[] segementlist = distanceArithmetic.getSegmentFromHull(contour, box);
-            img = _imageProcessor.DrawSegment(segementlist, img);
-            img = _imageProcessor.DrawContour(contour, img);
-            contour = _imageProcessor.PolyLineApprox(contour);
-            Mat convexDefect = _imageProcessor.GetConvexityDefects(contour);
-            img = _imageProcessor.DrawConvexDefect(img, convexDefect, contour);
-            //PointF pointFromCorner = distanceArithmetic.PointFromCornerConvexDefect(convexDefect, contour, box);
-            int convexCount = _imageProcessor.getConvexDefectCount(convexDefect);
-            int hullCount = _imageProcessor.getConvexHullCount(contour);
-            this.convexHull = hull;
-            this.box = box;
-            this.distanceFromFirstCorner = distFromCorner;
-            //this.pointFromFirstCorner = pointFromCorner;
-            this.ConvexCount = convexCount;
-            this.hullCount = hullCount;
-            this.listOfSegment = segementlist;
+            CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
             this.img = img;
-            this.Word = "empty";
         }
         public HandSign()
         {
             this.Word = "Empty";
-            this.contour = new VectorOfPoint();
-            this.convexHull = new VectorOfPoint();
         }
-        public HandSign(Mat img, string word): this(img)
+        public HandSign(Mat img, string word)
         {
+            CvInvoke.CvtColor(img, img, Emgu.CV.CvEnum.ColorConversion.Bgr2Bgra);
+            this.img = img;
             this.Word = word;
         }
         public List<HandSign> PopulateHandSign()
