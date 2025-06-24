@@ -43,6 +43,7 @@ namespace HandRegcoDemo0.Models
             img = _imageProcessor.DrawContour(contour, img);
             contour = _imageProcessor.PolyLineApprox(contour);
             Mat convexDefect = _imageProcessor.GetConvexityDefects(contour);
+            img = _imageProcessor.DrawConvexDefect(img, convexDefect, contour);
             //PointF pointFromCorner = distanceArithmetic.PointFromCornerConvexDefect(convexDefect, contour, box);
             int convexCount = _imageProcessor.getConvexDefectCount(convexDefect);
             int hullCount = _imageProcessor.getConvexHullCount(contour);

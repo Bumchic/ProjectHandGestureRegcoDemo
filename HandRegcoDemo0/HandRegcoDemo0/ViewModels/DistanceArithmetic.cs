@@ -100,22 +100,24 @@ namespace HandRegcoDemo0.ViewModels
                 return CvInvoke.ContourArea(hull) / (box.Size.Width * box.Size.Height);
         
         }
-        public Segment[] getSegmentFromHull(VectorOfPoint hull, Rectangle box)
+        public Segment[] getSegmentFromHull(VectorOfPoint contour, Rectangle box)
         {
             int productX = box.Width / 20;
-            List<Point>[] segmentFullContourX = new List<Point>[30];
+            int BottomLim = box.Height/2;
+
+                List<Point>[] segmentFullContourX = new List<Point>[30];
             for (int i=0; i<segmentFullContourX.Length; i++)
             {
                 segmentFullContourX[i] = new List<Point>();
             }
             List<Segment> segmentlist = new List<Segment>();
-            if(box.IsEmpty|| hull.Size == 0)
+            if(box.IsEmpty|| contour.Size == 0)
             {
                 return segmentlist.ToArray();
             }
-            for (int i = 0; i < hull.Size; i++)
+            for (int i = 0; i < contour.Size; i++)
             {
-                segmentFullContourX[(hull[i].X - box.X)/productX].Add(new Point(hull[i].X, hull[i].Y));
+                segmentFullContourX[(contour[i].X - box.X)/productX].Add(new Point(contour[i].X, contour[i].Y));
             }
             for (int i=0; i<segmentFullContourX.Length; i++)
             {
@@ -126,26 +128,26 @@ namespace HandRegcoDemo0.ViewModels
                 int leftPoint = 9999;
                 foreach (Point point in segmentFullContourX[i])
                 {
-                    if(point.Y > highestPoint)
+                    if(point.Y > highestPoint && point.Y <= BottomLim + box.Y)
                     {
                         segment.higestPoint = new Point(point.X -box.X, point.Y - box.Y);
                         highestPoint = point.Y;
                     }
-                    if(point.Y < lowestPoint)
-                    {             
-                        segment.lowestPoint = new Point(point.X - box.X , point.Y - box.Y);
+                    if (point.Y < lowestPoint && point.Y <= BottomLim + box.Y)
+                    {
+                        segment.lowestPoint = new Point(point.X - box.X, point.Y - box.Y);
                         lowestPoint = point.Y;
                     }
-                    if(point.Y == highestPoint - lowestPoint/2)
-                    {
-                        segment.highestMiddlePoint = new Point(point.X - box.X, point.Y - box.Y);
-                    }
-                    if(point.X > rightPoint)
+                    //if(point.Y == highestPoint - lowestPoint/2)
+                    //{
+                    //    segment.highestMiddlePoint = new Point(point.X - box.X, point.Y - box.Y);
+                    //}
+                    if (point.X > rightPoint && point.Y <= BottomLim)
                     {
                         rightPoint = point.X;
                         segment.rightMostPoint = new Point(point.X - box.X, point.Y - box.Y);
                     }
-                    if(point.X < leftPoint)
+                    if (point.X < leftPoint && point.Y <= BottomLim)
                     {
                         leftPoint = point.X;
                         segment.leftMostPoint = new Point(point.X - box.X, point.Y - box.Y);

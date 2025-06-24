@@ -330,7 +330,7 @@ namespace HandRegcoDemo0.ViewModels
                 return new VectorOfPoint();
             }
             double maxArea = 0;
-            VectorOfPoint largestContour = new VectorOfPoint();
+            VectorOfPoint largestContour = new NullVectorOfPoint();
 
             for (int i = 0; i < contours.Size; i++)
             {
@@ -439,6 +439,28 @@ namespace HandRegcoDemo0.ViewModels
         {
             return hull.Size;
         }
+        public Mat getFittingLine(VectorOfPoint contour)
+        {
+            Mat line = new Mat();
+            CvInvoke.FitLine(contour, line, DistType.L1, 0, 0.01, 0.01);
+            return line;
+        }
+        public Mat drawFittingLine(Mat line, Mat img)
+        {
+            Matrix<int> matrix = new Matrix<int>(line.Rows, line.Cols, line.NumberOfChannels);
+            line.CopyTo(matrix);
+
+            for(int i=0; i<matrix.Data.GetLength(0); i++)
+            {
+                for(int j=0; j < matrix.Data.GetLength(1); j++)
+                {
+                    Debug.Write(matrix.Data[i, j] );
+                }
+                Debug.Write("\n");
+            }
+            return img;
+        }
+
     }
 
 }
