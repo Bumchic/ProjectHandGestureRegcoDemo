@@ -24,6 +24,7 @@ using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
+using System.Collections.Generic;
 
 
 
@@ -40,6 +41,9 @@ namespace HandRegcoDemo0.ViewModels
         private MediaFrameReader mediaFrameReader;
         private readonly ImageProcesser _imageProcessor;
         private readonly SignRecognizer _signRecognizer;
+        private Queue<string> recentResults = new();
+        private const int MaxHistory = 10;
+        private const int ConfirmThreshold = 6;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
@@ -208,11 +212,11 @@ namespace HandRegcoDemo0.ViewModels
 
             inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
 
-            var recognized = _signRecognizer.Recognize(skinMaskMat);
-            RecognizedSign = recognized;
+            var rawResult = _signRecognizer.Recognize(skinMaskMat);
+            var smoothResult = GetStableSign(rawResult);
 
             CvInvoke.PutText(
-                inputMat, recognized,
+                inputMat, smoothResult,
                 new System.Drawing.Point(10, 50),
                 FontFace.HersheyComplex, 2.0,
                 new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
@@ -229,6 +233,21 @@ namespace HandRegcoDemo0.ViewModels
             contour = _imageProcessor.PolyLineApprox(contour);
             skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
             return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+        }
+        private string GetStableSign(string newResult)
+        {
+            recentResults.Enqueue(newResult);
+            if (recentResults.Count > MaxHistory)
+            {
+                recentResults.Dequeue();
+            }
+            var mostCommon = recentResults
+                .GroupBy(x => x)
+                .OrderByDescending(g => g.Count())
+                .First();
+            if (mostCommon.Count () >= ConfirmThreshold)
+                return mostCommon.Key;
+            return "?";
         }
     }
 }
