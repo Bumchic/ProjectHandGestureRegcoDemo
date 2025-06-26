@@ -28,8 +28,8 @@ namespace HandRegcoDemo0.ViewModels
 
         public Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
-            if(softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8)
-            {   
+            if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8)
+            {
                 softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8);
             }
             byte[] data = new byte[4 * softwareBitmap.PixelWidth * softwareBitmap.PixelHeight];
@@ -75,25 +75,50 @@ namespace HandRegcoDemo0.ViewModels
 
             return skinMask;
         }
+        public bool IsValidHandContour(VectorOfPoint contour, int imageHeight)
+        {
+            double area = CvInvoke.ContourArea(contour);
+            if (area < 5000 || area > 30000)
+                return false;
 
+            var rect = CvInvoke.BoundingRectangle(contour);
+            double aspect = (double)rect.Width / rect.Height;
+            if (aspect < 0.3 || aspect > 1.7)
+                return false;
+
+            Moments m = CvInvoke.Moments(contour);
+            int cy = (int)(m.M01 / m.M00);
+            if (cy > imageHeight * 0.75)
+                return false;
+            return true;
+            
+        }
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
-            var countours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(skinMask, countours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-            double maxArea = 0;
-            VectorOfPoint largestContour = null;
+            var contours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
-            for (int i = 0; i < countours.Size; i++)
+            double maxArea = 0;
+            VectorOfPoint largest = null;
+
+            for (int i = 0; i < contours.Size; i++)
             {
-                double area = CvInvoke.ContourArea(countours[i]);
+                var contour = contours[i];
+
+                if (!IsValidHandContour(contour, skinMask.Rows))
+                    continue;
+
+                double area = CvInvoke.ContourArea(contour);
                 if (area > maxArea)
                 {
                     maxArea = area;
-                    largestContour = countours[i];
+                    largest = contour;
                 }
             }
-            return largestContour;
+
+            return largest;
         }
+
 
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
@@ -190,6 +215,10 @@ namespace HandRegcoDemo0.ViewModels
             return true;
         }
 
+        public bool IsValidContour(VectorOfPoint contour)
+        {
+            return contour != null && contour.Size > 2;
+        }
 
     }
     partial class ImageProcesser
@@ -316,23 +345,24 @@ namespace HandRegcoDemo0.ViewModels
         }
         public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
         {
-            double Epsilon = 0.025*CvInvoke.ArcLength(contour, true);
-            Debug.WriteLine(Epsilon);
             if (contour == null)
             {
                 Debug.WriteLine("Contour is null.");
+                return null;
             }
             else if (contour.Size == 0)
             {
                 Debug.WriteLine("Contour is empty.");
-            }
-            else
-            {
-                CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
+                return null;
             }
 
+            double Epsilon = 0.025 * CvInvoke.ArcLength(contour, true);
+            Debug.WriteLine(Epsilon);
+
+            CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
             return contour;
         }
+
         public Mat DrawContour(VectorOfPoint contour, Mat inputMat)
         {
             if (inputMat == null)
