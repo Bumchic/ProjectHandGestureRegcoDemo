@@ -179,7 +179,7 @@ namespace HandRegcoDemo0.ViewModels
         {
             var defectsMat = new Mat();
 
-            if (!IsValidForConvexityDefects(contour, out VectorOfInt hullIndices))
+            if (!IsValidContour(contour)|| !IsValidForConvexityDefects(contour, out VectorOfInt hullIndices))
             {
                 return defectsMat;
             }
@@ -250,6 +250,19 @@ namespace HandRegcoDemo0.ViewModels
             return true;
         }
 
+        public VectorOfPoint EnsureInt32Contour(VectorOfPoint contour)
+        {
+            if (!IsValidContour(contour))
+            {
+                Debug.WriteLine("EnsureInt32Contour: Contour is null or too small.");
+                return null;
+            }
+
+            return contour;
+        }
+
+
+
 
     }
     partial class ImageProcesser
@@ -257,13 +270,9 @@ namespace HandRegcoDemo0.ViewModels
         //Minh
         public VectorOfPoint GetConvexHull(VectorOfPoint contour)
         {
-            //PointF[] points = new PointF[contour.Size];
-            //for(int i=0; i<contour.Size; i++)
-            //{
-            //    points[i] = contour[i];
-            //}
-            if(contour == null)
+            if (!IsValidContour(contour))
             {
+                Debug.WriteLine("Contour is invalid.");
                 return null;
             }
             VectorOfPoint hull = new VectorOfPoint(contour.Size);
@@ -299,8 +308,9 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
         {
-            if(hull == null)
+            if(!IsValidContour(hull))
             {
+                Debug.WriteLine("Contour is invalid.");
                 return image;
             }
             List<System.Drawing.Point> fingerpoints = new List<System.Drawing.Point>();
@@ -349,10 +359,13 @@ namespace HandRegcoDemo0.ViewModels
 
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
-            if (convexDefect == null || convexDefect.IsEmpty || contour == null)
+           if (img == null || convexDefect == null || convexDefect.IsEmpty || !IsValidContour(contour))
+           {
+                Debug.WriteLine("Invalid input to DrawConvexDefect.");
                 return img;
+           }
 
-            int defectSize = 4; // mỗi defect gồm 4 giá trị: startIdx, endIdx, farIdx, depth
+            int defectSize = 4; 
             for (int i = 0; i < convexDefect.Rows; i++)
             {
                 int[] defect = new int[defectSize];
@@ -376,14 +389,10 @@ namespace HandRegcoDemo0.ViewModels
         }
         public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
         {
-            if (contour == null)
+            contour = EnsureInt32Contour(contour);
+            if (!IsValidContour(contour))
             {
-                Debug.WriteLine("Contour is null.");
-                return null;
-            }
-            else if (contour.Size == 0)
-            {
-                Debug.WriteLine("Contour is empty.");
+                Debug.WriteLine("Contour is invalid.");
                 return null;
             }
 
