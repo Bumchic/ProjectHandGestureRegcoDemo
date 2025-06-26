@@ -17,6 +17,10 @@ using Emgu.CV.Util;
 using System.Drawing;
 using Point = System.Drawing.Point;
 using Avalonia.Controls.Templates;
+using System.Net.Mime;
+using System.Data;
+using DynamicData;
+using System.Windows.Forms;
 
 
 namespace HandRegcoDemo0.ViewModels
@@ -25,6 +29,7 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
+        private readonly Rgba blue = new Rgba(255, 0, 0, 255);
 
         public Mat ConvertToMat(SoftwareBitmap softwareBitmap)
         {
@@ -92,6 +97,7 @@ namespace HandRegcoDemo0.ViewModels
                     largestContour = countours[i];
                 }
             }
+            largestContour = ReduceContour(largestContour);
             return largestContour;
         }
 
@@ -237,6 +243,11 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.Polylines(image, vector, true, red.MCvScalar, 2);
             return image;
         }
+        public Mat MarkMinAreaRect(Rectangle box, Mat image)
+        {
+            CvInvoke.Rectangle(image, box, blue.MCvScalar, 20);
+            return image;
+        }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
         {
             if(hull == null)
@@ -283,10 +294,15 @@ namespace HandRegcoDemo0.ViewModels
                 }
             }
 
-
             return largestContour;
         }
-
+        public VectorOfPoint ReduceContour(VectorOfPoint largestContour)
+        {
+            Rectangle box = getBoudingBox(largestContour);
+            List<Point> outOfBox = largestContour.ToArray().Where(a => a.Y < box.Y + box.Height).ToList();
+            VectorOfPoint reducedContour = new VectorOfPoint(outOfBox.ToArray());
+            return reducedContour;
+        }
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
             if (convexDefect == null || convexDefect.IsEmpty || contour == null)
@@ -317,7 +333,6 @@ namespace HandRegcoDemo0.ViewModels
         public VectorOfPoint PolyLineApprox(VectorOfPoint contour)
         {
             double Epsilon = 0.025*CvInvoke.ArcLength(contour, true);
-            Debug.WriteLine(Epsilon);
             if (contour == null)
             {
                 Debug.WriteLine("Contour is null.");
@@ -341,6 +356,76 @@ namespace HandRegcoDemo0.ViewModels
             }
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
             return inputMat;
+        }
+        public Point[] getLargestHandWidth(VectorOfPoint contour)
+        {
+            Point[] line = new Point[2];
+            Rectangle box = CvInvoke.BoundingRectangle(contour);
+            double longestLine = 0;
+            Point[] contourArray = contour.ToArray();
+            for(int i=box.Y; i <= box.Y + box.Height; i++)
+            {
+                Point[] Line = contourArray.Where(a => a.Y == i).ToArray();
+                int intersectCount = Line.Length;
+                if(intersectCount != 2)
+                {
+                    continue;
+                }
+                double distance = getDistance(Line[0], Line[1]);
+                if (distance > longestLine)
+                {
+                    longestLine = distance;
+                    line = Line;
+                }
+            }
+            return line;
+        }
+        public Mat DrawPoints(Point[] points, Mat img)
+        {
+            for(int i=1; i<points.Length; i++)
+            {
+                CvInvoke.Line(img, points[i], points[i - 1], blue.MCvScalar, 20);
+            }
+            return img;
+        }
+        public int FindDefectWithLargestStartEndLength(VectorOfPoint contour, Mat convexDefect)
+        {
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+
+            double longestLength = 0;
+            int index = 0;
+
+            for(int i=0; i<matrix.Data.GetLength(0); i++)
+            {
+                int startIndex = matrix.Data[i, 0];
+                int endIndex = matrix.Data[i, 1];
+                int defectIndex = matrix.Data[i, 2];
+                double length = getDistance(contour[startIndex], contour[endIndex]);
+
+                if (length > longestLength)
+                {
+                    longestLength = length;
+                    index = i;
+                }
+            }
+            return index;
+        }
+        public Rectangle getBoudingBox(VectorOfPoint contour)
+        {
+            Rectangle box =CvInvoke.BoundingRectangle(contour);
+            Mat convexDefect = GetConvexityDefects(contour);
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            int convexIndex = FindDefectWithLargestStartEndLength(contour, convexDefect);
+            if(box.Height > contour[matrix.Data[convexIndex, 2]].Y - box.Y)
+            {
+
+                    Debug.WriteLine("Lower");
+                    box.Height = contour[matrix.Data[convexIndex, 2]].Y - box.Y;
+ 
+            }
+            return box;
         }
     }
 

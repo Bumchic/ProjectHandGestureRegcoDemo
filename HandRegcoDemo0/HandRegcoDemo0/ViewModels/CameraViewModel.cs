@@ -183,11 +183,11 @@ namespace HandRegcoDemo0.ViewModels
 
             var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
             if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
-
-            handContour = _imageProcessor.PolyLineApprox(handContour);
+                return _imageProcessor.MatToWriteableBitmap(inputMat);
+        //    handContour = _imageProcessor.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+                return _imageProcessor.MatToWriteableBitmap(inputMat);
+
 
             var handConvex = _imageProcessor.GetConvexHull(handContour);
             if (handConvex == null || handConvex.Size < 3)
@@ -197,6 +197,7 @@ namespace HandRegcoDemo0.ViewModels
 
             RotatedRect box = CvInvoke.MinAreaRect(handContour);
             inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+           // inputMat = _imageProcessor.MarkMinAreaRect(_imageProcessor.getBoudingBox(handContour), inputMat);
 
             var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
             if (hullIndices == null || hullIndices.Size < 3)

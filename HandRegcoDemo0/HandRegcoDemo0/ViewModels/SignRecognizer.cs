@@ -79,7 +79,7 @@ public class SignRecognizer
 
         var inputHu = ComputeHuMoments(contour);
         var inputMat = new Matrix<float>(1, 7);
-        for (int i = 0; i < 7; i++)
+           for (int i = 0; i < 7; i++)
             inputMat[0, i] = (float)inputHu[i];
 
         var results = new Matrix<float>(1, 1);
