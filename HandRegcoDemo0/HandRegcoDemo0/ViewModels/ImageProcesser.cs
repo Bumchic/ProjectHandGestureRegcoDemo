@@ -78,17 +78,20 @@ namespace HandRegcoDemo0.ViewModels
         public bool IsValidHandContour(VectorOfPoint contour, int imageHeight)
         {
             double area = CvInvoke.ContourArea(contour);
-            if (area < 5000 || area > 30000)
+            if (area < 4000 || area > 90000)
                 return false;
 
             var rect = CvInvoke.BoundingRectangle(contour);
             double aspect = (double)rect.Width / rect.Height;
-            if (aspect < 0.3 || aspect > 1.7)
+            if (aspect < 0.2 || aspect > 2.0)
                 return false;
 
             Moments m = CvInvoke.Moments(contour);
+            if (m.M00 == 0)
+                return false;
+
             int cy = (int)(m.M01 / m.M00);
-            if (cy > imageHeight * 0.75)
+            if (cy > imageHeight * 0.85)
                 return false;
             return true;
             
@@ -217,8 +220,36 @@ namespace HandRegcoDemo0.ViewModels
 
         public bool IsValidContour(VectorOfPoint contour)
         {
-            return contour != null && contour.Size > 2;
+            if (contour == null)
+            {
+                Debug.WriteLine("Contour is null.");
+                return false;
+            }
+
+            if (contour.Size < 3)
+            {
+                Debug.WriteLine($"Contour too small. Size: {contour.Size}");
+                return false;
+            }
+
+            try
+            {
+                double arcLength = CvInvoke.ArcLength(contour, true);
+                if (arcLength <= 0 || double.IsNaN(arcLength))
+                {
+                    Debug.WriteLine("Contour arc length is invalid.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error checking contour: " + ex.Message);
+                return false;
+            }
+
+            return true;
         }
+
 
     }
     partial class ImageProcesser
@@ -368,6 +399,11 @@ namespace HandRegcoDemo0.ViewModels
             if (inputMat == null)
             {
                 inputMat = new Mat();
+            }
+            if(!IsValidContour(contour))
+            {
+                Debug.WriteLine("contour is invalid.");
+                return inputMat;
             }
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
             return inputMat;
