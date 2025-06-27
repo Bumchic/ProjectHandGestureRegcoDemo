@@ -17,6 +17,8 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
+        private readonly ContourHelper _contourHelper = new();
+        private readonly DistanceCalculation _distanceCalculation = new();
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
             if (hull == null || image == null)
@@ -40,9 +42,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
         {
-            ContourHelper contourHelper = new ContourHelper();
-            DistanceCalculation distanceCalculation = new DistanceCalculation();
-            if (!contourHelper.IsValidContour(hull))
+            if (!_contourHelper.IsValidContour(hull))
             {
                 Debug.WriteLine("Contour is invalid.");
                 return image;
@@ -52,7 +52,7 @@ namespace HandRegcoDemo0.ViewModels
             System.Drawing.Point CheckPoint = hull[0];
             for (int i = 1; i < hull.Size; i++)
             {
-                if (distanceCalculation.getDistance(CheckPoint, hull[i]) > box.Size.Width / 10)
+                if (_distanceCalculation.getDistance(CheckPoint, hull[i]) > box.Size.Width / 10)
                 {
                     fingerpoints.Add(CheckPoint);
                 }
@@ -65,8 +65,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
-            ContourHelper contourHelper = new ContourHelper();
-            if (img == null || convexDefect == null || convexDefect.IsEmpty || !contourHelper.IsValidContour(contour))
+            if (img == null || convexDefect == null || convexDefect.IsEmpty || !_contourHelper.IsValidContour(contour))
             {
                 Debug.WriteLine("Invalid input to DrawConvexDefect.");
                 return img;
@@ -90,12 +89,11 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat DrawContour(VectorOfPoint contour, Mat inputMat)
         {
-            ContourHelper contourHelper = new ContourHelper();
             if (inputMat == null)
             {
                 inputMat = new Mat();
             }
-            if (!contourHelper.IsValidContour(contour))
+            if (!_contourHelper.IsValidContour(contour))
             {
                 Debug.WriteLine("contour is invalid.");
                 return inputMat;
