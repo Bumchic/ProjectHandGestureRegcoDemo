@@ -3829,6 +3829,24 @@
 					"name": "HandShapeAnalyzer"
 				}
 			]
+		},
+		{
+			"_type": "UMLModel",
+			"_id": "AAAAAAGXr4Qrk4/JOac=",
+			"_parent": {
+				"$ref": "AAAAAAFF+h6SjaM2Hec="
+			},
+			"name": "Model2",
+			"ownedElements": [
+				{
+					"_type": "UMLClassDiagram",
+					"_id": "AAAAAAGXr4Qrk4/Kapo=",
+					"_parent": {
+						"$ref": "AAAAAAGXr4Qrk4/JOac="
+					},
+					"name": "ClassDiagram1"
+				}
+			]
 		}
 	]
 }
