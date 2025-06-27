@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HandRegcoDemo0.ViewModels
 {
-    class Draw
+    partial class Draw
     {
     }
 }

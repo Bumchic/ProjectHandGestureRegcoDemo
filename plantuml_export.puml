@@ -61,7 +61,6 @@ class Draw {
      + DrawContour(): 
 }
 class HandShapeAnalyzer {
-  + DetectSkinVer1(): 
  + IsValidHandContour(): 
   + FindLargestContour():
   + GetConvexHullIndices(): 
@@ -72,9 +71,17 @@ class HandShapeAnalyzer {
   + GetConvexHull(): 
     + FindLargestContour(): 
 }
+class SkinSegmenter{
+  +DetectSkinVer1
+}
+class Contourhelper{
+  
+}
 CameraViewModel ..o ImageProcessing
 ImageProcessing ..o SignRecognizer
 ImageProcessing ..o Draw
 ImageProcessing ..o HandShapeAnalyzer
 ImageProcessing ..o ImageConverter
+ImageProcessing ..o SkinSegmenter
+HandShapeAnalyzer ..o Contourhelper
 @enduml

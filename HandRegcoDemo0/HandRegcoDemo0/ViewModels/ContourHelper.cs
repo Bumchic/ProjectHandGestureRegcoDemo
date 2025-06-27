@@ -100,5 +100,46 @@ namespace HandRegcoDemo0.Utils
 
             return largestContour;
         }
+        public bool IsValidHandContour(VectorOfPoint contour, int imageHeight)
+        {
+            double area = CvInvoke.ContourArea(contour);
+            if (area < 4000 || area > 90000)
+                return false;
+
+            var rect = CvInvoke.BoundingRectangle(contour);
+            double aspect = (double)rect.Width / rect.Height;
+            if (aspect < 0.2 || aspect > 2.0)
+                return false;
+
+            Moments m = CvInvoke.Moments(contour);
+            if (m.M00 == 0)
+                return false;
+
+            int cy = (int)(m.M01 / m.M00);
+            if (cy > imageHeight * 0.85)
+                return false;
+            return true;
+
+        }
+        public bool IsValidForConvexityDefects(VectorOfPoint contour, out VectorOfInt hullIndices)
+        {
+            hullIndices = new VectorOfInt();
+
+            if (contour == null || contour.Size < 2)
+            {
+                Debug.WriteLine("Contour is null or too small.");
+                return false;
+            }
+
+            CvInvoke.ConvexHull(contour, hullIndices, returnPoints: false, clockwise: false);
+
+            if (hullIndices == null || hullIndices.Size < 3)
+            {
+                Debug.WriteLine("Hull indices too small or null.");
+                return false;
+            }
+
+            return true;
+        }
     }
 }

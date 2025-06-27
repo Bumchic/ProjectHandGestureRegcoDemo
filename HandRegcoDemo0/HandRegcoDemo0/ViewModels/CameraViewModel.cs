@@ -24,6 +24,7 @@ using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
+using HandRegcoDemo0.Utils.Segmentation;
 
 
 
@@ -153,7 +154,7 @@ namespace HandRegcoDemo0.ViewModels
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
                 ProcessedBitmapImage = ProcessMat(softwareBitmap);
-                SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
+                //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -175,38 +176,41 @@ namespace HandRegcoDemo0.ViewModels
         }
         public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
         {
+            HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
+            ImageConverter imageConverter = new ImageConverter();
+            SkinSegmenter skinSegmenter = new SkinSegmenter();
+            Draw draw = new Draw();
+            var inputMat = imageConverter.ConvertToMat(softwareBitmap);
+            var processedMat = imageConverter.ColorConvertToGray(inputMat);
 
-            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-            var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
+            var skinMaskMat = skinSegmenter.DetectSkinVer1(inputMat);
 
-            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-
-            var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
+            var handContour = handShapeAnalyzer.FindLargestContour(skinMaskMat);
             if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+                return imageConverter.MatToWriteableBitmap(inputMat); 
 
-            handContour = _imageProcessor.PolyLineApprox(handContour);
+            handContour = handShapeAnalyzer.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+                return imageConverter.MatToWriteableBitmap(inputMat); 
 
-            var handConvex = _imageProcessor.GetConvexHull(handContour);
+            var handConvex = handShapeAnalyzer.GetConvexHull(handContour);
             if (handConvex == null || handConvex.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+                return imageConverter.MatToWriteableBitmap(inputMat); 
 
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
 
             RotatedRect box = CvInvoke.MinAreaRect(handContour);
-            inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
+            inputMat = draw.MarkMinAreaRect(box, inputMat);
 
-            var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
+            var hullIndices = handShapeAnalyzer.GetConvexHullIndices(handConvex);
             if (hullIndices == null || hullIndices.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
+                return imageConverter.MatToWriteableBitmap(inputMat); 
 
-            var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
+            var defectsMat = handShapeAnalyzer.GetConvexityDefects(handContour);
             if (defectsMat == null || defectsMat.Rows == 0)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
+                return imageConverter.MatToWriteableBitmap(inputMat); // Không có defect nào
 
-            inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
+            inputMat = draw.DrawConvexDefect(inputMat, defectsMat, handContour);
 
             var recognized = _signRecognizer.Recognize(skinMaskMat);
             RecognizedSign = recognized;
@@ -216,19 +220,19 @@ namespace HandRegcoDemo0.ViewModels
                 new System.Drawing.Point(10, 50),
                 FontFace.HersheyComplex, 2.0,
                 new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
-            return _imageProcessor.MatToWriteableBitmap(inputMat);
+            return imageConverter.MatToWriteableBitmap(inputMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
         }
-        public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
-        {
-            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-            //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
-            contour = _imageProcessor.PolyLineApprox(contour);
-            skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
-            return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
-        }
+        //public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
+        //{
+        //    var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
+        //    var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+        //    //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+        //    VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
+        //    contour = _imageProcessor.PolyLineApprox(contour);
+        //    skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
+        //    return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+        //}
     }
 }
