@@ -17,8 +17,7 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
-        private readonly ContourHelper _contourHelper = new();
-        private readonly DistanceCalculation _distanceCalculation = new();
+   
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
             if (hull == null || image == null)
@@ -42,6 +41,8 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat MarkFingerPoint(VectorOfPoint hull, Mat image)
         {
+            ContourHelper _contourHelper = new ContourHelper();
+            DistanceCalculation _distanceCalculation = new DistanceCalculation();
             if (!_contourHelper.IsValidContour(hull))
             {
                 Debug.WriteLine("Contour is invalid.");
@@ -65,6 +66,8 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat DrawConvexDefect(Mat img, Mat convexDefect, VectorOfPoint contour)
         {
+            ContourHelper _contourHelper = new ContourHelper();
+
             if (img == null || convexDefect == null || convexDefect.IsEmpty || !_contourHelper.IsValidContour(contour))
             {
                 Debug.WriteLine("Invalid input to DrawConvexDefect.");
@@ -89,6 +92,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat DrawContour(VectorOfPoint contour, Mat inputMat)
         {
+            ContourHelper _contourHelper = new ContourHelper();
             if (inputMat == null)
             {
                 inputMat = new Mat();
