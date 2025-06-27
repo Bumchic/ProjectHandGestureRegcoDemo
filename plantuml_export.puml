@@ -1,0 +1,80 @@
+@startuml
+class CameraViewModel {
+  + Attribute1: 
+  + Port1: 
+  - Image: 
+  + devices: 
+  - devices: 
+  - VideoDeviceController: 
+  - mediaCapture: 
+  - MediaFrameSouce: 
+  - MediaPlayer: 
+  - MediaFrameReader: 
+  + AddCameraOption(): 
+  + StartCamOnClick(): 
+  + InitCapMedia(): 
+  + OnMediaFailed(): 
+  + OnMediaOpen(): 
+  + OnFrameArrived(): 
+  + SoftwareBitmapToImage(): 
+  + ProcessMat(): 
+  + DistanceTransformTest(): 
+}
+class ImageProcessing {
+  + getDistance(): 
+  + CalculationDistanceTransformation(): 
+
+}
+class MainMenuViewModel {
+}
+class MainWindowViewModel {
+}
+class SignRecognizer {
+  + LoadDataset(): 
+  + Recognize(): 
+  + ComputeHuMoments(): 
+  + FindBestMatch(): 
+}
+class VideoRecordViewModel {
+  + StartCamera(): 
+  + CapturePreview(): 
+  + StopCamera(): 
+  + StartRecording(): 
+  + RecordLoop(): 
+  + StartRecordingTimer(): 
+  + StopRecording(): 
+  + ResetButton(): 
+  + Dispose(): 
+}
+class ImageConverter {
+  + ConvertToMat(): 
+  + ColorConvertToGray(): 
+  + ConvertMatToSfotwareBitmap(): 
+    + MatToWriteableBitmap(): 
+  + SoftwareBitmapToImage(): 
+}
+class Draw {
+ + MarkConvexHullPoints(): 
+  + MarkMinAreaRect(): 
+  + MarkFingerPoint(): 
+   + DrawConvexDefect(): 
+     + DrawContour(): 
+}
+class HandShapeAnalyzer {
+  + DetectSkinVer1(): 
+ + IsValidHandContour(): 
+  + FindLargestContour():
+  + GetConvexHullIndices(): 
+  + GetConvexityDefect(): 
+  + IsValidForConvexityDefects(): 
+  + IsValidContour(): 
+  + EnsureInt32Contour(): 
+  + GetConvexHull(): 
+    + FindLargestContour(): 
+}
+CameraViewModel ..o ImageProcessing
+ImageProcessing ..o SignRecognizer
+ImageProcessing ..o Draw
+ImageProcessing ..o HandShapeAnalyzer
+ImageProcessing ..o ImageConverter
+@enduml
