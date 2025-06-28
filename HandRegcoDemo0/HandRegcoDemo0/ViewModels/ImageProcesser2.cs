@@ -18,11 +18,6 @@ namespace HandRegcoDemo0.ViewModels
     partial class ImageProcesser
     {
         //Minh
-        public SignRecognizer _signRecognizer = new SignRecognizer();
-        public ImageProcesser()
-        {
-            _signRecognizer.LoadDataset("Datasets");
-        }
         public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap, out string word)
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
@@ -66,7 +61,7 @@ namespace HandRegcoDemo0.ViewModels
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
         }
-        public Mat DetectSkinFromImage(SoftwareBitmap softwareBitmap)
+        private Mat DetectSkinFromImage(SoftwareBitmap softwareBitmap)
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
@@ -78,7 +73,7 @@ namespace HandRegcoDemo0.ViewModels
             var skinMaskMat = skinSegmenter.DetectSkinVer1(inputMat);
             return skinMaskMat;
         }
-        public Mat calculateDistanceTransformation(Mat image)
+        private Mat calculateDistanceTransformation(Mat image)
         {
             CvInvoke.DistanceTransform(image, image, null, DistType.User, 0);
             return image;
