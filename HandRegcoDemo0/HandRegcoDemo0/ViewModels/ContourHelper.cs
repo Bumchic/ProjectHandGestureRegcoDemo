@@ -103,12 +103,12 @@ namespace HandRegcoDemo0.Utils
         public bool IsValidHandContour(VectorOfPoint contour, int imageHeight)
         {
             double area = CvInvoke.ContourArea(contour);
-            if (area < 4000 || area > 90000)
+            if (area < 8000 || area > 60000)
                 return false;
 
             var rect = CvInvoke.BoundingRectangle(contour);
             double aspect = (double)rect.Width / rect.Height;
-            if (aspect < 0.2 || aspect > 2.0)
+            if (aspect < 0.4 || aspect > 1.8)
                 return false;
 
             Moments m = CvInvoke.Moments(contour);
@@ -116,7 +116,7 @@ namespace HandRegcoDemo0.Utils
                 return false;
 
             int cy = (int)(m.M01 / m.M00);
-            if (cy > imageHeight * 0.85)
+            if (cy > imageHeight * 0.75)
                 return false;
             return true;
 
