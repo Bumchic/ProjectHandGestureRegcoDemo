@@ -58,7 +58,7 @@ namespace HandRegcoDemo0.ViewModels
         public SoftwareBitmap softwareBitmap ;
         public CameraViewModel()
         {
-            a = CvInvoke.Imread("Datasets/I (2).jpg", ImreadModes.Color);
+            a = CvInvoke.Imread("Datasets/B.jpg", ImreadModes.Color);
             CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
             softwareBitmap = new ImageConverter().ConvertMatToSoftwareBitmap(a);
             _imageProcessor = new ImageProcesser();
