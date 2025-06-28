@@ -24,6 +24,7 @@ using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
+using HandRegcoDemo0.Utils.Segmentation;
 
 
 
@@ -39,7 +40,6 @@ namespace HandRegcoDemo0.ViewModels
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
         private readonly ImageProcesser _imageProcessor;
-        private readonly SignRecognizer _signRecognizer;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
@@ -56,8 +56,6 @@ namespace HandRegcoDemo0.ViewModels
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
-            _signRecognizer = new SignRecognizer();
-            _signRecognizer.LoadDataset("Datasets");
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
@@ -143,6 +141,7 @@ namespace HandRegcoDemo0.ViewModels
             MediaFrameReference mediaFrameReference = sender.TryAcquireLatestFrame();
             VideoMediaFrame videoMediaFrame = mediaFrameReference?.VideoMediaFrame;
             SoftwareBitmap softwareBitmap = videoMediaFrame?.SoftwareBitmap;
+            string word = "?";
             if (softwareBitmap != null)
             {
 
@@ -152,8 +151,10 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                ProcessedBitmapImage = ProcessMat(softwareBitmap);
-                SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
+                ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
+                RecognizedSign = word;
+
+                //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }
         }
         public unsafe Avalonia.Media.Imaging.WriteableBitmap SoftwareBitmapToImage(SoftwareBitmap softwareBitmap)
@@ -173,63 +174,16 @@ namespace HandRegcoDemo0.ViewModels
                 return bitmap;
             }
         }
-        public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
-        {
 
-            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-            var processedMat = _imageProcessor.ColorConvertToGray(inputMat);
-
-            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-
-            var handContour = _imageProcessor.FindLargestContour(skinMaskMat);
-            if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat);
-        //    handContour = _imageProcessor.PolyLineApprox(handContour);
-            if (handContour == null || handContour.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat);
-
-
-            var handConvex = _imageProcessor.GetConvexHull(handContour);
-            if (handConvex == null || handConvex.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
-
-            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(handConvex), -1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
-
-            RotatedRect box = CvInvoke.MinAreaRect(handContour);
-            inputMat = _imageProcessor.MarkMinAreaRect(box, inputMat);
-           // inputMat = _imageProcessor.MarkMinAreaRect(_imageProcessor.getBoudingBox(handContour), inputMat);
-
-            var hullIndices = _imageProcessor.GetConvexHullIndices(handConvex);
-            if (hullIndices == null || hullIndices.Size < 3)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); 
-
-            var defectsMat = _imageProcessor.GetConvexityDefects(handContour);
-            if (defectsMat == null || defectsMat.Rows == 0)
-                return _imageProcessor.MatToWriteableBitmap(inputMat); // Không có defect nào
-
-            inputMat = _imageProcessor.DrawConvexDefect(inputMat, defectsMat, handContour);
-
-            var recognized = _signRecognizer.Recognize(skinMaskMat);
-            RecognizedSign = recognized;
-
-            CvInvoke.PutText(
-                inputMat, recognized,
-                new System.Drawing.Point(10, 50),
-                FontFace.HersheyComplex, 2.0,
-                new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
-            return _imageProcessor.MatToWriteableBitmap(inputMat);
-            //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
-
-        }
-        public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
-        {
-            var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
-            var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
-            //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
-            VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
-            contour = _imageProcessor.PolyLineApprox(contour);
-            skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
-            return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
-        }
+        //public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
+        //{
+        //    var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
+        //    var skinMaskMat = _imageProcessor.DetectSkinVer1(inputMat);
+        //    //skinMaskMat = _imageProcessor.calculateDistanceTransformation(skinMaskMat);
+        //    VectorOfPoint contour = _imageProcessor.FindLargestContour(skinMaskMat);
+        //    contour = _imageProcessor.PolyLineApprox(contour);
+        //    skinMaskMat = _imageProcessor.DrawContour(contour, inputMat);
+        //    return _imageProcessor.MatToWriteableBitmap(skinMaskMat);
+        //}
     }
 }

@@ -7,21 +7,22 @@ using System.IO;
 using System.Linq;
 using System;
 using Emgu.CV.ML;
+using HandRegcoDemo0.Utils.Segmentation;
 
 public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
-    private readonly ImageProcesser _imageProcesser;
     private KNearest knn;
     public SignRecognizer()
     {
-        _imageProcesser = new ImageProcesser();
         knn = new KNearest();
     }
     public void LoadDataset(string folderPath)
     {
+        SkinSegmenter skinSegmenter = new SkinSegmenter();
+        HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
         huData.Clear();
         labels.Clear();
         labelMap.Clear();
@@ -35,8 +36,8 @@ public class SignRecognizer
             var label = fileName.Split(' ')[0];
 
             var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
-            var skinMask = _imageProcesser.DetectSkinVer1(colorImage);
-            var contour = _imageProcesser.FindLargestContour(skinMask);
+            var skinMask = skinSegmenter.DetectSkinVer1(colorImage);
+            var contour = handShapeAnalyzer.FindLargestContour(skinMask);
 
             if (contour != null)
             {
@@ -74,7 +75,8 @@ public class SignRecognizer
 
     public string Recognize(Mat inputImage)
     {
-        var contour = _imageProcesser.FindLargestContour(inputImage);
+        HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
+        var contour = handShapeAnalyzer.FindLargestContour(inputImage);
         if (contour == null) return "?";
 
         var inputHu = ComputeHuMoments(contour);
