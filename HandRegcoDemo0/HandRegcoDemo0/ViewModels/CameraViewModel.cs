@@ -25,6 +25,7 @@ using Emgu.CV.Structure;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
 using HandRegcoDemo0.Utils.Segmentation;
+using Windows.Storage.Pickers;
 
 
 
@@ -53,8 +54,13 @@ namespace HandRegcoDemo0.ViewModels
         public int SelectedIndex { get; set; }
         [ObservableProperty]
         private string recognizedSign = "?";
+        public Mat a;
+        public SoftwareBitmap softwareBitmap ;
         public CameraViewModel()
         {
+            a = CvInvoke.Imread("Datasets/I (2).jpg", ImreadModes.Color);
+            CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
+            softwareBitmap = new ImageConverter().ConvertMatToSoftwareBitmap(a);
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
@@ -140,7 +146,9 @@ namespace HandRegcoDemo0.ViewModels
         {
             MediaFrameReference mediaFrameReference = sender.TryAcquireLatestFrame();
             VideoMediaFrame videoMediaFrame = mediaFrameReference?.VideoMediaFrame;
-            SoftwareBitmap softwareBitmap = videoMediaFrame?.SoftwareBitmap;
+            //SoftwareBitmap softwareBitmap = videoMediaFrame?.SoftwareBitmap;
+
+
             string word = "?";
             if (softwareBitmap != null)
             {

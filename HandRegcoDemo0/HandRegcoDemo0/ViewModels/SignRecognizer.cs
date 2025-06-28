@@ -63,7 +63,7 @@ public class SignRecognizer
         for (int i = 0; i < huData.Count; i++)
         {
             for (int j = 0; j < 7; j++)
-                trainData[i, j] = huData[i][j];
+                trainData.Data[i, j] = huData[i][j];
         }
 
         var responses = new Matrix<int>(labels.ToArray());

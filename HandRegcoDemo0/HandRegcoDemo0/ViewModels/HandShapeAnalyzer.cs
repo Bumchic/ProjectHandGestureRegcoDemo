@@ -121,7 +121,6 @@ namespace HandRegcoDemo0.ViewModels
             }
 
             double Epsilon = 0.025 * CvInvoke.ArcLength(contour, true);
-            Debug.WriteLine(Epsilon);
 
             CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
             return contour;
@@ -165,13 +164,27 @@ namespace HandRegcoDemo0.ViewModels
             Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
             convexDefect.CopyTo(matrix);
             int convexIndex = FindDefectWithLargestStartEndLength(contour, convexDefect);
-            if (box.Height > contour[matrix.Data[convexIndex, 2]].Y - box.Y)
+            Point DefectPoint = contour[matrix.Data[convexIndex, 2]];
+            Point StartPoint = contour[matrix.Data[convexIndex, 0]];
+            Point EndPoint = contour[matrix.Data[convexIndex, 1]];
+            Point WristPoint = DefectPoint;
+            if(StartPoint.Y > DefectPoint.Y && StartPoint.Y < EndPoint.Y)
             {
-
-                Debug.WriteLine("Lower");
-                box.Height = contour[matrix.Data[convexIndex, 2]].Y - box.Y;
-
+                WristPoint = StartPoint;
+            }else if(EndPoint.Y > DefectPoint.Y && EndPoint.Y < StartPoint.Y)
+            {
+                WristPoint = EndPoint;
             }
+                box.Height = WristPoint.Y - box.Y;
+            //if (box.Height > DefectPoint.Y - box.Y)
+            //{
+            //    box.Height = DefectPoint.Y - box.Y;
+            //    if (box.Height < StartPoint.Y - box.Y)
+            //    {
+            //        box.Height = StartPoint.Y;
+            //    }
+            //}
+
             return box;
         }
         public int FindDefectWithLargestStartEndLength(VectorOfPoint contour, Mat convexDefect)

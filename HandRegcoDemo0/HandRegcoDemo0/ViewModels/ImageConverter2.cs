@@ -37,12 +37,13 @@ namespace HandRegcoDemo0.ViewModels
         //Convert mat to SB
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{F
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels != 4)
+            {
+                
+                Mat converted = new Mat();
+                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+                mat = converted;
+            }
             byte[] data = new byte[mat.Rows * mat.Cols * mat.NumberOfChannels];
             mat.CopyTo(data);
             var bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, mat.Cols, mat.Rows);

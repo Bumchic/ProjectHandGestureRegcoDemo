@@ -31,6 +31,8 @@ namespace HandRegcoDemo0.ViewModels
             var handContour = handShapeAnalyzer.FindLargestContour(skinMaskMat);
             if (handContour == null || handContour.Size < 3)
                 return imageConverter.MatToWriteableBitmap(originalMat);
+            var recognized = _signRecognizer.Recognize(skinMaskMat);
+            word = recognized;
 
             handContour = handShapeAnalyzer.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
@@ -54,8 +56,7 @@ namespace HandRegcoDemo0.ViewModels
                 return imageConverter.MatToWriteableBitmap(originalMat); // Không có defect nào
 
             originalMat = draw.DrawConvexDefect(originalMat, defectsMat, handContour);
-            var recognized = _signRecognizer.Recognize(skinMaskMat);
-            word = recognized;
+
            originalMat = draw.DrawText(originalMat, recognized);
             return imageConverter.MatToWriteableBitmap(originalMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
