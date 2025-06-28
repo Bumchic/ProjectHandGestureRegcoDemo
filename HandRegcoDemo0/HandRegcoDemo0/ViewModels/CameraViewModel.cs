@@ -40,7 +40,6 @@ namespace HandRegcoDemo0.ViewModels
         private MediaPlayer mediaPlayer;
         private MediaFrameReader mediaFrameReader;
         private readonly ImageProcesser _imageProcessor;
-        private readonly SignRecognizer _signRecognizer;
         [ObservableProperty]
         public Avalonia.Media.Imaging.WriteableBitmap bitmapImage;
         [ObservableProperty]
@@ -57,8 +56,6 @@ namespace HandRegcoDemo0.ViewModels
         public CameraViewModel()
         {
             _imageProcessor = new ImageProcesser();
-            _signRecognizer = new SignRecognizer();
-            _signRecognizer.LoadDataset("Datasets");
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();

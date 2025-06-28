@@ -18,13 +18,16 @@ namespace HandRegcoDemo0.ViewModels
     partial class ImageProcesser
     {
         //Minh
-
+        public SignRecognizer _signRecognizer = new SignRecognizer();
+        public ImageProcesser()
+        {
+            _signRecognizer.LoadDataset("Datasets");
+        }
         public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap, out string word)
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
             SkinSegmenter skinSegmenter = new SkinSegmenter();
-            SignRecognizer signRecognizer = new SignRecognizer();
             Draw draw = new Draw();
             Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
             Mat skinMaskMat = DetectSkinFromImage(softwareBitmap);
@@ -56,9 +59,9 @@ namespace HandRegcoDemo0.ViewModels
                 return imageConverter.MatToWriteableBitmap(originalMat); // Không có defect nào
 
             originalMat = draw.DrawConvexDefect(originalMat, defectsMat, handContour);
-            var recognized = signRecognizer.Recognize(skinMaskMat);
+            var recognized = _signRecognizer.Recognize(skinMaskMat);
             word = recognized;
-            originalMat = draw.DrawText(originalMat, recognized);
+           originalMat = draw.DrawText(originalMat, recognized);
             return imageConverter.MatToWriteableBitmap(originalMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
