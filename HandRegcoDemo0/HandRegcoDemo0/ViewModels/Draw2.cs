@@ -15,9 +15,6 @@ namespace HandRegcoDemo0.ViewModels
 {
     partial class Draw
     {
-        private readonly Rgba red = new Rgba(0, 0, 255, 255);
-        private readonly Rgba green = new Rgba(0, 255, 0, 255);
-   
         public Mat MarkConvexHullPoints(VectorOfPoint hull, Mat image)
         {
             if (hull == null || image == null)
@@ -114,5 +111,14 @@ namespace HandRegcoDemo0.ViewModels
             new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
             return inputMat;
         }
+        public Mat DrawLines(Point[] points, Mat img)
+        {
+            for (int i = 1; i < points.Length; i++)
+            {
+                CvInvoke.Line(img, points[i], points[i - 1], blue.MCvScalar, 20);
+            }
+            return img;
+        }
+
     }
 }

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using HandRegcoDemo0.ViewModels;
 using HandRegcoDemo0.Utils;
 using Emgu.CV.Structure;
+using System.Drawing;
 
 namespace HandRegcoDemo0.ViewModels
 {
@@ -39,7 +40,10 @@ namespace HandRegcoDemo0.ViewModels
                     largest = contour;
                 }
             }
-
+            if(largest is not null)
+            {
+                largest = ReduceContour(largest);
+            }
             return largest;
         }
         public VectorOfInt GetConvexHullIndices(VectorOfPoint contour)
@@ -102,7 +106,7 @@ namespace HandRegcoDemo0.ViewModels
                     largestContour = contours[i];
                 }
             }
-
+            largestContour = ReduceContour(largestContour);
 
             return largestContour;
         }
@@ -122,6 +126,76 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.ApproxPolyDP(contour, contour, Epsilon, true);
             return contour;
         }
-        
+        public VectorOfPoint ReduceContour(VectorOfPoint largestContour)
+        {
+            Rectangle box = getBoudingBoxAtWristLine(largestContour);
+            List<Point> outOfBox = largestContour.ToArray().Where(a => a.Y < box.Y + box.Height).ToList();
+            VectorOfPoint reducedContour = new VectorOfPoint(outOfBox.ToArray());
+            return reducedContour;
+        }
+        public Point[] getLargestHandWidth(VectorOfPoint contour)
+        {
+            DistanceCalculation distanceCalculatior = new DistanceCalculation();
+            Point[] line = new Point[2];
+            Rectangle box = CvInvoke.BoundingRectangle(contour);
+            double longestLine = 0;
+            Point[] contourArray = contour.ToArray();
+            for (int i = box.Y; i <= box.Y + box.Height; i++)
+            {
+                Point[] Line = contourArray.Where(a => a.Y == i).ToArray();
+                int intersectCount = Line.Length;
+                if (intersectCount != 2)
+                {
+                    continue;
+                }
+                double distance = distanceCalculatior.getDistance(Line[0], Line[1]);
+                if (distance > longestLine)
+                {
+                    longestLine = distance;
+                    line = Line;
+                }
+            }
+            return line;
+        }
+        public Rectangle getBoudingBoxAtWristLine(VectorOfPoint contour)
+        {
+            HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
+            Rectangle box = CvInvoke.BoundingRectangle(contour);
+            Mat convexDefect = handShapeAnalyzer.GetConvexityDefects(contour);
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            int convexIndex = FindDefectWithLargestStartEndLength(contour, convexDefect);
+            if (box.Height > contour[matrix.Data[convexIndex, 2]].Y - box.Y)
+            {
+
+                Debug.WriteLine("Lower");
+                box.Height = contour[matrix.Data[convexIndex, 2]].Y - box.Y;
+
+            }
+            return box;
+        }
+        public int FindDefectWithLargestStartEndLength(VectorOfPoint contour, Mat convexDefect)
+        {
+            Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
+            convexDefect.CopyTo(matrix);
+            DistanceCalculation distanceCalculatior = new DistanceCalculation();
+            double longestLength = 0;
+            int index = 0;
+
+            for (int i = 0; i < matrix.Data.GetLength(0); i++)
+            {
+                int startIndex = matrix.Data[i, 0];
+                int endIndex = matrix.Data[i, 1];
+                int defectIndex = matrix.Data[i, 2];
+                double length = distanceCalculatior.getDistance(contour[startIndex], contour[endIndex]);
+
+                if (length > longestLength)
+                {
+                    longestLength = length;
+                    index = i;
+                }
+            }
+            return index;
+        }
     }
 }

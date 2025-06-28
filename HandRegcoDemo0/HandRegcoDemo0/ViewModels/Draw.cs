@@ -11,5 +11,6 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
+        private readonly Rgba blue = new Rgba(255, 0, 0, 255);
     }
 }
