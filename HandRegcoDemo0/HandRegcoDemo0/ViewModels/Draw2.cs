@@ -105,5 +105,14 @@ namespace HandRegcoDemo0.ViewModels
             CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
             return inputMat;
         }
+        public Mat DrawText(Mat inputMat, string word)
+        {
+                    CvInvoke.PutText(
+            inputMat, word,
+            new System.Drawing.Point(10, 50),
+            FontFace.HersheyComplex, 2.0,
+            new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
+            return inputMat;
+        }
     }
 }

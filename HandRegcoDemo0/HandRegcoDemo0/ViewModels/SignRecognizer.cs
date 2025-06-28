@@ -14,11 +14,9 @@ public class SignRecognizer
     private readonly List<float[]> huData = new();
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
-    private readonly ImageProcesser _imageProcesser;
     private KNearest knn;
     public SignRecognizer()
     {
-        _imageProcesser = new ImageProcesser();
         knn = new KNearest();
     }
     public void LoadDataset(string folderPath)
