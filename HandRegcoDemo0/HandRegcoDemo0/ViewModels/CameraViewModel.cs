@@ -59,7 +59,8 @@ namespace HandRegcoDemo0.ViewModels
         public Mat a;
         public SoftwareBitmap softwareBitmap ;
         private Mat[] matCollection;
-        private int index
+        private int index;
+        public int Index
         {
             get
             {
@@ -67,6 +68,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             set
             {
+                index = value;
                 if(index == matCollection.Length)
                 {
                     index = 0;
@@ -79,25 +81,27 @@ namespace HandRegcoDemo0.ViewModels
         }
         public CameraViewModel()
         {
-            a = CvInvoke.Imread("Datasets/B.jpg", ImreadModes.Color);
-            CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
+            //a = CvInvoke.Imread("Datasets/B.jpg", ImreadModes.Color);
+            //CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
             matCollection = getALlPic();
-            softwareBitmap = new ImageConverter().ConvertMatToSoftwareBitmap(a);
+            Index = 0;
+            //softwareBitmap = new ImageConverter().ConvertMatToSoftwareBitmap(a);
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
-            AddCameraOption();
+            //AddCameraOption();
         }
         public void NextPic()
         {
-            index++;
+            Index++;
             string b;
             SoftwareBitmap a = new ImageConverter().ConvertMatToSoftwareBitmap(matCollection[index]);
             ProcessedBitmapImage = _imageProcessor.ProcessMat(a,out b);
         }
         public Mat[] getALlPic()
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo("~~/Datasets");
+            var a = "..\\..\\..\\Datasets";
+            DirectoryInfo directoryInfo = new DirectoryInfo(a);
             FileInfo[] fileInfo = directoryInfo.GetFiles();
             List<Mat> matCollection = new List<Mat>();
             foreach(var file in fileInfo)
@@ -105,7 +109,7 @@ namespace HandRegcoDemo0.ViewModels
                 if(file.Extension.Equals(".jpg"))
                 {
                     Mat img = new Mat();
-                    byte[] bytes = File.ReadAllBytes(file.DirectoryName);
+                    byte[] bytes = File.ReadAllBytes(file.FullName);
                     CvInvoke.Imdecode(bytes, ImreadModes.Color, img);
                     CvInvoke.CvtColor(img, img, ColorConversion.Bgr2Bgra);
                     matCollection.Add(img);
