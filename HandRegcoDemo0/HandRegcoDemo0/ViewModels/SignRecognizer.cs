@@ -8,6 +8,8 @@ using System.Linq;
 using System;
 using Emgu.CV.ML;
 using HandRegcoDemo0.Utils.Segmentation;
+using HandRegcoDemo0.Models;
+using System.Drawing;
 
 public class SignRecognizer
 {
@@ -111,6 +113,46 @@ public class SignRecognizer
         return hu;
     }
 
+    public List<Segment> CreateSegments(VectorOfPoint contour)
+    {
+        Rectangle box = CvInvoke.BoundingRectangle(contour);
+        double segmentWidth = box.Width / 5;
+        List<Segment> segments = new List<Segment>();
+        List<Point>[] segmentFull = new List<Point>[5];
+        for(int i=0; i<segmentFull.Length; i++)
+        {
+            segmentFull[i] = new List<Point>();
+        }
+        for(int i=0; i<contour.Length; i++)
+        {
+            int position = (int)Math.Floor((contour[i].X - box.X) / segmentWidth);
+            segmentFull[position].Add(contour[i]);
+        }
+
+        foreach(List<Point> points in segmentFull)
+        {
+            Segment segment = new Segment();
+            foreach(Point point in points)
+            {
+                if(point.Y > segment.highesPoint.Y)
+                {
+                    segment.highesPoint = point;
+                }
+                if(point.Y < segment.LowestPoint.Y)
+                {
+                    segment.LowestPoint = point;
+                }
+                if(point.X < segment.MostLeftPoint.X)
+                {
+                    segment.MostLeftPoint = point;
+                }
+                if(point.X > segment.MostRightPoint.X)
+                {
+                    segment.MostRightPoint = point;
+                }
+            }
+        }
+    }
 
     private string FindBestMatch(double[] inputHu)
     {
