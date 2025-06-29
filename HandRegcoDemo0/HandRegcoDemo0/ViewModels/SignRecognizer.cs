@@ -14,6 +14,7 @@ using System.Drawing;
 public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
+    private List<Segment[]> segmentData = new List<Segment[]>();
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
     private KNearest knn;
@@ -40,9 +41,10 @@ public class SignRecognizer
             var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
             var skinMask = skinSegmenter.DetectSkinVer1(colorImage);
             var contour = handShapeAnalyzer.FindLargestContour(skinMask);
-
             if (contour != null)
             {
+                List<Segment> segments = CreateSegments(contour);
+                segmentData.Add(segments.ToArray());
                 var hu = ComputeHuMoments(contour);
                 huData.Add(hu.Select(x => (float)x).ToArray());
 
@@ -61,16 +63,33 @@ public class SignRecognizer
         }
 
         // Convert to Mat
-        var trainData = new Matrix<float>(huData.Count, 7);
-        for (int i = 0; i < huData.Count; i++)
+        //var trainData = new Matrix<float>(huData.Count, 7);
+        //for (int i = 0; i < huData.Count; i++)
+        //{
+        //    for (int j = 0; j < 7; j++)
+        //        trainData[i, j] = huData[i][j];
+        //}
+        Point[][] trainer = new Point[segmentData.Count][];
+        for(int i=0; i<trainer.Length; i++)
         {
-            for (int j = 0; j < 7; j++)
-                trainData[i, j] = huData[i][j];
+            trainer[i] = new Point[segmentData[0].Length * 4];
+        }
+        for(int i=0; i<segmentData.Count; i++)
+        {
+            List<Point> Contour = new List<Point>();
+            foreach(Segment segment in segmentData[i])
+            {
+                Contour.Add(segment.highestPoint);
+                Contour.Add(segment.MostLeftPoint);
+                Contour.Add(segment.MostRightPoint);
+                Contour.Add(segment.LowestPoint);
+            }
+            trainer[i] = Contour.ToArray();
         }
 
+        VectorOfVectorOfPoint trainerVector = new VectorOfVectorOfPoint(trainer);
         var responses = new Matrix<int>(labels.ToArray());
-
-        knn.Train(trainData, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
+        knn.Train(trainerVector, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
         Console.WriteLine($"Trained k-NN with {huData.Count} samples.");
     }
 
@@ -134,11 +153,11 @@ public class SignRecognizer
             Segment segment = new Segment();
             foreach(Point point in points)
             {
-                if(point.Y > segment.highesPoint.Y)
+                if(point.Y < segment.highestPoint.Y)
                 {
-                    segment.highesPoint = point;
+                    segment.highestPoint = point;
                 }
-                if(point.Y < segment.LowestPoint.Y)
+                if(point.Y > segment.LowestPoint.Y)
                 {
                     segment.LowestPoint = point;
                 }
@@ -151,7 +170,9 @@ public class SignRecognizer
                     segment.MostRightPoint = point;
                 }
             }
+            segments.Add(segment);
         }
+        return segments.ToList();
     }
 
     private string FindBestMatch(double[] inputHu)
