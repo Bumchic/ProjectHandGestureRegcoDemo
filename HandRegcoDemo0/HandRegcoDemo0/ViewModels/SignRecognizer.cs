@@ -10,6 +10,7 @@ using Emgu.CV.ML;
 using HandRegcoDemo0.Utils.Segmentation;
 using HandRegcoDemo0.Models;
 using System.Drawing;
+using System.Diagnostics;
 
 public class SignRecognizer
 {
@@ -135,16 +136,17 @@ public class SignRecognizer
     public List<Segment> CreateSegments(VectorOfPoint contour)
     {
         Rectangle box = CvInvoke.BoundingRectangle(contour);
-        double segmentWidth = box.Width / 5;
+        double segmentWidth = box.Width * 1.0 / 5;
         List<Segment> segments = new List<Segment>();
         List<Point>[] segmentFull = new List<Point>[5];
         for(int i=0; i<segmentFull.Length; i++)
         {
             segmentFull[i] = new List<Point>();
         }
-        for(int i=0; i<contour.Length; i++)
+        for(int i=0; i<contour.Size; i++)
         {
-            int position = (int)Math.Floor((contour[i].X - box.X) / segmentWidth);
+            Point pos = contour[i];
+            int position = (int)Math.Floor((pos.X * 1.0 - box.X * 1.0) / segmentWidth);
             segmentFull[position].Add(contour[i]);
         }
 
