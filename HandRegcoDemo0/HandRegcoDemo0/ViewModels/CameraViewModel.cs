@@ -26,6 +26,8 @@ using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
 using HandRegcoDemo0.Utils.Segmentation;
 using Windows.Storage.Pickers;
+using System.Collections.Generic;
+using System.IO;
 
 
 
@@ -56,6 +58,7 @@ namespace HandRegcoDemo0.ViewModels
         private string recognizedSign = "?";
         public Mat a;
         public SoftwareBitmap softwareBitmap ;
+        private List<Mat> matCollection;
         public CameraViewModel()
         {
             a = CvInvoke.Imread("Datasets/B.jpg", ImreadModes.Color);
@@ -65,6 +68,18 @@ namespace HandRegcoDemo0.ViewModels
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
+        }
+        public List<Mat> getALlPic()
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo("Datasets");
+            FileInfo[] fileInfo = directoryInfo.GetFiles();
+            foreach(var file in fileInfo)
+            {
+                if(file.Extension.Equals(".jpg"))
+                {
+                    
+                }
+            }
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
