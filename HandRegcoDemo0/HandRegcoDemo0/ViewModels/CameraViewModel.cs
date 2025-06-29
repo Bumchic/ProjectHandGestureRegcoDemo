@@ -58,28 +58,60 @@ namespace HandRegcoDemo0.ViewModels
         private string recognizedSign = "?";
         public Mat a;
         public SoftwareBitmap softwareBitmap ;
-        private List<Mat> matCollection;
+        private Mat[] matCollection;
+        private int index
+        {
+            get
+            {
+                return index;
+            }
+            set
+            {
+                if(index == matCollection.Length)
+                {
+                    index = 0;
+                }
+                if(index < 0)
+                {
+                    index = matCollection.Length - 1;
+                }
+            }
+        }
         public CameraViewModel()
         {
             a = CvInvoke.Imread("Datasets/B.jpg", ImreadModes.Color);
             CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
+            matCollection = getALlPic();
             softwareBitmap = new ImageConverter().ConvertMatToSoftwareBitmap(a);
             _imageProcessor = new ImageProcesser();
             buttonIsEnable = true;
             cameraCombobox = new ObservableCollection<string>();
             AddCameraOption();
         }
-        public List<Mat> getALlPic()
+        public void NextPic()
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo("Datasets");
+            index++;
+            string b;
+            SoftwareBitmap a = new ImageConverter().ConvertMatToSoftwareBitmap(matCollection[index]);
+            ProcessedBitmapImage = _imageProcessor.ProcessMat(a,out b);
+        }
+        public Mat[] getALlPic()
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo("~~/Datasets");
             FileInfo[] fileInfo = directoryInfo.GetFiles();
+            List<Mat> matCollection = new List<Mat>();
             foreach(var file in fileInfo)
             {
                 if(file.Extension.Equals(".jpg"))
                 {
-                    
+                    Mat img = new Mat();
+                    byte[] bytes = File.ReadAllBytes(file.DirectoryName);
+                    CvInvoke.Imdecode(bytes, ImreadModes.Color, img);
+                    CvInvoke.CvtColor(img, img, ColorConversion.Bgr2Bgra);
+                    matCollection.Add(img);
                 }
             }
+            return matCollection.ToArray();
         }
         public async Task InitCapMedia(MediaCaptureInitializationSettings settings)
         {
@@ -96,54 +128,54 @@ namespace HandRegcoDemo0.ViewModels
         }
         public async void StartCamOnClick()
         {
-            MediaFrameSource previewSource;
-            MediaFrameSource recordSource;
-            DeviceInformation Camera = devices.First(a => a.Name.Equals(cameraCombobox[SelectedIndex]));
-            if (mediaCapture != null)
-            {
-                return;
+            //MediaFrameSource previewSource;
+            //MediaFrameSource recordSource;
+            //DeviceInformation Camera = devices.First(a => a.Name.Equals(cameraCombobox[SelectedIndex]));
+            //if (mediaCapture != null)
+            //{
+            //    return;
 
-            }
+            //}
 
-            if (AppCapability.Create("WebCam").CheckAccess() != AppCapabilityAccessStatus.Allowed)
-            {
-                throw new Exception("WebCam Access Denied");
+            //if (AppCapability.Create("WebCam").CheckAccess() != AppCapabilityAccessStatus.Allowed)
+            //{
+            //    throw new Exception("WebCam Access Denied");
 
-            }
+            //}
 
-            MediaCaptureInitializationSettings settings;
-            settings = new MediaCaptureInitializationSettings()
-            {
-                VideoDeviceId = Camera.Id,
-                StreamingCaptureMode = StreamingCaptureMode.Video,
-                MemoryPreference = MediaCaptureMemoryPreference.Cpu
-            };
-            await InitCapMedia(settings);
-            Debug.WriteLine("Success");
+            //MediaCaptureInitializationSettings settings;
+            //settings = new MediaCaptureInitializationSettings()
+            //{
+            //    VideoDeviceId = Camera.Id,
+            //    StreamingCaptureMode = StreamingCaptureMode.Video,
+            //    MemoryPreference = MediaCaptureMemoryPreference.Cpu
+            //};
+            //await InitCapMedia(settings);
+            //Debug.WriteLine("Success");
 
 
-            frameSource = null;
-            previewSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoPreview && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
-            if (previewSource != null)
-            {
-                frameSource = previewSource;
-            }
-            else
-            {
-                recordSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoRecord
-                                                                                       && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
-                frameSource = recordSource;
-            }
-            ButtonIsEnable = false;
-            mediaPlayer = new MediaPlayer()
-            {
-                RealTimePlayback = true,
-                AutoPlay = false,
-                Source = MediaSource.CreateFromMediaFrameSource(frameSource)
-            };
+            //frameSource = null;
+            //previewSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoPreview && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
+            //if (previewSource != null)
+            //{
+            //    frameSource = previewSource;
+            //}
+            //else
+            //{
+            //    recordSource = mediaCapture.FrameSources.FirstOrDefault(source => source.Value.Info.MediaStreamType == MediaStreamType.VideoRecord
+            //                                                                           && source.Value.Info.SourceKind == MediaFrameSourceKind.Color).Value;
+            //    frameSource = recordSource;
+            //}
+            //ButtonIsEnable = false;
+            //mediaPlayer = new MediaPlayer()
+            //{
+            //    RealTimePlayback = true,
+            //    AutoPlay = false,
+            //    Source = MediaSource.CreateFromMediaFrameSource(frameSource)
+            //};
 
-            mediaPlayer.MediaFailed += OnMediaFailed;
-            mediaPlayer.MediaOpened += OnMediaOpened;
+            //mediaPlayer.MediaFailed += OnMediaFailed;
+            //mediaPlayer.MediaOpened += OnMediaOpened;
 
         }
         public void OnMediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
@@ -173,9 +205,9 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
-                RecognizedSign = word;
+                //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+                //ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
+                //RecognizedSign = word;
 
                 //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }

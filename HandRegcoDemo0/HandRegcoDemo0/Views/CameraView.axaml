@@ -141,6 +141,7 @@
 								   Stretch="Uniform"
 								   Margin="8"/>
 						</Border>
+						<Button Command ="{Binding Path=NextPic}"></Button>
 					</StackPanel>
 
 				</Grid>
