@@ -266,17 +266,13 @@ namespace HandRegcoDemo0.ViewModels
                     widthOffset = sign.box.Width - inputSign.box.Width;
                     heightOffset = sign.box.Height - inputSign.box.Height;
                 double signHullToBoxRatio = new DistanceArithmetic().CalculateHullToBoxRatio(inputSign.convexHull, sign.box);
-                //var inputContour = getSegmentContour(inputSign);
-                //var dbContour = getSegmentContour(sign);
-                var iv = new VectorOfPoint();
-                var db = new VectorOfPoint();
+                var inputContour = getSegmentContour(inputSign);
+                var dbContour = getSegmentContour(sign);
                 try
                 {
-                    iv = cloneVOP(inputSign.contour);
-                     db = cloneVOP(sign.contour);
-                    //inputSign.contour.CopyTo(iv);
-                    //sign.contour.CopyTo(db);
-                    double distance = CvInvoke.MatchShapes(iv, db, ContoursMatchType.I1);
+                    double distance = SegmentDistanceCalculation(inputContour, dbContour)
+                + Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2)
+                + Math.Pow(inputSign.ConvexCount - sign.ConvexCount, 2);
                     if (distance < shortestDistance)
                     {
                         shortestDistance = distance;
@@ -304,7 +300,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             return new VectorOfPoint(points.ToArray());
         }
-        public VectorOfVectorOfPoint getSegmentContour(HandSign input)
+        public System.Drawing.Point[] getSegmentContour(HandSign input)
         {
             List<System.Drawing.Point> inputContourH = new List<System.Drawing.Point>();
             List<System.Drawing.Point> inputContourLo = new List<System.Drawing.Point>();
@@ -322,23 +318,12 @@ namespace HandRegcoDemo0.ViewModels
             inputContourH.AddRange(inputContourLo);
  
             System.Drawing.Point[] inputContour = inputContourH.ToArray();
-            VectorOfPoint contour = new VectorOfPoint(inputContour);
-            var outputContour = new VectorOfVectorOfPoint();
-            try
-            {
-                CvInvoke.FindContours(contour, outputContour, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-            }catch(Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
 
-            return outputContour;
+            return inputContour;
         }
         private double SegmentDistanceCalculation(System.Drawing.Point[] inputContour, System.Drawing.Point[] dbContour)
         {
-            //SegmentDistanceCalculation(inputSign, sign)
-            //    + Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2)
-            //    + Math.Pow(inputSign.ConvexCount - sign.ConvexCount, 2)
+
             double result = 0;
            
             for (int i = 0; i < inputContour.Length; i++)
