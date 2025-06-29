@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Diagnostics;
 using HandRegcoDemo0.Utils;
+using HandRegcoDemo0.Models;
 
 namespace HandRegcoDemo0.ViewModels
 {
@@ -117,6 +118,14 @@ namespace HandRegcoDemo0.ViewModels
             {
                 CvInvoke.Line(img, points[i], points[i - 1], blue.MCvScalar, 20);
             }
+            return img;
+        }
+        public Mat DrawSegment(Segment segment, Mat img)
+        {
+            CvInvoke.DrawMarker(img, segment.highestPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.LowestPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.MostRightPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.MostLeftPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
             return img;
         }
 

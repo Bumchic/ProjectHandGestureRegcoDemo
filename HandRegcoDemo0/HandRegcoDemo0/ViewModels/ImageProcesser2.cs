@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using HandRegcoDemo0.Utils.Segmentation;
 using Windows.Graphics.Imaging;
 using Avalonia.Media.Imaging;
+using HandRegcoDemo0.Models;
 
 namespace HandRegcoDemo0.ViewModels
 {
@@ -31,6 +32,11 @@ namespace HandRegcoDemo0.ViewModels
             var handContour = handShapeAnalyzer.FindLargestContour(skinMaskMat);
             if (handContour == null || handContour.Size < 3)
                 return imageConverter.MatToWriteableBitmap(originalMat);
+            List<Segment> segments = new SignRecognizer().CreateSegments(handContour);
+            foreach(var segment in segments)
+            {
+                originalMat = draw.DrawSegment(segment, originalMat);
+            }
 
             handContour = handShapeAnalyzer.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)

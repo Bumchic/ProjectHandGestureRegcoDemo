@@ -70,27 +70,26 @@ public class SignRecognizer
         //    for (int j = 0; j < 7; j++)
         //        trainData[i, j] = huData[i][j];
         //}
-        Point[][] trainer = new Point[segmentData.Count][];
-        for(int i=0; i<trainer.Length; i++)
-        {
-            trainer[i] = new Point[segmentData[0].Length * 4];
-        }
+        Matrix<float> trainer = new Matrix<float>(segmentData.Count, segmentData[0].Length * 4 *2);
         for(int i=0; i<segmentData.Count; i++)
         {
             List<Point> Contour = new List<Point>();
-            foreach(Segment segment in segmentData[i])
+            foreach (Segment segment in segmentData[i])
             {
                 Contour.Add(segment.highestPoint);
                 Contour.Add(segment.MostLeftPoint);
                 Contour.Add(segment.MostRightPoint);
                 Contour.Add(segment.LowestPoint);
             }
-            trainer[i] = Contour.ToArray();
+            Point[] pointContour = Contour.ToArray();
+            for(int j =0; j<pointContour.Length; j++)
+            {
+                trainer[i, j * 2] = (float)pointContour[j].X;
+                trainer[i, j * 2 + 1] = (float)pointContour[j].Y;
+            }
         }
-
-        VectorOfVectorOfPoint trainerVector = new VectorOfVectorOfPoint(trainer);
         var responses = new Matrix<int>(labels.ToArray());
-        knn.Train(trainerVector, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
+        knn.Train(trainer, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
         Console.WriteLine($"Trained k-NN with {huData.Count} samples.");
     }
 
@@ -101,22 +100,42 @@ public class SignRecognizer
         var contour = handShapeAnalyzer.FindLargestContour(inputImage);
         if (contour == null) return "?";
 
-        var inputHu = ComputeHuMoments(contour);
-        var inputMat = new Matrix<float>(1, 7);
-           for (int i = 0; i < 7; i++)
-            inputMat[0, i] = (float)inputHu[i];
+        List<Segment> segments = CreateSegments(contour);
+        Matrix<float> input = getContourMatrix(segments);
+        //var inputHu = ComputeHuMoments(contour);
+        //var inputMat = new Matrix<float>(1, 7);
+        //   for (int i = 0; i < 7; i++)
+        //    inputMat[0, i] = (float)inputHu[i];
 
         var results = new Matrix<float>(1, 1);
         var neighborResponses = new Matrix<float>(1, 3); 
         var dists = new Matrix<float>(1, 3);
 
-        knn.FindNearest(inputMat, k: 3, results, neighborResponses, dists);
+        knn.FindNearest(input, k: 3, results, neighborResponses, dists);
 
         int predictedId = (int)results[0, 0];
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
 
-
+    public Matrix<float> getContourMatrix(List<Segment> segments)
+    {
+        Matrix<float> trainer = new Matrix<float>(1, segments.Count * 4 * 2);
+        List<Point> Contour = new List<Point>();
+        foreach (Segment segment in segments)
+        {
+            Contour.Add(segment.highestPoint);
+            Contour.Add(segment.MostLeftPoint);
+            Contour.Add(segment.MostRightPoint);
+            Contour.Add(segment.LowestPoint);
+        }
+        Point[] pointContour = Contour.ToArray();
+        for (int j = 0; j < pointContour.Length; j++)
+        {
+            trainer[0, j * 2] = pointContour[j].X;
+            trainer[0, j * 2 + 1] = pointContour[j].Y;
+        }
+        return trainer;
+    }
     private double[] ComputeHuMoments(VectorOfPoint contour)
     {
         var moments = CvInvoke.Moments(contour);
@@ -136,9 +155,9 @@ public class SignRecognizer
     public List<Segment> CreateSegments(VectorOfPoint contour)
     {
         Rectangle box = CvInvoke.BoundingRectangle(contour);
-        double segmentWidth = box.Width * 1.0 / 5;
+        double segmentWidth = box.Width * 1.0 / 10;
         List<Segment> segments = new List<Segment>();
-        List<Point>[] segmentFull = new List<Point>[5];
+        List<Point>[] segmentFull = new List<Point>[10];
         for(int i=0; i<segmentFull.Length; i++)
         {
             segmentFull[i] = new List<Point>();
@@ -157,19 +176,19 @@ public class SignRecognizer
             {
                 if(point.Y < segment.highestPoint.Y)
                 {
-                    segment.highestPoint = point;
+                    segment.highestPoint = new Point(point.X - box.X, point.Y - box.Y);
                 }
                 if(point.Y > segment.LowestPoint.Y)
                 {
-                    segment.LowestPoint = point;
+                    segment.LowestPoint = new Point(point.X - box.X, point.Y - box.Y);
                 }
                 if(point.X < segment.MostLeftPoint.X)
                 {
-                    segment.MostLeftPoint = point;
+                    segment.MostLeftPoint = new Point(point.X - box.X, point.Y - box.Y);
                 }
                 if(point.X > segment.MostRightPoint.X)
                 {
-                    segment.MostRightPoint = point;
+                    segment.MostRightPoint = new Point(point.X - box.X, point.Y - box.Y);
                 }
             }
             segments.Add(segment);
