@@ -116,10 +116,9 @@ namespace HandRegcoDemo0.Utils
                 return false;
 
             int cy = (int)(m.M01 / m.M00);
-            if (cy > imageHeight * 0.75)
+            if (cy > imageHeight * 0.85)
                 return false;
             return true;
-
         }
         public bool IsValidForConvexityDefects(VectorOfPoint contour, out VectorOfInt hullIndices)
         {
