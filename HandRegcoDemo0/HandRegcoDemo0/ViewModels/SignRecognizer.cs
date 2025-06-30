@@ -11,6 +11,7 @@ using HandRegcoDemo0.Utils.Segmentation;
 using HandRegcoDemo0.Models;
 using System.Drawing;
 using System.Diagnostics;
+using static Emgu.Util.Platform;
 
 public class SignRecognizer
 {
@@ -73,15 +74,21 @@ public class SignRecognizer
         Matrix<float> trainer = new Matrix<float>(segmentData.Count, segmentData[0].Length * 4 *2);
         for(int i=0; i<segmentData.Count; i++)
         {
-            List<Point> Contour = new List<Point>();
+            List<Point> ContourHigh = new List<Point>();
+            List<Point> ContourLeft = new List<Point>();
+            List<Point> ContourRight = new List<Point>();
+            List<Point> ContourBottom = new List<Point>();
             foreach (Segment segment in segmentData[i])
             {
-                Contour.Add(segment.highestPoint);
-                Contour.Add(segment.MostLeftPoint);
-                Contour.Add(segment.MostRightPoint);
-                Contour.Add(segment.LowestPoint);
+                ContourHigh.Add(segment.ContactHighRight);
+                ContourBottom.Add(segment.ContactHighLeft);
+                ContourLeft.Add(segment.ContactLowRight);
+                ContourRight.Add(segment.ContactLowLeft);
             }
-            Point[] pointContour = Contour.ToArray();
+            ContourHigh.AddRange(ContourBottom);
+            ContourHigh.AddRange(ContourLeft);
+            ContourHigh.AddRange(ContourRight);
+            Point[] pointContour = ContourHigh.ToArray();
             for(int j =0; j<pointContour.Length; j++)
             {
                 trainer[i, j * 2] = (float)pointContour[j].X;
@@ -120,15 +127,21 @@ public class SignRecognizer
     public Matrix<float> getContourMatrix(List<Segment> segments)
     {
         Matrix<float> trainer = new Matrix<float>(1, segments.Count * 4 * 2);
-        List<Point> Contour = new List<Point>();
+        List<Point> ContourHigh = new List<Point>();
+        List<Point> ContourLeft = new List<Point>();
+        List<Point> ContourRight = new List<Point>();
+        List<Point> ContourBottom = new List<Point>();
         foreach (Segment segment in segments)
         {
-            Contour.Add(segment.highestPoint);
-            Contour.Add(segment.MostLeftPoint);
-            Contour.Add(segment.MostRightPoint);
-            Contour.Add(segment.LowestPoint);
+            ContourHigh.Add(segment.ContactHighRight);
+            ContourBottom.Add(segment.ContactHighLeft);
+            ContourLeft.Add(segment.ContactLowRight);
+            ContourRight.Add(segment.ContactLowLeft);
         }
-        Point[] pointContour = Contour.ToArray();
+        ContourHigh.AddRange(ContourBottom);
+        ContourHigh.AddRange(ContourLeft);
+        ContourHigh.AddRange(ContourRight);
+        Point[] pointContour = ContourHigh.ToArray();
         for (int j = 0; j < pointContour.Length; j++)
         {
             trainer[0, j * 2] = pointContour[j].X;
@@ -172,24 +185,26 @@ public class SignRecognizer
         foreach(List<Point> points in segmentFull)
         {
             Segment segment = new Segment();
-            foreach(Point point in points)
+            Point[] pointSegment = points.ToArray();
+            for(int i=0; i<points.Count; i++)
             {
-                if(point.Y < segment.highestPoint.Y)
+                if ((pointSegment[i].X * 1.0 - box.X * 1.0)<= segmentWidth * (i+1) *1.0 && pointSegment[i].Y < segment.ContactHighRight.Y && pointSegment[i].X >  segment.ContactLowRight.X)
                 {
-                    segment.highestPoint = new Point(point.X - box.X, point.Y - box.Y);
+                    segment.ContactHighRight = new Point(pointSegment[i].X - box.X, pointSegment[i].Y - box.Y);
                 }
-                if(point.Y > segment.LowestPoint.Y)
+                if ((pointSegment[i].X * 1.0 - box.X * 1.0) >= (segmentWidth * (i + 1) * 1.0) - segmentWidth && pointSegment[i].Y < segment.ContactHighLeft.Y && pointSegment[i].X < segment.ContactLowRight.X)
                 {
-                    segment.LowestPoint = new Point(point.X - box.X, point.Y - box.Y);
+                    segment.ContactHighLeft = new Point(pointSegment[i].X - box.X, pointSegment[i].Y - box.Y);
                 }
-                if(point.X < segment.MostLeftPoint.X)
+                if ((pointSegment[i].X * 1.0 - box.X * 1.0) <= segmentWidth * (i + 1) * 1.0 && pointSegment[i].Y > segment.ContactLowRight.Y && pointSegment[i].X > segment.ContactLowRight.X)
                 {
-                    segment.MostLeftPoint = new Point(point.X - box.X, point.Y - box.Y);
+                    segment.ContactLowRight = new Point(pointSegment[i].X - box.X, pointSegment[i].Y - box.Y);
                 }
-                if(point.X > segment.MostRightPoint.X)
+                if ((pointSegment[i].X * 1.0 - box.X * 1.0) >= (segmentWidth * (i + 1) * 1.0) - segmentWidth && pointSegment[i].Y > segment.ContactLowLeft.Y && pointSegment[i].X < segment.ContactLowRight.X)
                 {
-                    segment.MostRightPoint = new Point(point.X - box.X, point.Y - box.Y);
+                    segment.ContactLowLeft = new Point(pointSegment[i].X - box.X, pointSegment[i].Y - box.Y);
                 }
+
             }
             segments.Add(segment);
         }

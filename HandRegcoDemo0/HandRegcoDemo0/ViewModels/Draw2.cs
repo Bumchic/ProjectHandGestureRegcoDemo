@@ -122,10 +122,10 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat DrawSegment(Segment segment, Mat img)
         {
-            CvInvoke.DrawMarker(img, segment.highestPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
-            CvInvoke.DrawMarker(img, segment.LowestPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
-            CvInvoke.DrawMarker(img, segment.MostRightPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
-            CvInvoke.DrawMarker(img, segment.MostLeftPoint, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.ContactHighRight, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.ContactHighLeft, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.ContactLowLeft, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
+            CvInvoke.DrawMarker(img, segment.ContactLowRight, blue.MCvScalar, MarkerTypes.Cross, 20, 20);
             return img;
         }
 

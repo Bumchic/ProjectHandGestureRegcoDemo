@@ -9,16 +9,16 @@ namespace HandRegcoDemo0.Models
 {
     public class Segment
     {
-        public Point highestPoint { get; set; }
-        public Point LowestPoint { get; set; }
-        public Point MostLeftPoint { get; set; }
-        public Point MostRightPoint { get; set; }
+        public Point ContactHighRight { get; set; }
+        public Point ContactHighLeft { get; set; }
+        public Point ContactLowRight { get; set; }
+        public Point ContactLowLeft { get; set; }
     public Segment()
         {
-            highestPoint = new Point(0, 999);
-            LowestPoint = new Point(0, 0);
-            MostLeftPoint = new Point(999, 0);
-            MostRightPoint = new Point(0, 0);
+            ContactHighRight = new Point(0, 999);
+            ContactHighLeft = new Point(0, 999);
+            ContactLowRight = new Point(0, 0);
+            ContactLowLeft = new Point(0, 0);
         }
     }
 
