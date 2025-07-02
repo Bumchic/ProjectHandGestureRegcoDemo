@@ -30,7 +30,7 @@ namespace HandRegcoDemo0.ViewModels
         public SignRecognizer _signRecognizer = new SignRecognizer();
         public ImageProcesser()
         {
-            _signRecognizer.LoadDataset("Datasets");
+            _signRecognizer.LoadDataset("DataHand");
         }     
         
         

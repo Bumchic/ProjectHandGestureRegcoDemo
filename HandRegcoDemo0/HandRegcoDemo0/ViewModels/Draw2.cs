@@ -99,7 +99,7 @@ namespace HandRegcoDemo0.ViewModels
                 Debug.WriteLine("contour is invalid.");
                 return inputMat;
             }
-            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 2);
+            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 10);
             return inputMat;
         }
         public Mat DrawText(Mat inputMat, string word)
@@ -116,6 +116,14 @@ namespace HandRegcoDemo0.ViewModels
             for (int i = 1; i < points.Length; i++)
             {
                 CvInvoke.Line(img, points[i], points[i - 1], blue.MCvScalar, 20);
+            }
+            return img;
+        }
+        public Mat DrawKeyPoints(MKeyPoint[] keypoints, Mat img)
+        {
+            for (int i = 0; i < keypoints.Length; i++)
+            {
+                CvInvoke.DrawMarker(img, Point.Round(keypoints[i].Point), red.MCvScalar, MarkerTypes.TriangleUp, 20, 10);
             }
             return img;
         }

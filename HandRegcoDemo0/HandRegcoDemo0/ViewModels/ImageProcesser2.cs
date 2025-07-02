@@ -32,6 +32,7 @@ namespace HandRegcoDemo0.ViewModels
             if (handContour == null || handContour.Size < 3)
                 return imageConverter.MatToWriteableBitmap(originalMat);
 
+            originalMat = draw.DrawContour(handContour, originalMat);
             handContour = handShapeAnalyzer.PolyLineApprox(handContour);
             if (handContour == null || handContour.Size < 3)
                 return imageConverter.MatToWriteableBitmap(originalMat);
@@ -50,10 +51,6 @@ namespace HandRegcoDemo0.ViewModels
                 return imageConverter.MatToWriteableBitmap(originalMat);
 
             var defectsMat = handShapeAnalyzer.GetConvexityDefects(handContour);
-            if (defectsMat == null || defectsMat.Rows == 0)
-                return imageConverter.MatToWriteableBitmap(originalMat); // Không có defect nào
-
-            originalMat = draw.DrawConvexDefect(originalMat, defectsMat, handContour);
             var recognized = _signRecognizer.Recognize(skinMaskMat);
             word = recognized;
            originalMat = draw.DrawText(originalMat, recognized);
@@ -65,13 +62,30 @@ namespace HandRegcoDemo0.ViewModels
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
-            SkinSegmenter skinSegmenter = new SkinSegmenter();
-            Draw draw = new Draw();
+            SkinSegmenter skinSegmenter = new SkinSegmenter(); 
             var inputMat = imageConverter.ConvertToMat(softwareBitmap);
             var processedMat = imageConverter.ColorConvertToGray(inputMat);
 
             var skinMaskMat = skinSegmenter.DetectSkinVer1(inputMat);
             return skinMaskMat;
+        }
+        public WriteableBitmap FocusOnHand(SoftwareBitmap softwareBitmap, out string word)
+        {
+            HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
+            ImageConverter imageConverter = new ImageConverter();
+            SkinSegmenter skinSegmenter = new SkinSegmenter();
+            Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
+            Mat skinMat = DetectSkinFromImage(softwareBitmap);
+            VectorOfPoint handContour = handShapeAnalyzer.FindLargestContour(skinMat);
+            word = "?";
+            if (handContour == null || handContour.Size < 3)
+            {
+                return imageConverter.MatToWriteableBitmap(originalMat);
+            }
+            Rectangle box = CvInvoke.BoundingRectangle(handContour);
+            Mat handImage = new Mat(originalMat, box);
+            word = _signRecognizer.Recognize(originalMat);
+            return imageConverter.MatToWriteableBitmap(handImage);
         }
         private Mat calculateDistanceTransformation(Mat image)
         {

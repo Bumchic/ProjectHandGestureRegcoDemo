@@ -11,6 +11,7 @@ using HandRegcoDemo0.ViewModels;
 using HandRegcoDemo0.Utils;
 using Emgu.CV.Structure;
 using System.Drawing;
+using Emgu.CV.Features2D;
 
 namespace HandRegcoDemo0.ViewModels
 {
@@ -18,6 +19,8 @@ namespace HandRegcoDemo0.ViewModels
     {
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
+        private readonly Rgba White = new Rgba(255, 255, 255, 255);
+        private readonly int MaxFeature = 500;
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             ContourHelper contourHelper = new ContourHelper();
@@ -157,7 +160,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             return line;
         }
-        public Rectangle getBoudingBoxAtWristLine(VectorOfPoint contour)
+        private Rectangle getBoudingBoxAtWristLine(VectorOfPoint contour)
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             Rectangle box = CvInvoke.BoundingRectangle(contour);
@@ -174,7 +177,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             return box;
         }
-        public int FindDefectWithLargestStartEndLength(VectorOfPoint contour, Mat convexDefect)
+        private int FindDefectWithLargestStartEndLength(VectorOfPoint contour, Mat convexDefect)
         {
             Matrix<int> matrix = new Matrix<int>(convexDefect.Rows, convexDefect.Cols, convexDefect.NumberOfChannels);
             convexDefect.CopyTo(matrix);
@@ -197,5 +200,43 @@ namespace HandRegcoDemo0.ViewModels
             }
             return index;
         }
+        public Mat findInterestPoints(VectorOfPoint contour, Mat OriginalColorMat)
+        {
+            Mat handImage;
+            Rectangle box;
+            if (OriginalColorMat.NumberOfChannels != 1)
+            {
+                OriginalColorMat = new ImageConverter().ColorConvertToGray(OriginalColorMat);
+            }
+            ORB orb = new ORB(numberOfFeatures: MaxFeature);
+            Mat Descriptor = new Mat();
+            if(contour is not null)
+            {
+                box = CvInvoke.BoundingRectangle(contour);
+                handImage = new Mat(OriginalColorMat, box);
+            }
+            else
+            {
+                handImage = OriginalColorMat;
+            }
+
+            MKeyPoint[] keypoints = orb.Detect(handImage);
+            orb.Compute(handImage, new VectorOfKeyPoint(keypoints), Descriptor);
+            return Descriptor;
+        }
+        public Mat findInterestPoints(Mat originalMat)
+        {
+            if(originalMat.NumberOfChannels != 1)
+            {
+                originalMat = new ImageConverter().ColorConvertToGray(originalMat);
+            }
+            VectorOfPoint contour = new HandShapeAnalyzer().FindLargestContour(originalMat);
+            return this.findInterestPoints(contour, originalMat);
+        }
+        //public Mat AdjustDescriptor(Mat Description)
+        //{
+
+        //}
+
     }
 }
