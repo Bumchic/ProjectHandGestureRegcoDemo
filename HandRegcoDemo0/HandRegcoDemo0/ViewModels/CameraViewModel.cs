@@ -100,7 +100,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat[] getALlPic()
         {
-            var a = "..\\..\\..\\Datasets";
+            var a = "..\\..\\..\\DataHand";
             DirectoryInfo directoryInfo = new DirectoryInfo(a);
             FileInfo[] fileInfo = directoryInfo.GetFiles();
             List<Mat> matCollection = new List<Mat>();
