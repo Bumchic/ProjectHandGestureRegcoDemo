@@ -151,7 +151,7 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                ProcessedBitmapImage = _imageProcessor.FocusOnHand(softwareBitmap, out word);
+                ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
                 RecognizedSign = word;
 
                 //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
