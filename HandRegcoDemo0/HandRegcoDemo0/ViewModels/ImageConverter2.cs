@@ -37,8 +37,8 @@ namespace HandRegcoDemo0.ViewModels
         //Convert mat to SB
         public SoftwareBitmap ConvertMatToSoftwareBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{F
+            //if (mat.NumberOfChannels == 1)
+            //{
             //    Mat converted = new Mat();
             //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
             //    mat = converted;
@@ -51,12 +51,12 @@ namespace HandRegcoDemo0.ViewModels
         }
         public WriteableBitmap MatToWriteableBitmap(Mat mat)
         {
-            //if (mat.NumberOfChannels != 4)
-            //{
-            //    Mat converted = new Mat();
-            //    CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
-            //    mat = converted;
-            //}
+            if (mat.NumberOfChannels == 1)
+            {
+                Mat converted = new Mat();
+                CvInvoke.CvtColor(mat, converted, ColorConversion.Gray2Bgra);
+                mat = converted;
+            }
 
             int width = mat.Cols;
             int height = mat.Rows;

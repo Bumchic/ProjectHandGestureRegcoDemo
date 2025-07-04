@@ -20,7 +20,7 @@ namespace HandRegcoDemo0.ViewModels
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
         private readonly Rgba White = new Rgba(255, 255, 255, 255);
-        private readonly int MaxFeature = 500;
+        private readonly int MaxFeature = 1000;
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             ContourHelper contourHelper = new ContourHelper();
@@ -208,7 +208,7 @@ namespace HandRegcoDemo0.ViewModels
             {
                 OriginalColorMat = new ImageConverter().ColorConvertToGray(OriginalColorMat);
             }
-            ORB orb = new ORB(numberOfFeatures: MaxFeature);
+            ORB orb = new ORB(numberOfFeatures: MaxFeature, scoreType: ORB.ScoreType.Fast, WTK_A: 4);
             Mat Descriptor = new Mat();
             if(contour is not null)
             {
@@ -233,10 +233,6 @@ namespace HandRegcoDemo0.ViewModels
             VectorOfPoint contour = new HandShapeAnalyzer().FindLargestContour(originalMat);
             return this.findInterestPoints(contour, originalMat);
         }
-        //public Mat AdjustDescriptor(Mat Description)
-        //{
-
-        //}
 
     }
 }

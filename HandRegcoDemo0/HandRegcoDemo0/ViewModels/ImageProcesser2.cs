@@ -77,6 +77,7 @@ namespace HandRegcoDemo0.ViewModels
             Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
             Mat skinMat = DetectSkinFromImage(softwareBitmap);
             VectorOfPoint handContour = handShapeAnalyzer.FindLargestContour(skinMat);
+            originalMat = new Draw().DrawContour(handContour, originalMat);
             word = "?";
             if (handContour == null || handContour.Size < 3)
             {
@@ -84,6 +85,7 @@ namespace HandRegcoDemo0.ViewModels
             }
             Rectangle box = CvInvoke.BoundingRectangle(handContour);
             Mat handImage = new Mat(originalMat, box);
+
             word = _signRecognizer.Recognize(originalMat);
             return imageConverter.MatToWriteableBitmap(handImage);
         }
