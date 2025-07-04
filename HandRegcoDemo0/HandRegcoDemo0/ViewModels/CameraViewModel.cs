@@ -209,9 +209,9 @@ namespace HandRegcoDemo0.ViewModels
                 {
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
-                //BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                //ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
-                //RecognizedSign = word;
+                BitmapImage = SoftwareBitmapToImage(softwareBitmap);
+                ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out word);
+                RecognizedSign = word;
 
                 //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }
