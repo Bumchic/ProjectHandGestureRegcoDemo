@@ -115,7 +115,7 @@ public class SignRecognizer
         VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
         try
         {
-            DescipData.Match(inputDes, match);
+            DescipData.KnnMatch(inputDes, matchArray, 1);
 
             //knn.FindNearest(inputMatrix, k: 3, results, neighborResponses, dists);
 
@@ -133,29 +133,34 @@ public class SignRecognizer
     }
     public int getBestImageMatch(VectorOfDMatch matches)
     {
-        List<int> foundIndex = new List<int>();
-        List<double> indexDistance = new List<double>();
-        double lowest = 99999;
-        for(int i=0; i<matches.Size; i++)
+        List<int> imgIndexList = new List<int>(); 
+        List<(int, double)> descriptorDistance = new List<(int, double)>();
+        double lowest = 999999;
+        int outIndex = 0;
+        for (int i = 0; i < matches.Size; i++)
         {
             int imgIndex = matches[i].ImgIdx;
-            if(!foundIndex.Contains(imgIndex))
+            if (!imgIndexList.Contains(imgIndex))
             {
-                foundIndex.Add(imgIndex);
-                indexDistance.Add(matches[i].Distance);
-                continue;
+                imgIndexList.Add(imgIndex);
+                descriptorDistance.Add((1, matches[i].Distance));
             }
-            indexDistance[foundIndex.IndexOf(imgIndex)] += matches[i].Distance;
+            else
+            {
+                int index = imgIndexList.IndexOf(imgIndex);
+                descriptorDistance[index] = (descriptorDistance[index].Item1 + 1, descriptorDistance[index].Item2 + matches[i].Distance);
+            }
         }
-        foreach(double num in indexDistance)
+        for(int i=0; i< descriptorDistance.Count; i++)
         {
-            if (num < lowest)
+            double avgDistance = descriptorDistance[i].Item2 / descriptorDistance[i].Item1;
+            if (avgDistance < lowest)
             {
-                lowest = num;
+                lowest = avgDistance;
+                outIndex = imgIndexList[i];
             }
         }
-
-        return foundIndex[indexDistance.IndexOf(lowest)];
+        return outIndex;
 
     }
     public void print(List<int> foundindex, List<double> indexDistance)
