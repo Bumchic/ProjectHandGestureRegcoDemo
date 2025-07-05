@@ -270,9 +270,9 @@ namespace HandRegcoDemo0.ViewModels
                 var dbContour = getSegmentContour(sign);
                 try
                 {
-                    double distance = SegmentDistanceCalculation(inputContour, dbContour)
+                    double distance = Math.Sqrt(SegmentDistanceCalculation(inputContour, dbContour)
                 + Math.Pow(inputSighHullToBoxRatio - signHullToBoxRatio, 2)
-                + Math.Pow(inputSign.ConvexCount - sign.ConvexCount, 2);
+                + Math.Pow(inputSign.ConvexCount - sign.ConvexCount, 2));
                     if (distance < shortestDistance)
                     {
                         shortestDistance = distance;
