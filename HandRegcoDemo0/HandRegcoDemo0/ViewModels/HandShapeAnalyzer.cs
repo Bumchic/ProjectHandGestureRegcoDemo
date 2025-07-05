@@ -208,7 +208,7 @@ namespace HandRegcoDemo0.ViewModels
             {
                 OriginalColorMat = new ImageConverter().ColorConvertToGray(OriginalColorMat);
             }
-            ORB orb = new ORB(numberOfFeatures: MaxFeature, scoreType: ORB.ScoreType.Fast, WTK_A: 4);
+            ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4);
             Mat Descriptor = new Mat();
             if(contour is not null)
             {

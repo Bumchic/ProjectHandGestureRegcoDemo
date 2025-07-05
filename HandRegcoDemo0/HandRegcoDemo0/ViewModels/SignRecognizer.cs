@@ -20,7 +20,7 @@ public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
     private List<Mat> DescriptorData = new List<Mat>();
-    private BFMatcher DescipData = new BFMatcher(DistanceType.Hamming2);
+    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming2, true);
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
     private KNearest knn;
@@ -76,12 +76,12 @@ public class SignRecognizer
         //}
         // Matrix<float> trainer = new Matrix<float>(DescriptorData.Count, DescriptorData[0].ElementSize);
         //Mat trainer = new Mat();
-        foreach (Mat descriptor in DescriptorData)
-        {
+        //foreach (Mat descriptor in DescriptorData)
+        //{
             
-            DescipData.Add(descriptor);
-        }
-        DescipData.Train();
+        //    DescipData.Add(descriptor);
+        //}
+        //DescipData.Train();
         var responses = new Matrix<int>(labels.ToArray());
         try
         {
@@ -98,7 +98,8 @@ public class SignRecognizer
     public string Recognize(Mat inputImage)
     {
         HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
-
+        int closestMatchIndex = -1;
+        int mostMatch = 0;
         //var inputHu = ComputeHuMoments(contour);
         //var inputMat = new Matrix<float>(1, 7);
         //for (int i = 0; i < 7; i++)
@@ -111,24 +112,36 @@ public class SignRecognizer
         var results = new Matrix<float>(1, 1);
         var neighborResponses = new Matrix<float>(1, 3); 
         var dists = new Matrix<float>(1, 3);
-        VectorOfDMatch match = new VectorOfDMatch();
-        VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
-        try
+        for(int i=0; i< DescriptorData.Count; i++)
         {
-            DescipData.KnnMatch(inputDes, matchArray, 1);
-
-            //knn.FindNearest(inputMatrix, k: 3, results, neighborResponses, dists);
-
+            VectorOfDMatch match = new VectorOfDMatch();
+            Matcher.Match(inputDes, DescriptorData[i], match);
+            //VectorOfDMatch filterMat = match;
+            VectorOfDMatch filterMat = new VectorOfDMatch(match.ToArray().Where(d => d.Distance < 7).ToArray());
+            if(filterMat.Size > mostMatch)
+            {
+                mostMatch = filterMat.Size;
+                closestMatchIndex = i;
+            }
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message + "" + e.Source);
+        //VectorOfDMatch match = new VectorOfDMatch();
+        //VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
+        //try
+        //{
+        //    DescipData.KnnMatch(inputDes, matchArray, 1);
 
-        }
+        //    //knn.FindNearest(inputMatrix, k: 3, results, neighborResponses, dists);
+
+        //}
+        //catch (Exception e)
+        //{
+        //    Debug.WriteLine(e.Message + "" + e.Source);
+
+        //}
         //VectorOfDMatch knnMatch = new VectorOfDMatch(matchArray[0].ToArray().OrderByDescending(a => a.Distance).ToArray());
         //getBestImageMatch(match);
-        VectorOfDMatch matchOrder = new VectorOfDMatch(match.ToArray().OrderByDescending(a => a.Distance).ToArray());
-        int predictedId = getBestImageMatch(match);
+        //VectorOfDMatch matchOrder = new VectorOfDMatch(match.ToArray().OrderByDescending(a => a.Distance).ToArray());
+        int predictedId = closestMatchIndex;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
     public int getBestImageMatch(VectorOfDMatch matches)
