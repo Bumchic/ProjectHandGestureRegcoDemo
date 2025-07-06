@@ -84,8 +84,8 @@ namespace HandRegcoDemo0.ViewModels
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
             SkinSegmenter skinSegmenter = new SkinSegmenter();
-            Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
-            //Mat originalMat = test();
+            //Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
+            Mat originalMat = test();
             Mat skinMat = DetectSkinFromImage(originalMat);
             
             //originalMat = removeBackground(originalMat, skinMat);
@@ -99,9 +99,7 @@ namespace HandRegcoDemo0.ViewModels
             {
                 return imageConverter.MatToWriteableBitmap(originalMat);
             }
-            Rectangle box = CvInvoke.BoundingRectangle(handContour);
-            Mat handImage = new Mat(skinMat, box);
-            handImage = new Draw().DrawKeyPoints(handShapeAnalyzer.DetectKeyPoint(handImage), handImage);
+            Mat handImage = handShapeAnalyzer.GetStandardHandImage(skinMat, handContour);
             word = _signRecognizer.Recognize(originalMat);
             return imageConverter.MatToWriteableBitmap(handImage);
         }

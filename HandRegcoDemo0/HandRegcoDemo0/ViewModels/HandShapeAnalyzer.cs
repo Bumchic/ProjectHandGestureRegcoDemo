@@ -235,6 +235,27 @@ namespace HandRegcoDemo0.ViewModels
             ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4, edgeThreshold: 0);
             return orb.Detect(img);
         }
-
+        public Mat GetStandardHandImage(Mat input, VectorOfPoint contour)
+        {
+            int stdHeight = 300;
+            int stdWidth = 250;
+            if(contour is null)
+            {
+                return input;
+            }
+            Rectangle box = CvInvoke.BoundingRectangle(contour);
+            box.X -= stdWidth - box.Width;
+            box.Y -= stdHeight - box.Height;
+            box.Width += stdWidth - box.Width;
+            box.Height += stdHeight - box.Height;
+            try
+            {
+                return new Mat(input, box);
+            }catch(Exception e)
+            {
+                return input;
+            }
+            
+        }
     }
 }

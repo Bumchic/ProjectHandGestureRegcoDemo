@@ -20,8 +20,7 @@ using FluentAvalonia.Core;
 public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
-    private List<Mat> DescriptorData = new List<Mat>();
-    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming2);
+    private readonly List<Mat> listSkinMat = new List<Mat>();
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
     private KNearest knn;
@@ -47,16 +46,10 @@ public class SignRecognizer
 
             var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
             var skinMask = skinSegmenter.DetectSkinVer1(colorImage);
-
-            VectorOfPoint contour = handShapeAnalyzer.FindLargestContour(skinMask);
-            VectorOfPoint convex = handShapeAnalyzer.GetConvexHull(contour);
+            listSkinMat.Add(skinMask);
             //colorImage = new Draw().DrawContour(convex, colorImage);
             
-            Mat Descriptor = handShapeAnalyzer.findInterestPoints(colorImage);
-            DescriptorData.Add((Descriptor));
-            Matcher.Add(Descriptor);
-            //var hu = ComputeHuMoments(contour);
-            //huData.Add(hu.Select(x => (float)x).ToArray());
+            
 
             if (!labelMap.ContainsValue(label))
             {
@@ -79,23 +72,37 @@ public class SignRecognizer
     {
         HandShapeAnalyzer analyzer = new HandShapeAnalyzer();
         VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
-        Mat inputDescriptor = analyzer.findInterestPoints(inputImage);
-        Matcher.KnnMatch(inputDescriptor, matchArray, 1);
-        int[] imgCount = new int[DescriptorData.Count];
-        //for (int i = 0; i < matchArray.Size; i++)
-        //{
-        //    for (int j = 0; j < matchArray[i].Size; j++)
-        //    {
-        //        Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
-        //    }
-        //}
-        for (int i=0; i<matchArray.Size; i++)
+        SkinSegmenter skinSegmenter = new SkinSegmenter();
+        var skinMask = skinSegmenter.DetectSkinVer1(inputImage);
+        VectorOfPoint contour = analyzer.FindLargestContour(skinMask);
+        Rectangle inputbox = CvInvoke.BoundingRectangle(contour);
+        Mat inputHandImage = new Mat(skinMask, inputbox);
+        int lowestCount = 99999;
+        int index = -1;
+        for(int i=0; i<listSkinMat.Count; i++)
         {
-            if(matchArray[i][0].Distance < 5)
-                imgCount[matchArray[i][0].ImgIdx] += 1; 
+            VectorOfPoint cprContour = analyzer.FindLargestContour(listSkinMat[i]);
+            Rectangle box = CvInvoke.BoundingRectangle(cprContour);
+            double ratioHeight = (double)inputbox.Height / box.Height;
+            double ratioWidth = (double)inputbox.Width / box.Width;
+            box.X += (int)Math.Round((inputbox.Height - box.Height) * ratioHeight);
+            box.Y = (int)Math.Round((inputbox.Width - box.Width) * ratioWidth);
+            box.Height += (int)Math.Round((inputbox.Height - box.Height) * ratioHeight);
+            box.Width += (int)Math.Round((inputbox.Width - box.Width) * ratioWidth);
+            Mat handImage = new Mat(listSkinMat[i], box);
+            CvInvoke.Resize(handImage, handImage, inputHandImage.Size);
+            int beforeSubtractCount = CvInvoke.CountNonZero(handImage);
+            Mat output = new Mat();
+            CvInvoke.Subtract(listSkinMat[i], inputHandImage, output);
+            int pixelCount = CvInvoke.CountNonZero(output);
+            if(pixelCount < lowestCount)
+            {
+                int pixellost = beforeSubtractCount - pixelCount;
+                lowestCount = pixellost;
+                index = i;
+            }
         }
-        int highest = imgCount.IndexOf(imgCount.Max());
-        int predictedId = highest;
+        int predictedId = index;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
 
