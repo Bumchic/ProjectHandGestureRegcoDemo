@@ -71,6 +71,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public WriteableBitmap FocusOnHand(SoftwareBitmap softwareBitmap, out string word)
         {
+            int stdHeight = 350;
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
             SkinSegmenter skinSegmenter = new SkinSegmenter();
@@ -79,11 +80,13 @@ namespace HandRegcoDemo0.ViewModels
             VectorOfPoint handContour = handShapeAnalyzer.FindLargestContour(skinMat);
             originalMat = new Draw().DrawContour(handContour, originalMat);
             word = "?";
-            if (handContour == null || handContour.Size < 3)
+            if (handContour is null || handContour.Size < 3)
             {
                 return imageConverter.MatToWriteableBitmap(originalMat);
             }
             Rectangle box = CvInvoke.BoundingRectangle(handContour);
+            box.Y -= stdHeight - box.Height;
+            box.Height += stdHeight - box.Height;
             Mat handImage = new Mat(originalMat, box);
 
             word = _signRecognizer.Recognize(originalMat);

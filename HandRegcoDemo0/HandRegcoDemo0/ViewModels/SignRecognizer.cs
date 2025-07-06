@@ -49,7 +49,7 @@ public class SignRecognizer
 
 
             Mat Descriptor = handShapeAnalyzer.findInterestPoints(colorImage);
-            DescriptorData.Add(Descriptor);
+            DescriptorData.Add((Descriptor));
             //var hu = ComputeHuMoments(contour);
             //huData.Add(hu.Select(x => (float)x).ToArray());
 
@@ -100,11 +100,17 @@ public class SignRecognizer
         HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
         int closestMatchIndex = -1;
         int mostMatch = 0;
+        Mat skinMask = new SkinSegmenter().DetectSkinVer1(inputImage);
+        VectorOfPoint contour = handShapeAnalyzer.FindLargestContour(skinMask);
+        if(contour is null)
+        {
+            return "?";
+        }
         //var inputHu = ComputeHuMoments(contour);
         //var inputMat = new Matrix<float>(1, 7);
         //for (int i = 0; i < 7; i++)
         //    inputMat[0, i] = (float)inputHu[i];
-        Mat inputDes = handShapeAnalyzer.findInterestPoints(inputImage);
+        Mat inputDes = handShapeAnalyzer.findInterestPoints(contour, inputImage);
         //Mat input = inputMat.Reshape(0, 1);
         //input.ConvertTo(input, DepthType.Cv32F);
         //Matrix<float> inputMatrix = new Matrix<float>(input.Rows, input.Cols, input.NumberOfChannels);
@@ -113,16 +119,16 @@ public class SignRecognizer
         var neighborResponses = new Matrix<float>(1, 3); 
         var dists = new Matrix<float>(1, 3);
         for(int i=0; i< DescriptorData.Count; i++)
-        {
-            VectorOfDMatch match = new VectorOfDMatch();
-            Matcher.Match(inputDes, DescriptorData[i], match);
-            //VectorOfDMatch filterMat = match;
-            VectorOfDMatch filterMat = new VectorOfDMatch(match.ToArray().Where(d => d.Distance < 7).ToArray());
-            if(filterMat.Size > mostMatch)
-            {
-                mostMatch = filterMat.Size;
-                closestMatchIndex = i;
-            }
+        {           
+                VectorOfDMatch match = new VectorOfDMatch();
+                Matcher.Match(inputDes, DescriptorData[i], match);
+                //VectorOfDMatch filterMat = match;
+                VectorOfDMatch filterMat = new VectorOfDMatch(match.ToArray().Where(d => d.Distance < 5).ToArray());
+                if (match.Size > mostMatch)
+                {
+                    mostMatch = filterMat.Size;
+                    closestMatchIndex = i;
+                }
         }
         //VectorOfDMatch match = new VectorOfDMatch();
         //VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
@@ -144,6 +150,7 @@ public class SignRecognizer
         int predictedId = closestMatchIndex;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
+
     public int getBestImageMatch(VectorOfDMatch matches)
     {
         List<int> imgIndexList = new List<int>(); 

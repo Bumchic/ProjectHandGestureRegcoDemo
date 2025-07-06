@@ -20,7 +20,8 @@ namespace HandRegcoDemo0.ViewModels
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
         private readonly Rgba White = new Rgba(255, 255, 255, 255);
-        private readonly int MaxFeature = 1000;
+        private readonly int MaxFeature = 2000;
+        private readonly int stdHeight = 300;
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             ContourHelper contourHelper = new ContourHelper();
@@ -204,6 +205,7 @@ namespace HandRegcoDemo0.ViewModels
         {
             Mat handImage;
             Rectangle box;
+
             if (OriginalColorMat.NumberOfChannels != 1)
             {
                 OriginalColorMat = new ImageConverter().ColorConvertToGray(OriginalColorMat);
@@ -213,13 +215,14 @@ namespace HandRegcoDemo0.ViewModels
             if(contour is not null)
             {
                 box = CvInvoke.BoundingRectangle(contour);
+                box.Y -= stdHeight - box.Height;
+                box.Height += stdHeight - box.Height;
                 handImage = new Mat(OriginalColorMat, box);
             }
             else
             {
                 handImage = OriginalColorMat;
             }
-
             MKeyPoint[] keypoints = orb.Detect(handImage);
             orb.Compute(handImage, new VectorOfKeyPoint(keypoints), Descriptor);
             return Descriptor;
