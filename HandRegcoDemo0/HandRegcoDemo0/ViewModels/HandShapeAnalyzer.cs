@@ -21,13 +21,12 @@ namespace HandRegcoDemo0.ViewModels
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
         private readonly Rgba White = new Rgba(255, 255, 255, 255);
         private readonly int MaxFeature = 2000;
-        private readonly int stdHeight = 300;
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             ContourHelper contourHelper = new ContourHelper();
             var contours = new VectorOfVectorOfPoint();
             CvInvoke.FindContours(skinMask, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-
+            
             double maxArea = 0;
             VectorOfPoint largest = null;
 
@@ -208,15 +207,13 @@ namespace HandRegcoDemo0.ViewModels
 
             if (OriginalColorMat.NumberOfChannels != 1)
             {
-                OriginalColorMat = new ImageConverter().ColorConvertToGray(OriginalColorMat);
+                OriginalColorMat = new Utils.Segmentation.SkinSegmenter().DetectSkinVer1(OriginalColorMat);
             }
-            ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4);
+            ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4, edgeThreshold: 0);
             Mat Descriptor = new Mat();
             if(contour is not null)
             {
                 box = CvInvoke.BoundingRectangle(contour);
-                box.Y -= stdHeight - box.Height;
-                box.Height += stdHeight - box.Height;
                 handImage = new Mat(OriginalColorMat, box);
             }
             else
@@ -229,12 +226,14 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat findInterestPoints(Mat originalMat)
         {
-            if(originalMat.NumberOfChannels != 1)
-            {
-                originalMat = new ImageConverter().ColorConvertToGray(originalMat);
-            }
-            VectorOfPoint contour = new HandShapeAnalyzer().FindLargestContour(originalMat);
+            Mat skinMask = new HandRegcoDemo0.Utils.Segmentation.SkinSegmenter().DetectSkinVer1(originalMat);
+            VectorOfPoint contour = FindLargestContour(skinMask);
             return this.findInterestPoints(contour, originalMat);
+        }
+        public MKeyPoint[] DetectKeyPoint(Mat img)
+        {
+            ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4, edgeThreshold: 0);
+            return orb.Detect(img);
         }
 
     }

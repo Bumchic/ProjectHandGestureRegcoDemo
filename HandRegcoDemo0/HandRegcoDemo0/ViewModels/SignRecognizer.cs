@@ -15,12 +15,13 @@ using System.Diagnostics;
 using System.Drawing;
 using Emgu.CV.Flann;
 using System.Windows.Media;
+using FluentAvalonia.Core;
 
 public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
     private List<Mat> DescriptorData = new List<Mat>();
-    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming2, true);
+    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming2);
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
     private KNearest knn;
@@ -47,9 +48,13 @@ public class SignRecognizer
             var colorImage = CvInvoke.Imread(path, ImreadModes.Color);
             var skinMask = skinSegmenter.DetectSkinVer1(colorImage);
 
-
+            VectorOfPoint contour = handShapeAnalyzer.FindLargestContour(skinMask);
+            VectorOfPoint convex = handShapeAnalyzer.GetConvexHull(contour);
+            //colorImage = new Draw().DrawContour(convex, colorImage);
+            
             Mat Descriptor = handShapeAnalyzer.findInterestPoints(colorImage);
             DescriptorData.Add((Descriptor));
+            Matcher.Add(Descriptor);
             //var hu = ComputeHuMoments(contour);
             //huData.Add(hu.Select(x => (float)x).ToArray());
 
@@ -66,88 +71,31 @@ public class SignRecognizer
             }
             
         }
-
-        // Convert to Mat
-        //var trainData = new Matrix<float>(huData.Count, 7);
-        //for (int i = 0; i < huData.Count; i++)
-        //{
-        //    for (int j = 0; j < 7; j++)
-        //        trainData[i, j] = huData[i][j];
-        //}
-        // Matrix<float> trainer = new Matrix<float>(DescriptorData.Count, DescriptorData[0].ElementSize);
-        //Mat trainer = new Mat();
-        //foreach (Mat descriptor in DescriptorData)
-        //{
-            
-        //    DescipData.Add(descriptor);
-        //}
-        //DescipData.Train();
-        var responses = new Matrix<int>(labels.ToArray());
-        try
-        {
-           // knn.Train(trainMatrix, Emgu.CV.ML.MlEnum.DataLayoutType.RowSample, responses);
-        }catch(Exception e)
-        {
-            Debug.WriteLine(e.Message + "" + e.Source);
-        }
-
         Console.WriteLine($"Trained k-NN with {huData.Count} samples.");
     }
 
 
     public string Recognize(Mat inputImage)
     {
-        HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
-        int closestMatchIndex = -1;
-        int mostMatch = 0;
-        Mat skinMask = new SkinSegmenter().DetectSkinVer1(inputImage);
-        VectorOfPoint contour = handShapeAnalyzer.FindLargestContour(skinMask);
-        if(contour is null)
+        HandShapeAnalyzer analyzer = new HandShapeAnalyzer();
+        VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
+        Mat inputDescriptor = analyzer.findInterestPoints(inputImage);
+        Matcher.KnnMatch(inputDescriptor, matchArray, 1);
+        int[] imgCount = new int[DescriptorData.Count];
+        //for (int i = 0; i < matchArray.Size; i++)
+        //{
+        //    for (int j = 0; j < matchArray[i].Size; j++)
+        //    {
+        //        Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
+        //    }
+        //}
+        for (int i=0; i<matchArray.Size; i++)
         {
-            return "?";
+            if(matchArray[i][0].Distance < 5)
+                imgCount[matchArray[i][0].ImgIdx] += 1; 
         }
-        //var inputHu = ComputeHuMoments(contour);
-        //var inputMat = new Matrix<float>(1, 7);
-        //for (int i = 0; i < 7; i++)
-        //    inputMat[0, i] = (float)inputHu[i];
-        Mat inputDes = handShapeAnalyzer.findInterestPoints(contour, inputImage);
-        //Mat input = inputMat.Reshape(0, 1);
-        //input.ConvertTo(input, DepthType.Cv32F);
-        //Matrix<float> inputMatrix = new Matrix<float>(input.Rows, input.Cols, input.NumberOfChannels);
-        //input.CopyTo(inputMatrix);
-        var results = new Matrix<float>(1, 1);
-        var neighborResponses = new Matrix<float>(1, 3); 
-        var dists = new Matrix<float>(1, 3);
-        for(int i=0; i< DescriptorData.Count; i++)
-        {           
-                VectorOfDMatch match = new VectorOfDMatch();
-                Matcher.Match(inputDes, DescriptorData[i], match);
-                //VectorOfDMatch filterMat = match;
-                VectorOfDMatch filterMat = new VectorOfDMatch(match.ToArray().Where(d => d.Distance < 5).ToArray());
-                if (match.Size > mostMatch)
-                {
-                    mostMatch = filterMat.Size;
-                    closestMatchIndex = i;
-                }
-        }
-        //VectorOfDMatch match = new VectorOfDMatch();
-        //VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
-        //try
-        //{
-        //    DescipData.KnnMatch(inputDes, matchArray, 1);
-
-        //    //knn.FindNearest(inputMatrix, k: 3, results, neighborResponses, dists);
-
-        //}
-        //catch (Exception e)
-        //{
-        //    Debug.WriteLine(e.Message + "" + e.Source);
-
-        //}
-        //VectorOfDMatch knnMatch = new VectorOfDMatch(matchArray[0].ToArray().OrderByDescending(a => a.Distance).ToArray());
-        //getBestImageMatch(match);
-        //VectorOfDMatch matchOrder = new VectorOfDMatch(match.ToArray().OrderByDescending(a => a.Distance).ToArray());
-        int predictedId = closestMatchIndex;
+        int highest = imgCount.IndexOf(imgCount.Max());
+        int predictedId = highest;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }
 

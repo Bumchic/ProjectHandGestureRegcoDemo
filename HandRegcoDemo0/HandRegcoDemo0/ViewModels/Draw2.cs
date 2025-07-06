@@ -99,7 +99,7 @@ namespace HandRegcoDemo0.ViewModels
                 Debug.WriteLine("contour is invalid.");
                 return inputMat;
             }
-            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 10);
+            CvInvoke.DrawContours(inputMat, new VectorOfVectorOfPoint(contour), -1, red.MCvScalar, 3);
             return inputMat;
         }
         public Mat DrawText(Mat inputMat, string word)

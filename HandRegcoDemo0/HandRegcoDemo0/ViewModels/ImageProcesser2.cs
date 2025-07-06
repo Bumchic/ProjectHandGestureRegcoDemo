@@ -69,33 +69,64 @@ namespace HandRegcoDemo0.ViewModels
             var skinMaskMat = skinSegmenter.DetectSkinVer1(inputMat);
             return skinMaskMat;
         }
+        private Mat DetectSkinFromImage(Mat inputMat)
+        {
+            HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
+            ImageConverter imageConverter = new ImageConverter();
+            SkinSegmenter skinSegmenter = new SkinSegmenter();
+            var processedMat = imageConverter.ColorConvertToGray(inputMat);
+
+            var skinMaskMat = skinSegmenter.DetectSkinVer1(inputMat);
+            return skinMaskMat;
+        }
         public WriteableBitmap FocusOnHand(SoftwareBitmap softwareBitmap, out string word)
         {
-            int stdHeight = 350;
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
             SkinSegmenter skinSegmenter = new SkinSegmenter();
             Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
-            Mat skinMat = DetectSkinFromImage(softwareBitmap);
+            //Mat originalMat = test();
+            Mat skinMat = DetectSkinFromImage(originalMat);
+            
+            //originalMat = removeBackground(originalMat, skinMat);
             VectorOfPoint handContour = handShapeAnalyzer.FindLargestContour(skinMat);
-            originalMat = new Draw().DrawContour(handContour, originalMat);
+            VectorOfPoint convexhull = handShapeAnalyzer.GetConvexHull(handContour);
+            skinMat = new Draw().DrawContour(handContour, skinMat);
+            originalMat = new Draw().DrawContour(convexhull, originalMat);
+            //originalMat = new Draw().DrawContour(handContour, originalMat);
             word = "?";
             if (handContour is null || handContour.Size < 3)
             {
                 return imageConverter.MatToWriteableBitmap(originalMat);
             }
             Rectangle box = CvInvoke.BoundingRectangle(handContour);
-            box.Y -= stdHeight - box.Height;
-            box.Height += stdHeight - box.Height;
-            Mat handImage = new Mat(originalMat, box);
-
+            Mat handImage = new Mat(skinMat, box);
+            handImage = new Draw().DrawKeyPoints(handShapeAnalyzer.DetectKeyPoint(handImage), handImage);
             word = _signRecognizer.Recognize(originalMat);
             return imageConverter.MatToWriteableBitmap(handImage);
+        }
+        public Mat test()
+        {
+            Mat a = CvInvoke.Imread("DataHand\\D.jpg", ImreadModes.Unchanged);
+            CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
+            return a;
         }
         private Mat calculateDistanceTransformation(Mat image)
         {
             CvInvoke.DistanceTransform(image, image, null, DistType.User, 0);
             return image;
+        }
+        public Mat removeBackground(Mat originalMat, Mat skinMat)
+        {
+            Mat[] splitChannel = originalMat.Split();
+            foreach(Mat channel in splitChannel)
+            {
+                CvInvoke.BitwiseAnd(channel, skinMat, channel);
+            }
+            Mat filtered = new Mat();
+            VectorOfMat filterVector = new VectorOfMat(splitChannel);
+            CvInvoke.Merge(filterVector, filtered);
+            return filtered;
         }
 
 
