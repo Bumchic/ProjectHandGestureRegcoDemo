@@ -83,23 +83,23 @@ public class SignRecognizer
         Mat inputDescriptor = analyzer.findInterestPoints(inputImage);
         Matcher.KnnMatch(inputDescriptor, matchArray, 2);
         int[] imgCount = new int[DescriptorData.Count];
-        for (int i = 0; i < matchArray.Size; i++)
-        {
-            for (int j = 0; j < matchArray[i].Size; j++)
-            {
-                Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
-            }
-        }
-        VectorOfDMatch goodmatches = new VectorOfDMatch();
         //for (int i = 0; i < matchArray.Size; i++)
         //{
-        //    double distance1 = matchArray[i][0].Distance;
-        //    double distance2 = matchArray[i][1].Distance;
-        //    if (distance1 < distance2 * 0.8)
+        //    for (int j = 0; j < matchArray[i].Size; j++)
         //    {
-        //        goodmatches.Push(matchArray[i]);
+        //        Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
         //    }
         //}
+        VectorOfDMatch goodmatches = new VectorOfDMatch();
+        for (int i = 0; i < matchArray.Size; i++)
+        {
+            double distance1 = matchArray[i][0].Distance;
+            double distance2 = matchArray[i][1].Distance;
+            if (distance1 < distance2 * 0.8)
+            {
+                goodmatches.Push(matchArray[i]);
+            }
+        }
         for (int i = 0; i < goodmatches.Size; i++)
         {
             Debug.WriteLine($"{i}: {goodmatches[i].Distance} {goodmatches[i].ImgIdx}");
