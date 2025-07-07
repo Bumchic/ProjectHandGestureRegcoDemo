@@ -123,7 +123,7 @@ namespace HandRegcoDemo0.ViewModels
         {
             for (int i = 0; i < keypoints.Length; i++)
             {
-                CvInvoke.DrawMarker(img, Point.Round(keypoints[i].Point), red.MCvScalar, MarkerTypes.TriangleUp, 20, 10);
+                CvInvoke.DrawMarker(img, Point.Round(keypoints[i].Point), red.MCvScalar, MarkerTypes.TriangleUp, 20, 2);
             }
             return img;
         }

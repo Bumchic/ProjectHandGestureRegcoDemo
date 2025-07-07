@@ -16,12 +16,13 @@ using System.Drawing;
 using Emgu.CV.Flann;
 using System.Windows.Media;
 using FluentAvalonia.Core;
+using HarfBuzzSharp;
 
 public class SignRecognizer
 {
     private readonly List<float[]> huData = new();
     private List<Mat> DescriptorData = new List<Mat>();
-    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming2);
+    private BFMatcher Matcher = new BFMatcher(DistanceType.Hamming);
     private readonly List<int> labels = new();
     private readonly Dictionary<int, string> labelMap = new();
     private KNearest knn;
@@ -80,20 +81,37 @@ public class SignRecognizer
         HandShapeAnalyzer analyzer = new HandShapeAnalyzer();
         VectorOfVectorOfDMatch matchArray = new VectorOfVectorOfDMatch();
         Mat inputDescriptor = analyzer.findInterestPoints(inputImage);
-        Matcher.KnnMatch(inputDescriptor, matchArray, 1);
+        Matcher.KnnMatch(inputDescriptor, matchArray, 2);
         int[] imgCount = new int[DescriptorData.Count];
+        for (int i = 0; i < matchArray.Size; i++)
+        {
+            for (int j = 0; j < matchArray[i].Size; j++)
+            {
+                Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
+            }
+        }
+        VectorOfDMatch goodmatches = new VectorOfDMatch();
         //for (int i = 0; i < matchArray.Size; i++)
         //{
-        //    for (int j = 0; j < matchArray[i].Size; j++)
+        //    double distance1 = matchArray[i][0].Distance;
+        //    double distance2 = matchArray[i][1].Distance;
+        //    if (distance1 < distance2 * 0.8)
         //    {
-        //        Debug.WriteLine($"{i} {j}: {matchArray[i][j].Distance} {matchArray[i][j].ImgIdx}");
+        //        goodmatches.Push(matchArray[i]);
         //    }
         //}
-        for (int i=0; i<matchArray.Size; i++)
+        for (int i = 0; i < goodmatches.Size; i++)
         {
-            if(matchArray[i][0].Distance < 5)
-                imgCount[matchArray[i][0].ImgIdx] += 1; 
+            Debug.WriteLine($"{i}: {goodmatches[i].Distance} {goodmatches[i].ImgIdx}");
+            imgCount[goodmatches[i].ImgIdx] += 1;
         }
+        //for (int i=0; i<matchArray.Size; i++)
+        //{
+        //    for(int j=0; j < matchArray[i].Size; i++)
+        //    {
+        //        imgCount[matchArray[i][j].ImgIdx] += 1;
+        //    }
+        //}
         int highest = imgCount.IndexOf(imgCount.Max());
         int predictedId = highest;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";

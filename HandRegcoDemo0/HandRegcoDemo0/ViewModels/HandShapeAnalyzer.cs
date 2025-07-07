@@ -20,7 +20,7 @@ namespace HandRegcoDemo0.ViewModels
         private readonly Rgba red = new Rgba(0, 0, 255, 255);
         private readonly Rgba green = new Rgba(0, 255, 0, 255);
         private readonly Rgba White = new Rgba(255, 255, 255, 255);
-        private readonly int MaxFeature = 2000;
+        private readonly int MaxFeature = 600;
         public VectorOfPoint FindLargestContour(Mat skinMask)
         {
             ContourHelper contourHelper = new ContourHelper();
@@ -209,7 +209,7 @@ namespace HandRegcoDemo0.ViewModels
             {
                 OriginalColorMat = new Utils.Segmentation.SkinSegmenter().DetectSkinVer1(OriginalColorMat);
             }
-            ORB orb = new ORB(numberOfFeatures: MaxFeature, WTK_A: 4, edgeThreshold: 0);
+            ORB orb = new ORB(numberOfFeatures: MaxFeature, edgeThreshold: 0);
             Mat Descriptor = new Mat();
             if(contour is not null)
             {

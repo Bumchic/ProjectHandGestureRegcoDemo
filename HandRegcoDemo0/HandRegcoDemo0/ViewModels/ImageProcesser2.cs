@@ -84,8 +84,8 @@ namespace HandRegcoDemo0.ViewModels
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
             SkinSegmenter skinSegmenter = new SkinSegmenter();
-            Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
-            //Mat originalMat = test();
+            //Mat originalMat = imageConverter.ConvertToMat(softwareBitmap);
+            Mat originalMat = test();
             Mat skinMat = DetectSkinFromImage(originalMat);
             
             //originalMat = removeBackground(originalMat, skinMat);
@@ -107,7 +107,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat test()
         {
-            Mat a = CvInvoke.Imread("DataHand\\D.jpg", ImreadModes.Unchanged);
+            Mat a = CvInvoke.Imread("DataHand\\H.jpg", ImreadModes.Unchanged);
             CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
             return a;
         }
