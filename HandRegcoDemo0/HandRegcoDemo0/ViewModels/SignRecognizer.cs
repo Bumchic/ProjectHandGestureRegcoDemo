@@ -102,7 +102,7 @@ public class SignRecognizer
         }
         for (int i = 0; i < goodmatches.Size; i++)
         {
-            Debug.WriteLine($"{i}: {goodmatches[i].Distance} {goodmatches[i].ImgIdx}");
+            //Debug.WriteLine($"{i}: {goodmatches[i].Distance} {goodmatches[i].ImgIdx}");
             imgCount[goodmatches[i].ImgIdx] += 1;
         }
         //for (int i=0; i<matchArray.Size; i++)
@@ -113,6 +113,7 @@ public class SignRecognizer
         //    }
         //}
         int highest = imgCount.IndexOf(imgCount.Max());
+        highest = labels[highest];
         int predictedId = highest;
         return labelMap.ContainsKey(predictedId) ? labelMap[predictedId] : "?";
     }

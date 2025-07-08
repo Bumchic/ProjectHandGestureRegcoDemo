@@ -107,7 +107,7 @@ namespace HandRegcoDemo0.ViewModels
         }
         public Mat test()
         {
-            Mat a = CvInvoke.Imread("DataHand\\H.jpg", ImreadModes.Unchanged);
+            Mat a = CvInvoke.Imread("DataHand\\U.jpg", ImreadModes.Unchanged);
             CvInvoke.CvtColor(a, a, ColorConversion.Bgr2Bgra);
             return a;
         }
