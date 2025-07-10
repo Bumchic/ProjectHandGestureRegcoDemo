@@ -153,7 +153,9 @@ namespace HandRegcoDemo0.ViewModels
                     softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                 }
                 BitmapImage = SoftwareBitmapToImage(softwareBitmap);
-                ProcessedBitmapImage = ProcessMat(softwareBitmap);
+
+                string recognizedWord;
+                ProcessedBitmapImage = _imageProcessor.ProcessMat(softwareBitmap, out recognizedWord);
                 //SkinMaskBitmapImage = DistanceTransformTest(softwareBitmap);
             }
         }
@@ -174,7 +176,7 @@ namespace HandRegcoDemo0.ViewModels
                 return bitmap;
             }
         }
-        public WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
+        /*pub*//*lic WriteableBitmap ProcessMat(SoftwareBitmap softwareBitmap)
         {
             HandShapeAnalyzer handShapeAnalyzer = new HandShapeAnalyzer();
             ImageConverter imageConverter = new ImageConverter();
@@ -223,7 +225,7 @@ namespace HandRegcoDemo0.ViewModels
             return imageConverter.MatToWriteableBitmap(inputMat);
             //ProcessedBitmapImage = _imageProcessor.MatToWriteableBitmap(processedMat);
 
-        }
+        }*/
         //public WriteableBitmap DistanceTransformTest(SoftwareBitmap softwareBitmap)
         //{
         //    var inputMat = _imageProcessor.ConvertToMat(softwareBitmap);
