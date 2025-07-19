@@ -42,131 +42,112 @@
 	</Design.DataContext>
 
 	<Grid Margin="10">
-		<ScrollViewer 
-			VerticalScrollBarVisibility="Auto"
-			HorizontalScrollBarVisibility="Disabled">
-			<StackPanel Spacing="12" MaxWidth="700" 
-						HorizontalAlignment="Center">
+		<Grid RowDefinitions="Auto,*,Auto">
 
-				<!-- Header Section (Font thu nhỏ, chữ màu trắng hồng nhạt) -->
-				<StackPanel HorizontalAlignment="Center" Spacing="4">
+			<!-- Header Section -->
+			<StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="4" Margin="0,0,0,12">
+				<Border Background="#00000040" 
+						CornerRadius="8" 
+						Padding="8,4">
 					<TextBlock Text="🎥 Camera Control"
 							   FontSize="20"
 							   FontWeight="Bold"
-							   Foreground="#fdf0f5"
+							   Foreground="White"
 							   HorizontalAlignment="Center"
 							   TextAlignment="Center"/>
+				</Border>
 
+				<Border Background="#00000030" 
+						CornerRadius="6" 
+						Padding="6,3">
 					<TextBlock Text="Real-time Hand Detection"
 							   FontSize="12"
 							   FontWeight="Light"
-							   Foreground="#fdf0f5"
-							   Opacity="0.8"
+							   Foreground="White"
+							   Opacity="0.9"
 							   HorizontalAlignment="Center"
 							   TextAlignment="Center"/>
-				</StackPanel>
+				</Border>
+			</StackPanel>
 
-				<!-- Image Display Section: 3 ảnh cùng hàng -->
-				<Grid ColumnDefinitions="*,20,*,20,*" RowDefinitions="Auto">
+			<!-- Image Display Section: 2 ảnh cùng hàng, tự động scale -->
+			<Grid Grid.Row="1" ColumnDefinitions="*,30,*" Margin="0,0,0,12">
 
-					<!-- Original Photo -->
-					<StackPanel Grid.Column="0" Spacing="8">
+				<!-- Original Photo - Auto-resize -->
+				<StackPanel Grid.Column="0" Spacing="8">
+					<Border Background="#00000030" 
+							CornerRadius="6" 
+							Padding="8,4" 
+							HorizontalAlignment="Center">
 						<TextBlock Text="📷 Original Image"
 								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
+								   FontSize="16"
+								   Foreground="White"
 								   HorizontalAlignment="Center"/>
+					</Border>
 
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder">
-							<Image Source="{Binding Path=BitmapImage}"
-								   Name="OriginalImageControl"
-								   MaxWidth="513"
-								   MaxHeight="432"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
+					<Border BorderThickness="3"
+							CornerRadius="12"
+							Background="#FFFFFF10"
+							Classes="ImageBorder">
+						<Image Source="{Binding Path=BitmapImage}"
+							   Name="OriginalImageControl"
+							   Stretch="Uniform"
+							   Margin="12"/>
+					</Border>
+				</StackPanel>
 
-					<!-- Skin Mask Image -->
-					<StackPanel Grid.Column="2" Spacing="8">
-						<TextBlock Text="✋ Skin Mask Detection"
-								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
-								   HorizontalAlignment="Center"/>
-
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder"
-								HorizontalAlignment="Center">
-							<Image Source="{Binding Path=SkinMaskBitmapImage}"
-								   Name="IFrameReaderImageControl"
-								   MaxWidth="380"
-								   MaxHeight="320"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
-
-					<!-- Processed Photo -->
-					<StackPanel Grid.Column="4" Spacing="8">
+				<!-- Processed Photo - Auto-resize -->
+				<StackPanel Grid.Column="2" Spacing="8">
+					<Border Background="#00000030" 
+							CornerRadius="6" 
+							Padding="8,4" 
+							HorizontalAlignment="Center">
 						<TextBlock Text="🔍 Processed Image"
 								   FontWeight="Bold"
-								   FontSize="14"
-								   Foreground="#fdf0f5"
+								   FontSize="16"
+								   Foreground="White"
 								   HorizontalAlignment="Center"/>
-						<Border Background="#AA000000" CornerRadius="8" Padding="8,4" 
-								HorizontalAlignment="Center" Margin="0,4,0,0" Width="180">
-							<TextBlock Text="{Binding RecognizedSign}"
-									   FontSize="28"
-									   FontWeight="Bold"
-									   Foreground="White"
-									   TextAlignment="Center"/>
-						</Border>
+					</Border>
 
+					<Border BorderThickness="3"
+							CornerRadius="12"
+							Background="#FFFFFF10"
+							Classes="ImageBorder">
+						<Image Source="{Binding Path=ProcessedBitmapImage}"
+							   Name="ProcessedImageControl"
+							   Stretch="Uniform"
+							   Margin="12"/>
+					</Border>
+				</StackPanel>
 
+			</Grid>
 
-						<Border BorderThickness="3"
-								CornerRadius="12"
-								Background="#FFFFFF10"
-								Classes="ImageBorder">
-							<Image Source="{Binding Path=ProcessedBitmapImage}"
-								   Name="ProcessedImageControl"
-								   MaxWidth="380"
-								   MaxHeight="320"
-								   Stretch="Uniform"
-								   Margin="8"/>
-						</Border>
-					</StackPanel>
+			<!-- Bottom Controls Section -->
+			<StackPanel Grid.Row="2" Spacing="12" HorizontalAlignment="Center">
 
-				</Grid>
-
-				<!-- Status Section (Thu nhỏ font, padding) -->
-				<Border Background="#FFFFFF15"
+				<!-- Status Section -->
+				<Border Background="#00000030"
 						CornerRadius="12"
 						Padding="10">
 					<StackPanel Spacing="6">
 						<TextBlock Text="📊 Status"
 								   FontSize="12"
 								   FontWeight="SemiBold"
-								   Foreground="#fdf0f5"
+								   Foreground="White"
 								   HorizontalAlignment="Center"/>
 
 						<TextBlock Text="Ready for hand detection..."
 								   FontSize="10"
-								   Foreground="#fdf0f5"
-								   Opacity="0.8"
+								   Foreground="White"
+								   Opacity="0.9"
 								   HorizontalAlignment="Center"
 								   TextAlignment="Center"/>
 					</StackPanel>
 				</Border>
 
-				<!-- Camera Control Section - thu nhỏ hơn nữa -->
-				<Border Background="#FFFFFF15"
+				<!-- Camera Control Section -->
+				<Border Background="#00000030"
 						CornerRadius="12"
 						Padding="6"
 						MaxWidth="280">
@@ -174,7 +155,7 @@
 						<TextBlock Text="Camera Control"
 								   FontSize="10"
 								   FontWeight="Medium"
-								   Foreground="#fdf0f5"
+								   Foreground="White"
 								   HorizontalAlignment="Center"/>
 
 						<!-- Start Camera Button -->
@@ -198,7 +179,7 @@
 							<TextBlock Text="Camera Device"
 									   FontSize="9"
 									   FontWeight="Medium"
-									   Foreground="#fdf0f5"
+									   Foreground="White"
 									   HorizontalAlignment="Center"/>
 
 							<ComboBox ItemsSource="{Binding Path=cameraCombobox}"
@@ -206,7 +187,7 @@
 									  Name="DeviceChoices"
 									  Width="140"
 									  Height="26"
-									  Background="#FFFFFF90"
+									  Background="White"
 									  Foreground="#333333"
 									  FontSize="9"
 									  CornerRadius="16"
@@ -217,6 +198,6 @@
 				</Border>
 
 			</StackPanel>
-		</ScrollViewer>
+		</Grid>
 	</Grid>
 </Window>
